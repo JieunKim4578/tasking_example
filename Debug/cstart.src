@@ -1,0 +1,4252 @@
+	; Module start
+	.compiler_version	"TASKING VX-toolset for TriCore: C compiler v6.3r1 Build 19041558 SN 08076959"
+	.compiler_invocation	"ctc --dep-file=.cstart.o.d --fp-model=c,f,l,n,r,S,T,z -D__CPU__=tc29x -D__CPU_TC29X__ --core=tc1.6.x --iso=11 -ID:\\Projects\\workspace_ctc_v6.3r1\\example -I../my_header -g2 --make-target=cstart.o -t4 --language=-gcc,-volatile,+strings,-kanji --default-near-size=8 -O2 --default-a1-size=0 --default-a0-size=0 --source --align=0 --compact-max-size=200 --switch=auto --error-limit=42 -o cstart.src ..\\cstart.c"
+	.compiler_name		"ctc"
+	;source	'..\\cstart.c'
+
+	
+$TC16X
+	
+	.sdecl	'.text.cstart._endinit_clear',code,cluster('_endinit_clear')
+	.sect	'.text.cstart._endinit_clear'
+	.align	2
+	
+	.global	_endinit_clear
+
+; ..\cstart.c	     1  /**************************************************************************
+; ..\cstart.c	     2  **                                                                        *
+; ..\cstart.c	     3  **  FILE        :  cstart.c                                               *
+; ..\cstart.c	     4  **                                                                        *
+; ..\cstart.c	     5  **  DESCRIPTION :                                                         *
+; ..\cstart.c	     6  **      The system startup code initializes the processor's registers     *
+; ..\cstart.c	     7  **      and the application C variables.                                  *
+; ..\cstart.c	     8  **                                                                        *
+; ..\cstart.c	     9  **  Copyright 1996-2019 TASKING BV                                        *
+; ..\cstart.c	    10  **                                                                        *
+; ..\cstart.c	    11  **************************************************************************/
+; ..\cstart.c	    12  
+; ..\cstart.c	    13  #include <stdlib.h>
+; ..\cstart.c	    14  #include <stdbool.h>
+; ..\cstart.c	    15  
+; ..\cstart.c	    16  #pragma  nomisrac               /* disable MISRA-C checking */
+; ..\cstart.c	    17  #include "cstart.h"             /* include configuration */
+; ..\cstart.c	    18  
+; ..\cstart.c	    19  #ifdef __CPU__
+; ..\cstart.c	    20  #include __SFRFILE__(__CPU__)
+; ..\cstart.c	    21  #endif
+; ..\cstart.c	    22  
+; ..\cstart.c	    23  #if defined _REGTC1130_H  || defined _REGTC1164_H || defined _REGTC1166_H || \ 
+; ..\cstart.c	    24      defined _REGTC1762_H  || defined _REGTC1764_H || defined _REGTC1766_H || \ 
+; ..\cstart.c	    25      defined _REGTC1766B_H || defined _REGTC1792_H || defined _REGTC1796_H || \ 
+; ..\cstart.c	    26      defined _REGTC1796B_H || defined _REGUSERDEF13_H
+; ..\cstart.c	    27  #  define       _TC13
+; ..\cstart.c	    28  #  define       _CORES  1
+; ..\cstart.c	    29  #endif
+; ..\cstart.c	    30  
+; ..\cstart.c	    31  #if defined _REGTC1167_H || defined _REGTC1184_H || defined _REGTC1197_H || \ 
+; ..\cstart.c	    32      defined _REGTC1337_H || defined _REGTC1367_H || defined _REGTC1387_H || \ 
+; ..\cstart.c	    33      defined _REGTC1724_H || defined _REGTC1728_H || defined _REGTC1736_H || \ 
+; ..\cstart.c	    34      defined _REGTC1738_H || defined _REGTC1746_H || defined _REGTC1767_H || \ 
+; ..\cstart.c	    35      defined _REGTC1768_H || defined _REGTC1782_H || defined _REGTC1784_H || \ 
+; ..\cstart.c	    36      defined _REGTC1797_H || defined _REGUSERDEF131_H
+; ..\cstart.c	    37  #  define       _TC131
+; ..\cstart.c	    38  #  define       _CORES  1
+; ..\cstart.c	    39  #endif
+; ..\cstart.c	    40  
+; ..\cstart.c	    41  #if defined _REGTC1748_H || defined _REGTC1791_H || defined _REGTC1793_H || \ 
+; ..\cstart.c	    42      defined _REGTC1798_H || defined _REGUSERDEF16_H
+; ..\cstart.c	    43  #  define       _TC16
+; ..\cstart.c	    44  #  define       _CORES  1
+; ..\cstart.c	    45  #endif
+; ..\cstart.c	    46  
+; ..\cstart.c	    47  #if defined _REGTC21X_H || defined _REGTC22X_H || defined _REGTC23X_H || defined _REGTC23X_ADAS_H
+; ..\cstart.c	    48  #  define       _TC16X
+; ..\cstart.c	    49  #  define       _CORES  1
+; ..\cstart.c	    50  #endif
+; ..\cstart.c	    51  
+; ..\cstart.c	    52  #if defined _REGTC26X_H || defined _REGTC26XB_H
+; ..\cstart.c	    53  #  define       _TC16X
+; ..\cstart.c	    54  #  define       _TC16XB
+; ..\cstart.c	    55  #  define       _XC800
+; ..\cstart.c	    56  #  define       _REGTC26
+; ..\cstart.c	    57  #  define       _CORES  2
+; ..\cstart.c	    58  #endif
+; ..\cstart.c	    59  
+; ..\cstart.c	    60  #if defined _REGTC27X_H || defined _REGTC27XB_H || defined _REGTC27XC_H || defined _REGTC27XD_H
+; ..\cstart.c	    61  #  define       _TC16X
+; ..\cstart.c	    62  #  define       _TC16XB
+; ..\cstart.c	    63  #  define       _CORES  3
+; ..\cstart.c	    64  #endif
+; ..\cstart.c	    65  
+; ..\cstart.c	    66  #if defined _REGTC29X_H || defined _REGTC29XB_H
+; ..\cstart.c	    67  #  define       _TC16X
+; ..\cstart.c	    68  #  define       _TC16XB
+; ..\cstart.c	    69  #  define       _CORES  3
+; ..\cstart.c	    70  #endif
+; ..\cstart.c	    71  
+; ..\cstart.c	    72  #if defined _REGUSERDEF16X_H
+; ..\cstart.c	    73  #  define       _TC16X
+; ..\cstart.c	    74  #  define       _TC16XB
+; ..\cstart.c	    75  #  define       _CORES  3
+; ..\cstart.c	    76  #endif
+; ..\cstart.c	    77  
+; ..\cstart.c	    78  #if defined _REGTC35X_H || defined _REGTC37X_H
+; ..\cstart.c	    79  #  define       _TC162
+; ..\cstart.c	    80  #  define       _XC800
+; ..\cstart.c	    81  #  define       _CORES  3
+; ..\cstart.c	    82  #endif
+; ..\cstart.c	    83  
+; ..\cstart.c	    84  #if defined _REGTC36X_H
+; ..\cstart.c	    85  #  define       _TC162
+; ..\cstart.c	    86  #  define       _XC800
+; ..\cstart.c	    87  #  define       _CORES  2
+; ..\cstart.c	    88  #endif
+; ..\cstart.c	    89  
+; ..\cstart.c	    90  #if defined _REGTC38X_H
+; ..\cstart.c	    91  #  define       _TC162
+; ..\cstart.c	    92  #  define       _XC800
+; ..\cstart.c	    93  #  define       _CORES  4
+; ..\cstart.c	    94  #endif
+; ..\cstart.c	    95  
+; ..\cstart.c	    96  #if defined _REGTC39X_H || defined _REGTC39XB_H
+; ..\cstart.c	    97  #  define       _TC162
+; ..\cstart.c	    98  #  define       _XC800
+; ..\cstart.c	    99  #  define       _CORES  6
+; ..\cstart.c	   100  #endif
+; ..\cstart.c	   101  
+; ..\cstart.c	   102  #if defined _REGUSERDEF162_H
+; ..\cstart.c	   103  #  define       _TC162
+; ..\cstart.c	   104  #  define       _CORES  6
+; ..\cstart.c	   105  #endif
+; ..\cstart.c	   106  
+; ..\cstart.c	   107  #pragma weak   exit
+; ..\cstart.c	   108  #pragma extern _Exit
+; ..\cstart.c	   109  #pragma profiling off                           /* prevent profiling information on cstart */
+; ..\cstart.c	   110  #pragma tradeoff 4                              /* preset tradeoff level (for size) */
+; ..\cstart.c	   111  #pragma runtime BCM                             /* disable runtime error checking for cstart */
+; ..\cstart.c	   112  #pragma immediate_in_code                       /* no external ROM access before bus configuration */
+; ..\cstart.c	   113  
+; ..\cstart.c	   114  #if __USE_ARGC_ARGV
+; ..\cstart.c	   115  #pragma noclear                                 /* bss clearing not before cinit */
+; ..\cstart.c	   116  static char argcv[__ARGCV_BUFSIZE] __align(4);
+; ..\cstart.c	   117  #pragma clear
+; ..\cstart.c	   118  extern int _argcv( const char *, size_t );
+; ..\cstart.c	   119  #endif
+; ..\cstart.c	   120  
+; ..\cstart.c	   121  /* linker definitions */
+; ..\cstart.c	   122  extern __far void _lc_ue_ustack[];      /* user stack end */
+; ..\cstart.c	   123  extern __far void _lc_ue_istack[];      /* interrupt stack end */
+; ..\cstart.c	   124  extern __far void _lc_u_int_tab[];      /* interrupt table */
+; ..\cstart.c	   125  extern __far void _lc_u_trap_tab[];     /* trap table */
+; ..\cstart.c	   126  extern __far void _SMALL_DATA_[];       /* centre of A0 addressable area */
+; ..\cstart.c	   127  extern __far void _LITERAL_DATA_[];     /* centre of A1 addressable area */
+; ..\cstart.c	   128  extern __far void _A8_DATA_[];          /* centre of A8 addressable area */
+; ..\cstart.c	   129  extern __far void _A9_DATA_[];          /* centre of A9 addressable area */
+; ..\cstart.c	   130  
+; ..\cstart.c	   131  /* external functions */
+; ..\cstart.c	   132  #if __C_INIT
+; ..\cstart.c	   133  extern void _c_init(void);              /* C initialization function */
+; ..\cstart.c	   134  #endif
+; ..\cstart.c	   135  #ifdef __CALL_INIT
+; ..\cstart.c	   136  extern void _call_init(void);           /* call a user function before main() */
+; ..\cstart.c	   137  #endif
+; ..\cstart.c	   138  #ifdef _CALL_ENDINIT
+; ..\cstart.c	   139  extern void _endinit(void);             /* call a user function with protection switched off */
+; ..\cstart.c	   140  #endif
+; ..\cstart.c	   141  
+; ..\cstart.c	   142  /* local functions */
+; ..\cstart.c	   143  static void __noinline__ __noreturn__ __jump__ __init_sp( void );
+; ..\cstart.c	   144  static void __noinline__ __noreturn__ __jump__ _start( void );
+; ..\cstart.c	   145  
+; ..\cstart.c	   146  #if ( defined _XC800 )
+; ..\cstart.c	   147  #if __XC800_INIT
+; ..\cstart.c	   148  static void _xc800_init ( void );
+; ..\cstart.c	   149  #endif
+; ..\cstart.c	   150  #endif
+; ..\cstart.c	   151  
+; ..\cstart.c	   152  /* library references */
+; ..\cstart.c	   153  #pragma extern main
+; ..\cstart.c	   154  extern int main( int argc, char *argv[] );
+; ..\cstart.c	   155  
+; ..\cstart.c	   156  /* endinit types */
+; ..\cstart.c	   157  typedef enum
+; ..\cstart.c	   158  {
+; ..\cstart.c	   159          _ENDINIT_DISABLE,
+; ..\cstart.c	   160          _ENDINIT_ENABLE
+; ..\cstart.c	   161  }       _endinit_t;
+; ..\cstart.c	   162  
+; ..\cstart.c	   163  
+; ..\cstart.c	   164  /*
+; ..\cstart.c	   165   *      inlining is required for endinit_set and safety_endinit_set,
+; ..\cstart.c	   166   *      because the CSA list is not ready to support function calls.
+; ..\cstart.c	   167   */
+; ..\cstart.c	   168  #ifdef inline
+; ..\cstart.c	   169  #undef inline
+; ..\cstart.c	   170  #endif
+; ..\cstart.c	   171  
+; ..\cstart.c	   172  static void inline endinit_set(_endinit_t endinit_value);
+; ..\cstart.c	   173  
+; ..\cstart.c	   174  /* external interface to endinit_set */
+; ..\cstart.c	   175  extern void _endinit_clear(void) { endinit_set(_ENDINIT_DISABLE); }
+; Function _endinit_clear
+.L7:
+_endinit_clear:	.type	func
+
+; ..\cstart.c	   176  extern void _endinit_set  (void) { endinit_set(_ENDINIT_ENABLE); }
+; ..\cstart.c	   177  
+; ..\cstart.c	   178  #if __PROF_ENABLE__
+; ..\cstart.c	   179  extern void __prof_init( void );
+; ..\cstart.c	   180  #endif
+; ..\cstart.c	   181  
+; ..\cstart.c	   182  #if __CLOCKS_PER_SEC_INIT
+; ..\cstart.c	   183  static void setclockpersec( void );
+; ..\cstart.c	   184  extern unsigned long long setfoschz( unsigned long long );
+; ..\cstart.c	   185  #endif
+; ..\cstart.c	   186  
+; ..\cstart.c	   187  #ifdef __RM_INIT
+; ..\cstart.c	   188  #if __RM_INIT
+; ..\cstart.c	   189  #include <fenv.h>
+; ..\cstart.c	   190  #endif
+; ..\cstart.c	   191  #endif
+; ..\cstart.c	   192  
+; ..\cstart.c	   193  #if ( defined _TC16X || defined _TC162 )
+; ..\cstart.c	   194  #define WDT_CON0        SCU_WDTCPU0CON0
+; ..\cstart.c	   195  #define WDT_CON1        SCU_WDTCPU0CON1
+; ..\cstart.c	   196  
+; ..\cstart.c	   197  static void inline safety_endinit_set(_endinit_t endinit_value);
+; ..\cstart.c	   198  
+; ..\cstart.c	   199  /* external interface to endinit_set */
+; ..\cstart.c	   200  extern void _safety_endinit_clear(void) { safety_endinit_set(_ENDINIT_DISABLE); }
+; ..\cstart.c	   201  extern void _safety_endinit_set  (void) { safety_endinit_set(_ENDINIT_ENABLE); }
+; ..\cstart.c	   202  #endif
+; ..\cstart.c	   203  
+; ..\cstart.c	   204  /* Configure start TC1 ... TC5 */
+; ..\cstart.c	   205  #if     __START_INIT_TC1
+; ..\cstart.c	   206  #define __STADD_INIT_TC1        1       /* Initialize start address TC1 */
+; ..\cstart.c	   207  #define __HALT_INIT_TC1         1       /* Initialize HALT state of TC1 */
+; ..\cstart.c	   208  #define __HALT_VALUE_TC1        2       /* Reset HALT TC1 */
+; ..\cstart.c	   209  #else
+; ..\cstart.c	   210  #define __STADD_INIT_TC1        0
+; ..\cstart.c	   211  #define __HALT_INIT_TC1         0
+; ..\cstart.c	   212  #define __HALT_VALUE_TC1        0
+; ..\cstart.c	   213  #endif
+; ..\cstart.c	   214  #if     __START_INIT_TC2
+; ..\cstart.c	   215  #define __STADD_INIT_TC2        1       /* Initialize start address TC2 */
+; ..\cstart.c	   216  #define __HALT_INIT_TC2         1       /* Initialize HALT state of TC2 */
+; ..\cstart.c	   217  #define __HALT_VALUE_TC2        2       /* Reset HALT TC2 */
+; ..\cstart.c	   218  #else
+; ..\cstart.c	   219  #define __STADD_INIT_TC2        0
+; ..\cstart.c	   220  #define __HALT_INIT_TC2         0
+; ..\cstart.c	   221  #define __HALT_VALUE_TC2        0
+; ..\cstart.c	   222  #endif
+; ..\cstart.c	   223  #if     __START_INIT_TC3
+; ..\cstart.c	   224  #define __STADD_INIT_TC3        1       /* Initialize start address TC3 */
+; ..\cstart.c	   225  #define __HALT_INIT_TC3         1       /* Initialize HALT state of TC3 */
+; ..\cstart.c	   226  #define __HALT_VALUE_TC3        2       /* Reset HALT TC3 */
+; ..\cstart.c	   227  #else
+; ..\cstart.c	   228  #define __STADD_INIT_TC3        0
+; ..\cstart.c	   229  #define __HALT_INIT_TC3         0
+; ..\cstart.c	   230  #define __HALT_VALUE_TC3        0
+; ..\cstart.c	   231  #endif
+; ..\cstart.c	   232  #if     __START_INIT_TC4
+; ..\cstart.c	   233  #define __STADD_INIT_TC4        1       /* Initialize start address TC4 */
+; ..\cstart.c	   234  #define __HALT_INIT_TC4         1       /* Initialize HALT state of TC4 */
+; ..\cstart.c	   235  #define __HALT_VALUE_TC4        2       /* Reset HALT TC4 */
+; ..\cstart.c	   236  #else
+; ..\cstart.c	   237  #define __STADD_INIT_TC4        0
+; ..\cstart.c	   238  #define __HALT_INIT_TC4         0
+; ..\cstart.c	   239  #define __HALT_VALUE_TC4        0
+; ..\cstart.c	   240  #endif
+; ..\cstart.c	   241  #if     __START_INIT_TC5
+; ..\cstart.c	   242  #define __STADD_INIT_TC5        1       /* Initialize start address TC5 */
+; ..\cstart.c	   243  #define __HALT_INIT_TC5         1       /* Initialize HALT state of TC5 */
+; ..\cstart.c	   244  #define __HALT_VALUE_TC5        2       /* Reset HALT TC5 */
+; ..\cstart.c	   245  #else
+; ..\cstart.c	   246  #define __STADD_INIT_TC5        0
+; ..\cstart.c	   247  #define __HALT_INIT_TC5         0
+; ..\cstart.c	   248  #define __HALT_VALUE_TC5        0
+; ..\cstart.c	   249  #endif
+; ..\cstart.c	   250  
+; ..\cstart.c	   251  #if ( defined _TC162 )
+; ..\cstart.c	   252  #define __CLR_BHALT             0;
+; ..\cstart.c	   253  #endif
+; ..\cstart.c	   254  
+; ..\cstart.c	   255  #if ( defined _TC16XB || defined _TC162 )
+; ..\cstart.c	   256  #if (__HALT_INIT_TC1 && (__HALT_VALUE_TC1 & 0x2)) || (__HALT_INIT_TC2 && (__HALT_VALUE_TC2 & 0x2)) || (__HALT_INIT_TC3 && (__HALT_VALUE_TC3 & 0x2)) || (__HALT_INIT_TC4 && (__HALT_VALUE_TC4 & 0x2)) || (__HALT_INIT_TC5 && (__HALT_VALUE_TC5 & 0x2))
+; ..\cstart.c	   257  #if __C_INIT || __CLOCKS_PER_SEC_INIT || __PROF_ENABLE__ || _CALL_ENDINIT || (defined __CALL_INIT)
+; ..\cstart.c	   258  /* c init semaphores */
+; ..\cstart.c	   259  #if ( defined _REGTC26 )
+; ..\cstart.c	   260  #define __AT_NOT_CACHED_MEMORY__
+; ..\cstart.c	   261  #else
+; ..\cstart.c	   262  #define __AT_NOT_CACHED_MEMORY__        __at(0x70000000)
+; ..\cstart.c	   263  #endif
+; ..\cstart.c	   264  #pragma noclear                                 /* bss clearing not before cinit */                          
+; ..\cstart.c	   265  unsigned int volatile __far __align(4)  _tcx_end_c_init __AT_NOT_CACHED_MEMORY__;       /* _tcx_end_c_init := 1 << core_id */
+; ..\cstart.c	   266  #pragma clear
+; ..\cstart.c	   267  #endif
+; ..\cstart.c	   268  #endif
+; ..\cstart.c	   269  #endif
+; ..\cstart.c	   270  
+; ..\cstart.c	   271  #if __USP_INIT
+; ..\cstart.c	   272  /*
+; ..\cstart.c	   273   * Initialize a global variable used by the runtime stack overflow check.
+; ..\cstart.c	   274   * A small amount of space is reserved for the stack overflow handler.
+; ..\cstart.c	   275   * Since we only want to allocate the variable when the overflow check is
+; ..\cstart.c	   276   * enabled, we use a weak reference.
+; ..\cstart.c	   277   */
+; ..\cstart.c	   278  #if !defined(__CORE_TC13__) && !defined(__CORE_TC131__) && !defined(__CORE_TC16__)
+; ..\cstart.c	   279  __clone
+; ..\cstart.c	   280  #endif
+; ..\cstart.c	   281  extern __near void* __stack_limit;
+; ..\cstart.c	   282  #pragma weak __stack_limit
+; ..\cstart.c	   283  extern char _lc_ub_ustack[];
+; ..\cstart.c	   284  #define STACK_LIMIT     (_lc_ub_ustack + 64)
+; ..\cstart.c	   285  #endif
+; ..\cstart.c	   286  
+; ..\cstart.c	   287  /*********************************************************************************
+; ..\cstart.c	   288   * reset vector
+; ..\cstart.c	   289   *********************************************************************************/
+; ..\cstart.c	   290  
+; ..\cstart.c	   291  #pragma section code libc.reset
+; ..\cstart.c	   292  #pragma optimize g
+; ..\cstart.c	   293  void _START( void )
+; ..\cstart.c	   294  {
+; ..\cstart.c	   295          __init_sp();
+; ..\cstart.c	   296  }
+; ..\cstart.c	   297  #pragma optimize restore
+; ..\cstart.c	   298  #pragma section code restore
+; ..\cstart.c	   299  
+; ..\cstart.c	   300  /*********************************************************************************
+; ..\cstart.c	   301   * EBU boot configuration
+; ..\cstart.c	   302   *********************************************************************************/
+; ..\cstart.c	   303  #if defined EBU_BOOTCFG && defined __EBU_BOOTCFG_VALUE
+; ..\cstart.c	   304  #if __EBU_BOOTCFG_INIT
+; ..\cstart.c	   305  #pragma section farrom libc.ebu_bootcfg
+; ..\cstart.c	   306  const int __far _EBU_BOOTCFG __protect__  = __EBU_BOOTCFG_VALUE; /* locate at RESET + EBU_ALIGN */
+; ..\cstart.c	   307  #pragma section farrom restore
+; ..\cstart.c	   308  #endif
+; ..\cstart.c	   309  #endif
+; ..\cstart.c	   310  
+; ..\cstart.c	   311  /*********************************************************************************
+; ..\cstart.c	   312   * initialize stackpointer
+; ..\cstart.c	   313   *********************************************************************************/
+; ..\cstart.c	   314  
+; ..\cstart.c	   315  /*
+; ..\cstart.c	   316   * Disable the optimization for code compaction (reverse inlining),
+; ..\cstart.c	   317   * for initialization of the stackpointer.
+; ..\cstart.c	   318   */
+; ..\cstart.c	   319  #pragma optimize R
+; ..\cstart.c	   320  
+; ..\cstart.c	   321  static void __noinline__ __noreturn__ __jump__ __init_sp( void )
+; ..\cstart.c	   322  {
+; ..\cstart.c	   323          /* The initialization of the stackpointer is done in a seperate function, 
+; ..\cstart.c	   324             because it must be executed in a function which has no stack use.
+; ..\cstart.c	   325             
+; ..\cstart.c	   326             When a function uses a stack it will be updated at the start of the 
+; ..\cstart.c	   327             function. In this function, however, the stackpointer has an irrelevant
+; ..\cstart.c	   328             value at the start of the function. A starting value for the stackpointer
+; ..\cstart.c	   329             is determined and written in this function. The update to the 
+; ..\cstart.c	   330             stackpointer at the start of the function would therefore be undone.
+; ..\cstart.c	   331           */
+; ..\cstart.c	   332           
+; ..\cstart.c	   333          /* 
+; ..\cstart.c	   334           * CPU_TC.033 workaround:
+; ..\cstart.c	   335           * The stack pointers are aligned to quad-word boundary to workaround these 
+; ..\cstart.c	   336           * functional problems CPU_TC.033.
+; ..\cstart.c	   337           * Also the C compiler workaround for the appropriate CPU function problem
+; ..\cstart.c	   338           * need to be enabled with --silicon-bug=cpu-tc033, to align circular
+; ..\cstart.c	   339           * buffers on a quad-word boundary and to size all stack frames to an integral 
+; ..\cstart.c	   340           * number of quad-words.
+; ..\cstart.c	   341           */
+; ..\cstart.c	   342  #if      __CPU_TC033_INITIAL__
+; ..\cstart.c	   343  # define STACK_ALIGN    0xfffffff0
+; ..\cstart.c	   344  #else
+; ..\cstart.c	   345  # define STACK_ALIGN    0xfffffff8
+; ..\cstart.c	   346  #endif
+; ..\cstart.c	   347  
+; ..\cstart.c	   348          /* 
+; ..\cstart.c	   349           * Load user stack pointer.
+; ..\cstart.c	   350           * Disable this if not started from RESET vector. (E.g.
+; ..\cstart.c	   351           * ROM monitors require to keep in control of vectors)
+; ..\cstart.c	   352           */
+; ..\cstart.c	   353  #if  __USP_INIT
+; ..\cstart.c	   354          void * sp = (void *)((unsigned int)(_lc_ue_ustack) & STACK_ALIGN);
+; ..\cstart.c	   355          
+; ..\cstart.c	   356          __set_sp( sp );
+; ..\cstart.c	   357  #endif
+; ..\cstart.c	   358          _start();
+; ..\cstart.c	   359  }
+; ..\cstart.c	   360  
+; ..\cstart.c	   361  /*
+; ..\cstart.c	   362   * Restore the optimization options
+; ..\cstart.c	   363   */
+; ..\cstart.c	   364  #pragma optimize restore
+; ..\cstart.c	   365  
+; ..\cstart.c	   366  static void inline reset_psw( void )
+; ..\cstart.c	   367  {
+; ..\cstart.c	   368          unsigned int    value = 0x980;  /* Reset value */
+; ..\cstart.c	   369  
+; ..\cstart.c	   370          value |= (__CDC & 0x7f);        /* PSW.CDC call depth counter */
+; ..\cstart.c	   371  
+; ..\cstart.c	   372  #if __USER_STACK
+; ..\cstart.c	   373          value &= ~0x200;                /* clear PSW.IS */
+; ..\cstart.c	   374  #else
+; ..\cstart.c	   375          value |= 0x200;                 /* set PSW.IS */
+; ..\cstart.c	   376  #endif
+; ..\cstart.c	   377          __mtcr(PSW, value);
+; ..\cstart.c	   378  }
+; ..\cstart.c	   379  
+; ..\cstart.c	   380  /*********************************************************************************
+; ..\cstart.c	   381   * startup code
+; ..\cstart.c	   382   *********************************************************************************/
+; ..\cstart.c	   383  
+; ..\cstart.c	   384  static void __noinline__ __noreturn__ __jump__ _start( void )
+; ..\cstart.c	   385  {
+; ..\cstart.c	   386  
+; ..\cstart.c	   387  #if ( defined _TC16XB || defined _TC162 )
+; ..\cstart.c	   388  #if __STADD_INIT_TC1
+; ..\cstart.c	   389          /*
+; ..\cstart.c	   390           * Set start address of TC1
+; ..\cstart.c	   391           * Reset value is 0xAFFFC000
+; ..\cstart.c	   392           */
+; ..\cstart.c	   393  #ifdef __NO_VTC
+; ..\cstart.c	   394          extern void __noinline__ __noreturn__ __jump__ _lc_t_tc1___start_tc1_no_vtc( void );
+; ..\cstart.c	   395          CPU1_PC.U = (unsigned int)_lc_t_tc1___start_tc1_no_vtc;
+; ..\cstart.c	   396  #else
+; ..\cstart.c	   397          extern void __noinline__ __noreturn__ __jump__ _start_tc1( void );
+; ..\cstart.c	   398          CPU1_PC.U = (unsigned int)_start_tc1;
+; ..\cstart.c	   399  #endif
+; ..\cstart.c	   400  #endif
+; ..\cstart.c	   401  #if __STADD_INIT_TC2 && _CORES > 2
+; ..\cstart.c	   402          /*
+; ..\cstart.c	   403           * Set start address of TC2
+; ..\cstart.c	   404           * Reset value is 0xAFFFC000
+; ..\cstart.c	   405           */
+; ..\cstart.c	   406  #ifdef __NO_VTC
+; ..\cstart.c	   407          extern void __noinline__ __noreturn__ __jump__ _lc_t_tc2___start_tc2_no_vtc( void );
+; ..\cstart.c	   408          CPU2_PC.U = (unsigned int)_lc_t_tc2___start_tc2_no_vtc;
+; ..\cstart.c	   409  #else
+; ..\cstart.c	   410          extern void __noinline__ __noreturn__ __jump__ _start_tc2( void );
+; ..\cstart.c	   411          CPU2_PC.U = (unsigned int)_start_tc2;
+; ..\cstart.c	   412  #endif
+; ..\cstart.c	   413  #endif
+; ..\cstart.c	   414  #if __STADD_INIT_TC3 && _CORES > 3
+; ..\cstart.c	   415          /*
+; ..\cstart.c	   416           * Set start address of TC3
+; ..\cstart.c	   417           * Reset value is 0xAFFFC000
+; ..\cstart.c	   418           */
+; ..\cstart.c	   419  #ifdef __NO_VTC
+; ..\cstart.c	   420          extern void __noinline__ __noreturn__ __jump__ _lc_t_tc3___start_tc3_no_vtc( void );
+; ..\cstart.c	   421          CPU3_PC.U = (unsigned int)_lc_t_tc3___start_tc3_no_vtc;
+; ..\cstart.c	   422  #else
+; ..\cstart.c	   423          extern void __noinline__ __noreturn__ __jump__ _start_tc3( void );
+; ..\cstart.c	   424          CPU3_PC.U = (unsigned int)_start_tc3;
+; ..\cstart.c	   425  #endif
+; ..\cstart.c	   426  #endif
+; ..\cstart.c	   427  #if __STADD_INIT_TC4 && _CORES > 4
+; ..\cstart.c	   428          /*
+; ..\cstart.c	   429           * Set start address of TC4
+; ..\cstart.c	   430           * Reset value is 0xAFFFC000
+; ..\cstart.c	   431           */
+; ..\cstart.c	   432  #ifdef __NO_VTC
+; ..\cstart.c	   433          extern void __noinline__ __noreturn__ __jump__ _lc_t_tc4___start_tc4_no_vtc( void );
+; ..\cstart.c	   434          CPU4_PC.U = (unsigned int)_lc_t_tc4___start_tc4_no_vtc;
+; ..\cstart.c	   435  #else
+; ..\cstart.c	   436          extern void __noinline__ __noreturn__ __jump__ _start_tc4( void );
+; ..\cstart.c	   437          CPU4_PC.U = (unsigned int)_start_tc4;
+; ..\cstart.c	   438  #endif
+; ..\cstart.c	   439  #endif
+; ..\cstart.c	   440  #if __STADD_INIT_TC5 && _CORES > 5
+; ..\cstart.c	   441          /*
+; ..\cstart.c	   442           * Set start address of TC5
+; ..\cstart.c	   443           * Reset value is 0xAFFFC000
+; ..\cstart.c	   444           */
+; ..\cstart.c	   445  #ifdef __NO_VTC
+; ..\cstart.c	   446          extern void __noinline__ __noreturn__ __jump__ _lc_t_tc5___start_tc5_no_vtc( void );
+; ..\cstart.c	   447          CPU5_PC.U = (unsigned int)_lc_t_tc5___start_tc5_no_vtc;
+; ..\cstart.c	   448  #else
+; ..\cstart.c	   449          extern void __noinline__ __noreturn__ __jump__ _start_tc5( void );
+; ..\cstart.c	   450          CPU5_PC.U = (unsigned int)_start_tc5;
+; ..\cstart.c	   451  #endif
+; ..\cstart.c	   452  #endif
+; ..\cstart.c	   453  
+; ..\cstart.c	   454  #if (__HALT_INIT_TC1 && (__HALT_VALUE_TC1 & 0x2)) || (__HALT_INIT_TC2 && (__HALT_VALUE_TC2 & 0x2)) || (__HALT_INIT_TC3 && (__HALT_VALUE_TC3 & 0x2)) || (__HALT_INIT_TC4 && (__HALT_VALUE_TC4 & 0x2)) || (__HALT_INIT_TC5 && (__HALT_VALUE_TC5 & 0x2))
+; ..\cstart.c	   455  #if __C_INIT || __CLOCKS_PER_SEC_INIT || __PROF_ENABLE__ || _CALL_ENDINIT || (defined __CALL_INIT)
+; ..\cstart.c	   456          /*
+; ..\cstart.c	   457           *      Clear end of c init semaphores for the cores that are released.
+; ..\cstart.c	   458           */
+; ..\cstart.c	   459  #if __HALT_INIT_TC1 && __HALT_VALUE_TC1==2
+; ..\cstart.c	   460  #define __TC1_END_C_INIT_MASK   0
+; ..\cstart.c	   461  #else
+; ..\cstart.c	   462  #define __TC1_END_C_INIT_MASK   1<<1
+; ..\cstart.c	   463  #endif
+; ..\cstart.c	   464  #if __HALT_INIT_TC2 && _CORES > 2 && __HALT_VALUE_TC2==2
+; ..\cstart.c	   465  #define __TC2_END_C_INIT_MASK   0
+; ..\cstart.c	   466  #else
+; ..\cstart.c	   467  #define __TC2_END_C_INIT_MASK   1<<2
+; ..\cstart.c	   468  #endif
+; ..\cstart.c	   469  #if __HALT_INIT_TC3 && _CORES > 3 && __HALT_VALUE_TC3==2
+; ..\cstart.c	   470  #define __TC3_END_C_INIT_MASK   0
+; ..\cstart.c	   471  #else
+; ..\cstart.c	   472  #define __TC3_END_C_INIT_MASK   1<<3
+; ..\cstart.c	   473  #endif
+; ..\cstart.c	   474  #if __HALT_INIT_TC4 && _CORES > 4 && __HALT_VALUE_TC4==2
+; ..\cstart.c	   475  #define __TC4_END_C_INIT_MASK   0
+; ..\cstart.c	   476  #else
+; ..\cstart.c	   477  #define __TC4_END_C_INIT_MASK   1<<4
+; ..\cstart.c	   478  #endif
+; ..\cstart.c	   479  #if __HALT_INIT_TC5 && _CORES > 5 && __HALT_VALUE_TC5==2
+; ..\cstart.c	   480  #define __TC5_END_C_INIT_MASK   0
+; ..\cstart.c	   481  #else
+; ..\cstart.c	   482  #define __TC5_END_C_INIT_MASK   1<<5
+; ..\cstart.c	   483  #endif
+; ..\cstart.c	   484          _tcx_end_c_init = __TC1_END_C_INIT_MASK|__TC2_END_C_INIT_MASK|__TC3_END_C_INIT_MASK|__TC4_END_C_INIT_MASK|__TC5_END_C_INIT_MASK;
+; ..\cstart.c	   485  #endif
+; ..\cstart.c	   486  #endif
+; ..\cstart.c	   487          /*
+; ..\cstart.c	   488           * A core can be released by resetting its halt state.
+; ..\cstart.c	   489           * HALT: 0 R:running W:unchanged
+; ..\cstart.c	   490           *       1 R:halted  W:unchanged
+; ..\cstart.c	   491           *       2 R:n.a.    W:reset halt
+; ..\cstart.c	   492           *       3 R:n.a.    W:set halt when debug enable
+; ..\cstart.c	   493           */
+; ..\cstart.c	   494  #if defined _TC162 && (__HALT_INIT_TC1 || __HALT_INIT_TC2 || __HALT_INIT_TC3)
+; ..\cstart.c	   495          safety_endinit_set(_ENDINIT_DISABLE);
+; ..\cstart.c	   496  #endif
+; ..\cstart.c	   497  
+; ..\cstart.c	   498  #if __HALT_INIT_TC1
+; ..\cstart.c	   499  #if ( defined _TC162 )
+; ..\cstart.c	   500          CPU1_SYSCON.B.BHALT=__CLR_BHALT;
+; ..\cstart.c	   501  #else
+; ..\cstart.c	   502          CPU1_DBGSR.B.HALT=__HALT_VALUE_TC1;
+; ..\cstart.c	   503  #endif
+; ..\cstart.c	   504  #endif
+; ..\cstart.c	   505  #if __HALT_INIT_TC2 && _CORES > 2
+; ..\cstart.c	   506  #if ( defined _TC162 )
+; ..\cstart.c	   507          CPU2_SYSCON.B.BHALT=__CLR_BHALT;
+; ..\cstart.c	   508  #else
+; ..\cstart.c	   509          CPU2_DBGSR.B.HALT=__HALT_VALUE_TC2;
+; ..\cstart.c	   510  #endif
+; ..\cstart.c	   511  #endif
+; ..\cstart.c	   512  #if __HALT_INIT_TC3 && _CORES > 3
+; ..\cstart.c	   513          CPU3_SYSCON.B.BHALT=__CLR_BHALT;
+; ..\cstart.c	   514  #endif
+; ..\cstart.c	   515  #if __HALT_INIT_TC4 && _CORES > 4
+; ..\cstart.c	   516          CPU4_SYSCON.B.BHALT=__CLR_BHALT;
+; ..\cstart.c	   517  #endif
+; ..\cstart.c	   518  #if __HALT_INIT_TC5 && _CORES > 5
+; ..\cstart.c	   519          CPU5_SYSCON.B.BHALT=__CLR_BHALT;
+; ..\cstart.c	   520  #endif
+; ..\cstart.c	   521  #endif
+; ..\cstart.c	   522  
+; ..\cstart.c	   523  #if defined _TC162 && (__HALT_INIT_TC1 || __HALT_INIT_TC2 || __HALT_INIT_TC3)
+; ..\cstart.c	   524          safety_endinit_set(_ENDINIT_ENABLE);
+; ..\cstart.c	   525  #endif
+; ..\cstart.c	   526  
+; ..\cstart.c	   527          /* Do a dsync before changing any of the csfr values, thus any previous
+; ..\cstart.c	   528           * background state gets flushed first. Required for applications that jump
+; ..\cstart.c	   529           * to the reset address.
+; ..\cstart.c	   530           */
+; ..\cstart.c	   531          __dsync();
+; ..\cstart.c	   532          
+; ..\cstart.c	   533          /* Set the PSW to its reset value in case of a warm start */
+; ..\cstart.c	   534          reset_psw();
+; ..\cstart.c	   535  
+; ..\cstart.c	   536          /* Set the PCXS and PCXO to its reset value in case of a warm start */
+; ..\cstart.c	   537          unsigned int pcxi = __mfcr(PCXI);
+; ..\cstart.c	   538          pcxi &= 0xfff00000;
+; ..\cstart.c	   539          __mtcr(PCXI, pcxi);
+; ..\cstart.c	   540  
+; ..\cstart.c	   541          /*
+; ..\cstart.c	   542           * Initialize Compatibility Control Register
+; ..\cstart.c	   543           *
+; ..\cstart.c	   544           * Core is 1.3.1
+; ..\cstart.c	   545           * bit 0 (COMPAT.PIE)
+; ..\cstart.c	   546           *      Program Integrity Error Compatibility
+; ..\cstart.c	   547           *      0B Errors handled by CPU.
+; ..\cstart.c	   548           *      1B Errors flagged off-core. TriCore 1.3 backwards compatibility.
+; ..\cstart.c	   549           * bit 1 (COMPAT.DIE)
+; ..\cstart.c	   550           *      Data Integrity Error Compatibility
+; ..\cstart.c	   551           *      0B Errors handled by CPU.
+; ..\cstart.c	   552           *      1B Errors flagged off-core. TriCore 1.3 backwards compatibility.
+; ..\cstart.c	   553           * bit 2 (COMPAT.BP)
+; ..\cstart.c	   554           *      Branch Predictor Compatibility
+; ..\cstart.c	   555           *      0B Bi-model branch prediction.
+; ..\cstart.c	   556           *      1B Static branch prediction. TriCore 1.3 backwards compatibility.
+; ..\cstart.c	   557           *
+; ..\cstart.c	   558           * Core is 1.3.1, 1.6 or 1.6.x
+; ..\cstart.c	   559           * bit 3 (COMPAT.RM)
+; ..\cstart.c	   560           *      Rounding Mode Compatibility
+; ..\cstart.c	   561           *      0B PSW.RM not restored by RET.
+; ..\cstart.c	   562           *      1B PSW.RM restored by RET. TriCore 1.3 backwards compatibility.
+; ..\cstart.c	   563           *
+; ..\cstart.c	   564           * Core is 1.6 or 1.6.x
+; ..\cstart.c	   565           * bit 4 (COMPAT.SP)
+; ..\cstart.c	   566           *      SYSCON Safety Protection Mode Compatibility
+; ..\cstart.c	   567           *      0B SYSCON[31:1] safety endinit protected.
+; ..\cstart.c	   568           *      1B SYSCON[31:1] not safety endinit protected (TC1.3 behavior).
+; ..\cstart.c	   569           */
+; ..\cstart.c	   570  #ifndef __CORE_TC13__
+; ..\cstart.c	   571  #ifdef __COMPAT
+; ..\cstart.c	   572  #if __COMPAT != 0xf
+; ..\cstart.c	   573  #ifdef __CORE_TC131__
+; ..\cstart.c	   574  #define __COMPAT_MASK   ~0xf
+; ..\cstart.c	   575  #else
+; ..\cstart.c	   576  #define __COMPAT_MASK   ~0x18
+; ..\cstart.c	   577  #endif
+; ..\cstart.c	   578          __mtcr(COMPAT, (__COMPAT_MASK|__COMPAT));
+; ..\cstart.c	   579  #endif
+; ..\cstart.c	   580  #endif
+; ..\cstart.c	   581  #endif
+; ..\cstart.c	   582          
+; ..\cstart.c	   583  #if ( defined _TC16X || defined _TC162)
+; ..\cstart.c	   584          /*
+; ..\cstart.c	   585           * Clear the ENDINIT bit in the WDTSCON0 register in order
+; ..\cstart.c	   586           * to disable the write-protection for safety-critical registers
+; ..\cstart.c	   587           * protected via the safety EndInit feature.
+; ..\cstart.c	   588           */
+; ..\cstart.c	   589          safety_endinit_set(_ENDINIT_DISABLE);
+; ..\cstart.c	   590          
+; ..\cstart.c	   591          /*
+; ..\cstart.c	   592           * Disable the safety watchdog if requested. Safety watchdog
+; ..\cstart.c	   593           * is enabled by default. The safety watchdog is disabled after
+; ..\cstart.c	   594           * ENDINIT is set by safety_endinit_set().
+; ..\cstart.c	   595           */       
+; ..\cstart.c	   596  #if __SAFETY_WATCHDOG_DISABLE
+; ..\cstart.c	   597          SCU_WDTSCON1.U |= 0x8;
+; ..\cstart.c	   598          safety_endinit_set(_ENDINIT_ENABLE);
+; ..\cstart.c	   599          safety_endinit_set(_ENDINIT_DISABLE);
+; ..\cstart.c	   600  #endif
+; ..\cstart.c	   601          
+; ..\cstart.c	   602  #endif
+; ..\cstart.c	   603          
+; ..\cstart.c	   604          /*
+; ..\cstart.c	   605           * Clear the ENDINIT bit in the WDT_CON0 register in order
+; ..\cstart.c	   606           * to disable the write-protection for registers protected 
+; ..\cstart.c	   607           * via the EndInit feature (for example: WDT_CON1).
+; ..\cstart.c	   608           */
+; ..\cstart.c	   609          endinit_set(_ENDINIT_DISABLE);
+; ..\cstart.c	   610          
+; ..\cstart.c	   611          /*
+; ..\cstart.c	   612           * Disable the Watchdog if requested. Watchdog is enabled by default.
+; ..\cstart.c	   613           * The Watchdog is disabled after ENDINIT is set by endinit_set().
+; ..\cstart.c	   614           */       
+; ..\cstart.c	   615  #if __WATCHDOG_DISABLE
+; ..\cstart.c	   616          WDT_CON1.U |= 0x8;
+; ..\cstart.c	   617          endinit_set(_ENDINIT_ENABLE);
+; ..\cstart.c	   618          endinit_set(_ENDINIT_DISABLE);
+; ..\cstart.c	   619  #endif
+; ..\cstart.c	   620  
+; ..\cstart.c	   621          /*
+; ..\cstart.c	   622           * PMI_TC.003 workaround:
+; ..\cstart.c	   623           * The TLB-A and TLB-B mappings are set to a page size of 16KB.
+; ..\cstart.c	   624           */
+; ..\cstart.c	   625  #if __PMI_TC003_INITIAL__  && defined MMU_CON
+; ..\cstart.c	   626          unsigned int mmu_con = __mfcr(MMU_CON);
+; ..\cstart.c	   627          mmu_con &= 0xffffffe1;      /* clear SZA and SZB */
+; ..\cstart.c	   628          mmu_con |= 0x00000014;      /* set SZA=SZB=16k   */       
+; ..\cstart.c	   629          __mtcr(MMU_CON, mmu_con);
+; ..\cstart.c	   630  #endif
+; ..\cstart.c	   631  
+; ..\cstart.c	   632          /*
+; ..\cstart.c	   633           * Load Base Address of Trap Vector Table.
+; ..\cstart.c	   634           * Disable this if not started from RESET vector. (E.g.
+; ..\cstart.c	   635           * ROM monitors require to keep in control of vectors)
+; ..\cstart.c	   636           */
+; ..\cstart.c	   637  #if __BTV_INIT
+; ..\cstart.c	   638          __mtcr(BTV,  (unsigned int)_lc_u_trap_tab);
+; ..\cstart.c	   639  #endif
+; ..\cstart.c	   640  
+; ..\cstart.c	   641          /*
+; ..\cstart.c	   642           * Load Base Address of Interrupt Vector Table.
+; ..\cstart.c	   643           * Disable this if not started from RESET vector. (E.g.
+; ..\cstart.c	   644           * ROM monitors require to keep in control of vectors)
+; ..\cstart.c	   645           */
+; ..\cstart.c	   646  #if __BIV_INIT
+; ..\cstart.c	   647  #if __BIV_SINGLE_INIT && (defined _TC16X || defined _TC162)
+; ..\cstart.c	   648          /*
+; ..\cstart.c	   649           * Single Entry Vector Table for core tc1.6.1 or tc1.6.2 is supported
+; ..\cstart.c	   650           * by _sevt_isr_tc0() calling interrupt handlers installed
+; ..\cstart.c	   651           * with _sevt_isr_install() stored in _sevt_isrs_tc0 list.
+; ..\cstart.c	   652           * The _sevt_isr_tc0() is located at interrupt vector table
+; ..\cstart.c	   653           * entry 64. The start address of the interrupt vector table
+; ..\cstart.c	   654           * is defined by linker definition INTTAB0, default value
+; ..\cstart.c	   655           *_lc_u_int_tab is 0xa00f0000+0x800.
+; ..\cstart.c	   656           */
+; ..\cstart.c	   657  #pragma extern _sevt_isr_tc0
+; ..\cstart.c	   658          __mtcr(BIV, (unsigned int)(_lc_u_int_tab) | (0xff<<3) | 1 );
+; ..\cstart.c	   659  #else
+; ..\cstart.c	   660  #if __BIV_8BYTE_INIT && (defined _TC16X || defined _TC162)
+; ..\cstart.c	   661          __mtcr(BIV, (unsigned int)(_lc_u_int_tab) | 1 );        /* 8 Byte vector spacing */
+; ..\cstart.c	   662  #else
+; ..\cstart.c	   663          __mtcr(BIV, (unsigned int)(_lc_u_int_tab));             /* 32 Byte vector spacing */
+; ..\cstart.c	   664  #endif
+; ..\cstart.c	   665  #endif
+; ..\cstart.c	   666  #endif
+; ..\cstart.c	   667  
+; ..\cstart.c	   668          /*
+; ..\cstart.c	   669           * Load interrupt stack pointer.
+; ..\cstart.c	   670           * Disable this if not started from RESET vector. (E.g.
+; ..\cstart.c	   671           * ROM monitors require to keep in control of vectors)
+; ..\cstart.c	   672           */
+; ..\cstart.c	   673  #if __ISP_INIT
+; ..\cstart.c	   674          unsigned int isp = (unsigned int)(_lc_ue_istack) & STACK_ALIGN;
+; ..\cstart.c	   675          __mtcr(ISP, isp);
+; ..\cstart.c	   676  #endif
+; ..\cstart.c	   677                                                            
+; ..\cstart.c	   678          /*
+; ..\cstart.c	   679           * PMU/PMI configuration.
+; ..\cstart.c	   680           */
+; ..\cstart.c	   681  #if defined PMI_CON0 && defined __PMI_CON0_VALUE
+; ..\cstart.c	   682          if(__PMI_CON0_INIT)  PMI_CON0.U = __PMI_CON0_VALUE;        
+; ..\cstart.c	   683  #endif
+; ..\cstart.c	   684  #if defined PMI_CON1 && defined __PMI_CON1_VALUE
+; ..\cstart.c	   685          if(__PMI_CON1_INIT)  PMI_CON1.U = __PMI_CON1_VALUE;        
+; ..\cstart.c	   686  #endif  
+; ..\cstart.c	   687  #if defined PMI_CON2 && defined __PMI_CON2_VALUE && ( defined _TC131 )
+; ..\cstart.c	   688          if(__PMI_CON2_INIT)  PMI_CON2.U = __PMI_CON2_VALUE;        
+; ..\cstart.c	   689  #endif
+; ..\cstart.c	   690          
+; ..\cstart.c	   691  #if defined PMU_EIFCON && defined __PMU_EIFCON_VALUE
+; ..\cstart.c	   692          if(__PMU_EIFCON_INIT)  PMU_EIFCON.U = __PMU_EIFCON_VALUE;
+; ..\cstart.c	   693  #endif
+; ..\cstart.c	   694  
+; ..\cstart.c	   695          /*
+; ..\cstart.c	   696           * DMI configuration.
+; ..\cstart.c	   697           */
+; ..\cstart.c	   698  #if defined DMI_CON && defined __DMI_CON_VALUE && ( defined _TC131 )
+; ..\cstart.c	   699          if(__DMI_CON_INIT)  DMI_CON.U = __DMI_CON_VALUE;        
+; ..\cstart.c	   700  #endif
+; ..\cstart.c	   701          
+; ..\cstart.c	   702          /*
+; ..\cstart.c	   703           * Data cache control (Reset 0H).
+; ..\cstart.c	   704           * CPU_TC013 workaround:
+; ..\cstart.c	   705           * The 16KB D-Cache is enabled to workaround
+; ..\cstart.c	   706           * the CPU_TC013 functional problem.     
+; ..\cstart.c	   707           * NOTE: Setting the D-Cache size must be done at the
+; ..\cstart.c	   708           *       very beginning of the startup code.
+; ..\cstart.c	   709           */
+; ..\cstart.c	   710  #if defined  DMU_CON
+; ..\cstart.c	   711  #  if __CPU_TC013_INITIAL__ 
+; ..\cstart.c	   712          DMU_CON.U = 0x1;
+; ..\cstart.c	   713  #  endif
+; ..\cstart.c	   714  #endif
+; ..\cstart.c	   715  
+; ..\cstart.c	   716          /*
+; ..\cstart.c	   717           * PCON0 configuration.
+; ..\cstart.c	   718           */
+; ..\cstart.c	   719  #if     defined PCON0 && defined __PCON0_VALUE
+; ..\cstart.c	   720          if(__PCON0_INIT) __mtcr(PCON0, __PCON0_VALUE);
+; ..\cstart.c	   721  #endif
+; ..\cstart.c	   722  
+; ..\cstart.c	   723          /*
+; ..\cstart.c	   724           * DCON0 configuration.
+; ..\cstart.c	   725           */
+; ..\cstart.c	   726  #if     defined DCON0 && defined __DCON0_VALUE
+; ..\cstart.c	   727          if(__DCON0_INIT) __mtcr(DCON0, __DCON0_VALUE);
+; ..\cstart.c	   728  #endif
+; ..\cstart.c	   729  
+; ..\cstart.c	   730          /*
+; ..\cstart.c	   731           *      TC29x requires configuration of Pad Driver Mode to support EBU
+; ..\cstart.c	   732           */
+; ..\cstart.c	   733  #if defined P24_PDR0 && defined __P24_PDR0_VALUE
+; ..\cstart.c	   734          if(__P24_PDR0_INIT)  P24_PDR0.U = __P24_PDR0_VALUE;
+; ..\cstart.c	   735  #endif
+; ..\cstart.c	   736  #if defined P24_PDR1 && defined __P24_PDR1_VALUE
+; ..\cstart.c	   737          if(__P24_PDR1_INIT)  P24_PDR1.U = __P24_PDR1_VALUE;
+; ..\cstart.c	   738  #endif
+; ..\cstart.c	   739  #if defined P25_PDR0 && defined __P25_PDR0_VALUE
+; ..\cstart.c	   740          if(__P25_PDR0_INIT)  P25_PDR0.U = __P25_PDR0_VALUE;
+; ..\cstart.c	   741  #endif
+; ..\cstart.c	   742  #if defined P25_PDR1 && defined __P25_PDR1_VALUE
+; ..\cstart.c	   743          if(__P25_PDR1_INIT)  P25_PDR1.U = __P25_PDR1_VALUE;
+; ..\cstart.c	   744  #endif
+; ..\cstart.c	   745  #if defined P30_PDR0 && defined __P30_PDR0_VALUE
+; ..\cstart.c	   746          if(__P30_PDR0_INIT)  P30_PDR0.U = __P30_PDR0_VALUE;
+; ..\cstart.c	   747  #endif
+; ..\cstart.c	   748  #if defined P30_PDR1 && defined __P30_PDR1_VALUE
+; ..\cstart.c	   749          if(__P30_PDR1_INIT)  P30_PDR1.U = __P30_PDR1_VALUE;
+; ..\cstart.c	   750  #endif
+; ..\cstart.c	   751  #if defined P31_PDR0 && defined __P31_PDR0_VALUE
+; ..\cstart.c	   752          if(__P31_PDR0_INIT)  P31_PDR0.U = __P31_PDR0_VALUE;
+; ..\cstart.c	   753  #endif
+; ..\cstart.c	   754  #if defined P31_PDR1 && defined __P31_PDR1_VALUE
+; ..\cstart.c	   755          if(__P31_PDR1_INIT)  P31_PDR1.U = __P31_PDR1_VALUE;
+; ..\cstart.c	   756  #endif
+; ..\cstart.c	   757          
+; ..\cstart.c	   758          /*
+; ..\cstart.c	   759           * Bus configuration EBU_CLC within endinit.
+; ..\cstart.c	   760           */
+; ..\cstart.c	   761  #  if defined EBU_CLC && defined __EBU_CLC_VALUE
+; ..\cstart.c	   762          if(__EBU_CLC_INIT)  EBU_CLC.U = __EBU_CLC_VALUE;
+; ..\cstart.c	   763  #  endif
+; ..\cstart.c	   764  
+; ..\cstart.c	   765          /*
+; ..\cstart.c	   766           *      Setting up the PLL after Reset.
+; ..\cstart.c	   767           *
+; ..\cstart.c	   768           *      After reset, the system clock will be running at the VCO
+; ..\cstart.c	   769           *      base frequency divided by a factor KDIV. To set up the PLL
+; ..\cstart.c	   770           *      after reset, next action must be executed.
+; ..\cstart.c	   771           */
+; ..\cstart.c	   772  #if defined PLL_CLC && defined __PLL_CLC_VALUE
+; ..\cstart.c	   773  #if     __PLL_CLC_INIT
+; ..\cstart.c	   774  #define __PLL_CLC_SYSFS_VALUE   ((__PLL_CLC_VALUE>>2)&0x1)
+; ..\cstart.c	   775  #define __PLL_CLC_VCOBYP_VALUE  ((__PLL_CLC_VALUE>>5)&0x1)
+; ..\cstart.c	   776  #define __PLL_CLC_VCOSEL_VALUE  ((__PLL_CLC_VALUE>>6)&0x3)
+; ..\cstart.c	   777  #define __PLL_CLC_KDIV_VALUE    ((__PLL_CLC_VALUE>>8)&0xf)
+; ..\cstart.c	   778  #define __PLL_CLC_PDIV_VALUE    ((__PLL_CLC_VALUE>>13)&0x3)
+; ..\cstart.c	   779  #define __PLL_CLC_NDIV_VALUE    ((__PLL_CLC_VALUE>>16)&0x7f)
+; ..\cstart.c	   780          if ( PLL_CLC.B.BYPPIN == 0 )
+; ..\cstart.c	   781          {
+; ..\cstart.c	   782  #if     ( defined _REGTC1130_H )
+; ..\cstart.c	   783                  while (OSC_CON.B.OSCR==1);                      /* Wait until the oscillator is running */
+; ..\cstart.c	   784  #else
+; ..\cstart.c	   785                  while (OSC_CON.B.OSCR==0);                      /* Wait until the oscillator is running */
+; ..\cstart.c	   786  #endif
+; ..\cstart.c	   787                  PLL_CLC.B.VCOBYP = 1;                           /* Enabled the VCO Bypass Mode */
+; ..\cstart.c	   788                  PLL_CLC.B.VCOSEL = __PLL_CLC_VCOSEL_VALUE;      /* Select the VCO band */
+; ..\cstart.c	   789                  PLL_CLC.B.PDIV = __PLL_CLC_PDIV_VALUE;
+; ..\cstart.c	   790                  PLL_CLC.B.KDIV = __PLL_CLC_KDIV_VALUE;
+; ..\cstart.c	   791                  PLL_CLC.B.NDIV = __PLL_CLC_NDIV_VALUE;
+; ..\cstart.c	   792  #if __PLL_CLC_VCOBYP_VALUE==0
+; ..\cstart.c	   793                  PLL_CLC.B.OSCDISC = 0;                          /* Connect the oscillator to the PLL */
+; ..\cstart.c	   794                  while( PLL_CLC.B.LOCK==0);                      /* Wait until the PLL becomes locked */
+; ..\cstart.c	   795                  PLL_CLC.B.VCOBYP = 0;                           /* Disabled the VCO Bypass Mode */
+; ..\cstart.c	   796  #endif
+; ..\cstart.c	   797          }
+; ..\cstart.c	   798  #if     ( defined _REGTC1130_H )
+; ..\cstart.c	   799          PLL_CLC.B.SYSFSL = __PLL_CLC_SYSFS_VALUE;                /* System frequency select */
+; ..\cstart.c	   800  #else
+; ..\cstart.c	   801  #if     (  defined _REGTC1762_H || defined _REGTC1764_H || defined _REGTC1766B_H \ 
+; ..\cstart.c	   802          || defined _REGTC1164_H || defined _REGTC1166_H )
+; ..\cstart.c	   803          PLL_CLC.B.RSV = __PLL_CLC_SYSFS_VALUE;                  /* System frequency select */
+; ..\cstart.c	   804  #else
+; ..\cstart.c	   805          PLL_CLC.B.SYSFS = __PLL_CLC_SYSFS_VALUE;                /* System frequency select */
+; ..\cstart.c	   806  #endif
+; ..\cstart.c	   807  #endif
+; ..\cstart.c	   808  #endif
+; ..\cstart.c	   809  #endif
+; ..\cstart.c	   810  
+; ..\cstart.c	   811           /*
+; ..\cstart.c	   812            * Configure CCU Clock Control
+; ..\cstart.c	   813            *
+; ..\cstart.c	   814            * For AURIX derivatives it is required to set the update request only
+; ..\cstart.c	   815            * in the last CCUCON that is initialized. Set CCUCONx.UP where x is
+; ..\cstart.c	   816            * the last one. A new complete parameter set is transferred to
+; ..\cstart.c	   817            * the CCU.
+; ..\cstart.c	   818            */
+; ..\cstart.c	   819  #define __SCU_CCUCON0__UP_MASK  0x40000000
+; ..\cstart.c	   820  
+; ..\cstart.c	   821  #if defined SCU_CCUCON0 && defined __SCU_CCUCON0_VALUE
+; ..\cstart.c	   822  #if __SCU_CCUCON0_INIT
+; ..\cstart.c	   823          SCU_CCUCON0.U = __SCU_CCUCON0_VALUE & ~__SCU_CCUCON0__UP_MASK;
+; ..\cstart.c	   824  #endif
+; ..\cstart.c	   825  #endif
+; ..\cstart.c	   826  
+; ..\cstart.c	   827  #if defined SCU_CCUCON1 && defined __SCU_CCUCON1_VALUE
+; ..\cstart.c	   828  #if __SCU_CCUCON1_INIT
+; ..\cstart.c	   829          SCU_CCUCON1.U = __SCU_CCUCON1_VALUE;
+; ..\cstart.c	   830  #endif
+; ..\cstart.c	   831  #endif
+; ..\cstart.c	   832  
+; ..\cstart.c	   833  #if defined SCU_CCUCON2 && defined __SCU_CCUCON2_VALUE
+; ..\cstart.c	   834  #if __SCU_CCUCON2_INIT
+; ..\cstart.c	   835          SCU_CCUCON2.U = __SCU_CCUCON2_VALUE;
+; ..\cstart.c	   836  #endif
+; ..\cstart.c	   837  #endif
+; ..\cstart.c	   838  
+; ..\cstart.c	   839  #if defined SCU_CCUCON5 && defined __SCU_CCUCON5_VALUE
+; ..\cstart.c	   840  #if __SCU_CCUCON5_INIT
+; ..\cstart.c	   841          SCU_CCUCON5.U = __SCU_CCUCON5_VALUE;
+; ..\cstart.c	   842  #endif
+; ..\cstart.c	   843  #endif
+; ..\cstart.c	   844  
+; ..\cstart.c	   845          /*
+; ..\cstart.c	   846           * System Oscillator configuration
+; ..\cstart.c	   847           */
+; ..\cstart.c	   848  #if defined SCU_OSCCON && defined __SCU_OSCCON_VALUE
+; ..\cstart.c	   849  #if __SCU_OSCCON_INIT
+; ..\cstart.c	   850          SCU_OSCCON.U=__SCU_OSCCON_VALUE;
+; ..\cstart.c	   851          
+; ..\cstart.c	   852          while(SCU_OSCCON.B.PLLLV==0);           /* Oscillator not too low */
+; ..\cstart.c	   853          while(SCU_OSCCON.B.PLLHV==0);           /* Oscillator not too high */
+; ..\cstart.c	   854  #endif
+; ..\cstart.c	   855  #endif
+; ..\cstart.c	   856  
+; ..\cstart.c	   857          /*
+; ..\cstart.c	   858           * Configure PLL Prescaler Mode.
+; ..\cstart.c	   859           */
+; ..\cstart.c	   860  #if defined SCU_PLLCON1 && defined __SCU_PLLCON1_VALUE
+; ..\cstart.c	   861  #if __SCU_PLLCON1_INIT
+; ..\cstart.c	   862  #define __SCU_PLLCON1__K1DIV_VALUE      ((__SCU_PLLCON1_VALUE>>16)&0x3f)
+; ..\cstart.c	   863          SCU_PLLCON1.B.K1DIV=__SCU_PLLCON1__K1DIV_VALUE;
+; ..\cstart.c	   864          while(SCU_PLLSTAT.B.K1RDY==0);          /* Wait until K1-Divider is ready to operate */
+; ..\cstart.c	   865  #endif
+; ..\cstart.c	   866  #endif
+; ..\cstart.c	   867  
+; ..\cstart.c	   868  #if defined SCU_PLLCON0 && defined __SCU_PLLCON0_VALUE
+; ..\cstart.c	   869  #if     __SCU_PLLCON0_INIT
+; ..\cstart.c	   870          SCU_PLLCON0.B.VCOBYP=1;                 /* Enabled the VCO Bypass Mode */
+; ..\cstart.c	   871          while(SCU_PLLSTAT.B.VCOBYST==0);        /* Wait until prescaler mode is entered */
+; ..\cstart.c	   872  
+; ..\cstart.c	   873  #define __SCU_PLLCON0__VCOPWD_VALUE     ((__SCU_PLLCON0_VALUE>>1)&0x1)
+; ..\cstart.c	   874  #define __SCU_PLLCON0__NDIV_VALUE       ((__SCU_PLLCON0_VALUE>>9)&0x7f)
+; ..\cstart.c	   875  #define __SCU_PLLCON0__PDIV_VALUE       ((__SCU_PLLCON0_VALUE>>24)&0xf)
+; ..\cstart.c	   876          SCU_PLLCON0.B.PDIV=__SCU_PLLCON0__PDIV_VALUE;
+; ..\cstart.c	   877          SCU_PLLCON0.B.NDIV=__SCU_PLLCON0__NDIV_VALUE;
+; ..\cstart.c	   878          SCU_PLLCON0.B.VCOPWD=__SCU_PLLCON0__VCOPWD_VALUE; /* power down VCO */
+; ..\cstart.c	   879  
+; ..\cstart.c	   880  #if __SCU_PLLCON0__VCOPWD_VALUE==0
+; ..\cstart.c	   881          /*
+; ..\cstart.c	   882           * Configure PLL normal mode.
+; ..\cstart.c	   883           */
+; ..\cstart.c	   884          SCU_PLLCON0.B.OSCDISCDIS=1;             /* Automatic oscillator disconnect disabled */
+; ..\cstart.c	   885          SCU_PLLCON0.B.CLRFINDIS=1;              /* Connect VCO to the oscillator */
+; ..\cstart.c	   886          while(SCU_PLLSTAT.B.FINDIS==1);         /* Wait until oscillator is connected to the VCO */
+; ..\cstart.c	   887          SCU_PLLCON0.B.RESLD=1;                  /* Restart VCO lock detection */
+; ..\cstart.c	   888          while(SCU_PLLSTAT.B.VCOLOCK==0);        /* Wait until the VCO becomes locked */
+; ..\cstart.c	   889          SCU_PLLCON0.B.VCOBYP=0;                 /* Disable the VCO Bypass Mode */
+; ..\cstart.c	   890          while(SCU_PLLSTAT.B.VCOBYST==1);        /* Wait until normal mode is entered */
+; ..\cstart.c	   891          SCU_PLLCON0.B.OSCDISCDIS=0;             /* Automatic oscillator disconnect enabled */
+; ..\cstart.c	   892  #endif
+; ..\cstart.c	   893  #endif
+; ..\cstart.c	   894  #endif
+; ..\cstart.c	   895  
+; ..\cstart.c	   896          /*
+; ..\cstart.c	   897           *      AURIX 2G System PLL Configuration
+; ..\cstart.c	   898           */
+; ..\cstart.c	   899  #if defined SCU_SYSPLLCON0 && defined __SCU_SYSPLLCON0_VALUE
+; ..\cstart.c	   900  #if __SCU_SYSPLLCON0_INIT
+; ..\cstart.c	   901  #define __SCU_SYSPLLCON0__NDIV_VALUE    ((__SCU_SYSPLLCON0_VALUE >>  9) & 0x7f)
+; ..\cstart.c	   902  #define __SCU_SYSPLLCON0__PDIV_VALUE    ((__SCU_SYSPLLCON0_VALUE >> 24) & 0x07)
+; ..\cstart.c	   903  #define __SCU_SYSPLLCON0__PLLPWD_VALUE  ((__SCU_SYSPLLCON0_VALUE >> 16) & 0x01)
+; ..\cstart.c	   904  #define __SCU_SYSPLLCON0__INSEL_VALUE   ((__SCU_SYSPLLCON0_VALUE >> 30) & 0x03)
+; ..\cstart.c	   905          /*
+; ..\cstart.c	   906           * After power-on and system reset fsource=fback,
+; ..\cstart.c	   907           * fOSC0 is used as clock source PLL and K2=6.
+; ..\cstart.c	   908           */
+; ..\cstart.c	   909          SCU_SYSPLLCON0.B.INSEL=__SCU_SYSPLLCON0__INSEL_VALUE;
+; ..\cstart.c	   910          SCU_SYSPLLCON0.B.PDIV=__SCU_SYSPLLCON0__PDIV_VALUE;
+; ..\cstart.c	   911          SCU_SYSPLLCON0.B.NDIV=__SCU_SYSPLLCON0__NDIV_VALUE;
+; ..\cstart.c	   912          SCU_SYSPLLCON0.B.PLLPWD=__SCU_SYSPLLCON0__PLLPWD_VALUE;
+; ..\cstart.c	   913  
+; ..\cstart.c	   914          SCU_SYSPLLCON0.B.RESLD = 1;             /* Restart DCO Lock Detection */
+; ..\cstart.c	   915          while(!SCU_SYSPLLSTAT.B.LOCK);          /* Wait for PLL lock */
+; ..\cstart.c	   916  
+; ..\cstart.c	   917          while(SCU_CCUCON0.B.LCK);               /* Wait for CCUCON0 unlocked */
+; ..\cstart.c	   918          SCU_CCUCON0.B.UP = 1;                   /* Update */
+; ..\cstart.c	   919  #endif
+; ..\cstart.c	   920  #endif
+; ..\cstart.c	   921          /*
+; ..\cstart.c	   922          *      AURIX 2G Peripheral PLL Configuration
+; ..\cstart.c	   923          */
+; ..\cstart.c	   924  #if defined SCU_PERPLLCON0 && defined __SCU_PERPLLCON0_VALUE
+; ..\cstart.c	   925  #if __SCU_PERPLLCON0_INIT
+; ..\cstart.c	   926  #define __SCU_PERPLLCON0__NDIV_VALUE    ((__SCU_PERPLLCON0_VALUE >>  9) & 0x7f)
+; ..\cstart.c	   927  #define __SCU_PERPLLCON0__PDIV_VALUE    ((__SCU_PERPLLCON0_VALUE >> 24) & 0x07)
+; ..\cstart.c	   928  #define __SCU_PERPLLCON0__PLLPWD_VALUE  ((__SCU_PERPLLCON0_VALUE >> 16) & 0x01)
+; ..\cstart.c	   929  #define __SCU_PERPLLCON0__DIVBY_VALUE   ((__SCU_PERPLLCON0_VALUE >>  0) & 0x01)
+; ..\cstart.c	   930          /*
+; ..\cstart.c	   931           * After power-on and system reset fsource=fback,
+; ..\cstart.c	   932           * fOSC0 is used as clock source PLL and K2=6.
+; ..\cstart.c	   933           */
+; ..\cstart.c	   934          SCU_PERPLLCON0.B.DIVBY=__SCU_PERPLLCON0__DIVBY_VALUE;
+; ..\cstart.c	   935          SCU_PERPLLCON0.B.PDIV=__SCU_PERPLLCON0__PDIV_VALUE;
+; ..\cstart.c	   936          SCU_PERPLLCON0.B.NDIV=__SCU_PERPLLCON0__NDIV_VALUE;
+; ..\cstart.c	   937          SCU_PERPLLCON0.B.PLLPWD=__SCU_PERPLLCON0__PLLPWD_VALUE;
+; ..\cstart.c	   938  
+; ..\cstart.c	   939          SCU_PERPLLCON0.B.RESLD = 1;             /* Restart DCO Lock Detection */
+; ..\cstart.c	   940          while(!SCU_PERPLLSTAT.B.LOCK);          /* Wait for PLL lock */
+; ..\cstart.c	   941  
+; ..\cstart.c	   942          while(SCU_CCUCON0.B.LCK);               /* Wait for CCUCON0 unlocked */
+; ..\cstart.c	   943          SCU_CCUCON0.B.UP = 1;                   /* Update */
+; ..\cstart.c	   944  #endif
+; ..\cstart.c	   945  #endif
+; ..\cstart.c	   946          /*
+; ..\cstart.c	   947           *     No K2 ramp up for Peripheral PLL
+; ..\cstart.c	   948           */
+; ..\cstart.c	   949  #if defined SCU_PERPLLCON1 && defined __SCU_PERPLLCON1_VALUE
+; ..\cstart.c	   950  #if __SCU_PERPLLCON1_INIT
+; ..\cstart.c	   951  #define __SCU_PERPLLCON1__K2DIV_VALUE    ((__SCU_PERPLLCON1_VALUE >>  0) & 0x07)
+; ..\cstart.c	   952          if (__SCU_PERPLLCON1__K2DIV_VALUE > 1)
+; ..\cstart.c	   953          {
+; ..\cstart.c	   954                  SCU_CCUCON1.B.PLL1DIVDIS=1;
+; ..\cstart.c	   955          }
+; ..\cstart.c	   956          else
+; ..\cstart.c	   957          {
+; ..\cstart.c	   958                  SCU_CCUCON1.B.PLL1DIVDIS=0;
+; ..\cstart.c	   959          }
+; ..\cstart.c	   960          SCU_PERPLLCON1.U = __SCU_PERPLLCON1_VALUE;
+; ..\cstart.c	   961  #endif
+; ..\cstart.c	   962  #endif
+; ..\cstart.c	   963          /*
+; ..\cstart.c	   964           *      PLL K2 ramp up
+; ..\cstart.c	   965           */
+; ..\cstart.c	   966  #if ( defined SCU_PLLCON1 && defined __SCU_PLLCON1_VALUE ) || ( defined SCU_SYSPLLCON1 && defined SCU_SYSPLLCON0 && defined __SCU_SYSPLLCON1_VALUE )
+; ..\cstart.c	   967  #if __SCU_PLLCON1_INIT || __SCU_SYSPLLCON1_INIT
+; ..\cstart.c	   968  #if ( defined SCU_PLLCON1 )
+; ..\cstart.c	   969  #define __K2DIV_VALUE   (__SCU_PLLCON1_VALUE&0x3f)
+; ..\cstart.c	   970  #define __K2DIV         SCU_PLLCON1.B.K2DIV
+; ..\cstart.c	   971  #define __NDIV          SCU_PLLCON0.B.NDIV
+; ..\cstart.c	   972  #define __PDIV          SCU_PLLCON0.B.PDIV
+; ..\cstart.c	   973  #else
+; ..\cstart.c	   974  #define __K2DIV_VALUE   (__SCU_SYSPLLCON1_VALUE&0x7)
+; ..\cstart.c	   975  #define __K2DIV         SCU_SYSPLLCON1.B.K2DIV
+; ..\cstart.c	   976  #define __NDIV          SCU_SYSPLLCON0.B.NDIV
+; ..\cstart.c	   977  #define __PDIV          SCU_SYSPLLCON0.B.PDIV
+; ..\cstart.c	   978  #endif
+; ..\cstart.c	   979  #if __PLL_K2_RAMPUP
+; ..\cstart.c	   980  #if ( defined SCU_PLLSTAT || defined SCU_SYSPLLSTAT ) && defined __fOSC
+; ..\cstart.c	   981  #if ( defined _TC131 || defined _TC16 || defined _TC16X || defined _TC162 )
+; ..\cstart.c	   982  #if ( defined _TC16X || defined _TC162 )
+; ..\cstart.c	   983  #define PLL_K2_RAMPUP_STM_CLC_RMC       1
+; ..\cstart.c	   984  #else
+; ..\cstart.c	   985  #define PLL_K2_RAMPUP_STM_CLC_RMC       (STM_CLC.B.RMC)
+; ..\cstart.c	   986  #endif
+; ..\cstart.c	   987  #if ( defined _REGTC1337_H || defined _REGTC1367_H || defined _REGTC1387_H || defined _REGTC1768_H )
+; ..\cstart.c	   988  #define PLL_K2_RAMPUP_SYSCLK(CPUCLK)    (CPUCLK)
+; ..\cstart.c	   989  #else
+; ..\cstart.c	   990  #if ( defined _TC16X )
+; ..\cstart.c	   991  #define PLL_K2_RAMPUP_SYSCLK(CPUCLK)    (CPUCLK/SCU_CCUCON1.B.STMDIV)
+; ..\cstart.c	   992  #else
+; ..\cstart.c	   993  #if ( defined _TC162 )
+; ..\cstart.c	   994  #define PLL_K2_RAMPUP_SYSCLK(CPUCLK)    (CPUCLK/SCU_CCUCON0.B.STMDIV)   
+; ..\cstart.c	   995  #else
+; ..\cstart.c	   996  #define PLL_K2_RAMPUP_SYSCLK(CPUCLK)    (CPUCLK/(SCU_CCUCON0.B.FPIDIV+1))
+; ..\cstart.c	   997  #endif
+; ..\cstart.c	   998  #endif
+; ..\cstart.c	   999  #endif
+; ..\cstart.c	  1000  #define USECCLK         (PLL_K2_RAMPUP_SYSCLK(((__NDIV+1)*(__fOSC/1000000))/((__PDIV+1)*(__K2DIV+1)))/PLL_K2_RAMPUP_STM_CLC_RMC)
+; ..\cstart.c	  1001  #if ( defined _TC162 )
+; ..\cstart.c	  1002  #define USEC            100             /* wait 100 usec */
+; ..\cstart.c	  1003  #else
+; ..\cstart.c	  1004  #define USEC            20              /* wait 20 usec */
+; ..\cstart.c	  1005  #endif
+; ..\cstart.c	  1006  #define WAITUSEC        (USECCLK*USEC)
+; ..\cstart.c	  1007  #endif
+; ..\cstart.c	  1008  #endif
+; ..\cstart.c	  1009  #pragma tradeoff 0      /* avoid call to run-time function */
+; ..\cstart.c	  1010          while ( __K2DIV > __K2DIV_VALUE )
+; ..\cstart.c	  1011          {
+; ..\cstart.c	  1012                  unsigned int wait;
+; ..\cstart.c	  1013  
+; ..\cstart.c	  1014                  __K2DIV-=1;
+; ..\cstart.c	  1015                  wait = SYSTIME_LOW+WAITUSEC;
+; ..\cstart.c	  1016  
+; ..\cstart.c	  1017                  while( SYSTIME_LOW < wait ) ;
+; ..\cstart.c	  1018          }
+; ..\cstart.c	  1019  #pragma tradeoff restore
+; ..\cstart.c	  1020  #else
+; ..\cstart.c	  1021          __K2DIV=__K2DIV_VALUE;
+; ..\cstart.c	  1022  #endif
+; ..\cstart.c	  1023  #endif
+; ..\cstart.c	  1024  #endif
+; ..\cstart.c	  1025  
+; ..\cstart.c	  1026          /*
+; ..\cstart.c	  1027           * Configure flash registers.
+; ..\cstart.c	  1028           */
+; ..\cstart.c	  1029  #if defined FLASH0_FCON && defined __FLASH0_FCON_VALUE
+; ..\cstart.c	  1030          if(__FLASH0_FCON_INIT)  FLASH0_FCON.U = __FLASH0_FCON_VALUE;        
+; ..\cstart.c	  1031  #endif
+; ..\cstart.c	  1032  #if defined FLASH1_FCON && defined __FLASH1_FCON_VALUE
+; ..\cstart.c	  1033          if(__FLASH1_FCON_INIT)  FLASH1_FCON.U = __FLASH1_FCON_VALUE;        
+; ..\cstart.c	  1034  #endif
+; ..\cstart.c	  1035          
+; ..\cstart.c	  1036          /*
+; ..\cstart.c	  1037           * Configure system clock register.
+; ..\cstart.c	  1038           */
+; ..\cstart.c	  1039  #if defined STM_CLC && defined __STM_CLC_VALUE
+; ..\cstart.c	  1040          if(__STM_CLC_INIT)  STM_CLC.U = __STM_CLC_VALUE;        
+; ..\cstart.c	  1041  #endif
+; ..\cstart.c	  1042  
+; ..\cstart.c	  1043          /*
+; ..\cstart.c	  1044           * Enable the GTM to get MCS memory access,
+; ..\cstart.c	  1045           * required for MCS initialization which
+; ..\cstart.c	  1046           * is performed by _c_init.
+; ..\cstart.c	  1047           */
+; ..\cstart.c	  1048  #if defined GTM_CLC && defined __GTM_CLC_VALUE
+; ..\cstart.c	  1049          if(__GTM_CLC_INIT)  GTM_CLC.U = __GTM_CLC_VALUE;
+; ..\cstart.c	  1050  #endif
+; ..\cstart.c	  1051  
+; ..\cstart.c	  1052          /*
+; ..\cstart.c	  1053           * Set the rounding mode (PSW.RM)
+; ..\cstart.c	  1054           */
+; ..\cstart.c	  1055  #ifdef __RM_INIT
+; ..\cstart.c	  1056  #if __RM_INIT
+; ..\cstart.c	  1057          __fesetround( __RM_VALUE );
+; ..\cstart.c	  1058  #endif
+; ..\cstart.c	  1059  #endif
+; ..\cstart.c	  1060          
+; ..\cstart.c	  1061          /*
+; ..\cstart.c	  1062           * Set the ENDINIT bit in the WDT_CON0 register again
+; ..\cstart.c	  1063           * to enable the write-protection.
+; ..\cstart.c	  1064           */
+; ..\cstart.c	  1065          endinit_set(_ENDINIT_ENABLE);
+; ..\cstart.c	  1066  
+; ..\cstart.c	  1067  #if ( defined _TC16X || defined _TC162 )
+; ..\cstart.c	  1068          /*
+; ..\cstart.c	  1069           * Set the ENDINIT bit in the WDTSCON0 register to enable the
+; ..\cstart.c	  1070           * safety-critical register write-protection.
+; ..\cstart.c	  1071           */
+; ..\cstart.c	  1072          safety_endinit_set(_ENDINIT_ENABLE);
+; ..\cstart.c	  1073  #endif
+; ..\cstart.c	  1074          
+; ..\cstart.c	  1075          /*
+; ..\cstart.c	  1076           * Initialize Bus configuration registers:
+; ..\cstart.c	  1077           * Set register-values according to define's created by the GUI
+; ..\cstart.c	  1078           * 
+; ..\cstart.c	  1079           * The recommended sequence of setting registers is as follows:
+; ..\cstart.c	  1080           * 1.EBUCON
+; ..\cstart.c	  1081           * 2.All other EBU registers except SDRAM specific registers
+; ..\cstart.c	  1082           * 3.SDRMCON0
+; ..\cstart.c	  1083           * 4.SDRMMOD0
+; ..\cstart.c	  1084           * 5.SDRMREF0
+; ..\cstart.c	  1085           * 6.SDRMCON1
+; ..\cstart.c	  1086           * 7.SDRMMOD1
+; ..\cstart.c	  1087           * 8.SDRMREF1
+; ..\cstart.c	  1088           */
+; ..\cstart.c	  1089  #if defined EBU_CON && defined __EBU_CON_VALUE
+; ..\cstart.c	  1090          if(__EBU_CON_INIT)  EBU_CON.U = __EBU_CON_VALUE;
+; ..\cstart.c	  1091  #endif
+; ..\cstart.c	  1092  #if defined EBU_ADDRSEL0 && defined __EBU_ADDRSEL0_VALUE
+; ..\cstart.c	  1093          if(__EBU_ADDRSEL0_INIT)  EBU_ADDRSEL0.U = __EBU_ADDRSEL0_VALUE;
+; ..\cstart.c	  1094  #endif
+; ..\cstart.c	  1095  #if defined EBU_ADDRSEL1 && defined __EBU_ADDRSEL1_VALUE
+; ..\cstart.c	  1096          if(__EBU_ADDRSEL1_INIT)  EBU_ADDRSEL1.U = __EBU_ADDRSEL1_VALUE;
+; ..\cstart.c	  1097  #endif
+; ..\cstart.c	  1098  #if defined EBU_ADDRSEL2 && defined __EBU_ADDRSEL2_VALUE
+; ..\cstart.c	  1099          if(__EBU_ADDRSEL2_INIT)  EBU_ADDRSEL2.U = __EBU_ADDRSEL2_VALUE;
+; ..\cstart.c	  1100  #endif
+; ..\cstart.c	  1101  #if defined EBU_ADDRSEL3 && defined __EBU_ADDRSEL3_VALUE
+; ..\cstart.c	  1102          if(__EBU_ADDRSEL3_INIT)  EBU_ADDRSEL3.U = __EBU_ADDRSEL3_VALUE;
+; ..\cstart.c	  1103  #endif
+; ..\cstart.c	  1104  #if defined EBU_ADDRSEL4 && defined __EBU_ADDRSEL4_VALUE
+; ..\cstart.c	  1105          if(__EBU_ADDRSEL4_INIT)  EBU_ADDRSEL4.U = __EBU_ADDRSEL4_VALUE;
+; ..\cstart.c	  1106  #endif
+; ..\cstart.c	  1107  #if defined EBU_ADDRSEL5 && defined __EBU_ADDRSEL5_VALUE
+; ..\cstart.c	  1108          if(__EBU_ADDRSEL5_INIT)  EBU_ADDRSEL5.U = __EBU_ADDRSEL5_VALUE;
+; ..\cstart.c	  1109  #endif
+; ..\cstart.c	  1110  #if defined EBU_ADDRSEL6 && defined __EBU_ADDRSEL6_VALUE
+; ..\cstart.c	  1111          if(__EBU_ADDRSEL6_INIT)  EBU_ADDRSEL6.U = __EBU_ADDRSEL6_VALUE;
+; ..\cstart.c	  1112  #endif
+; ..\cstart.c	  1113  #if defined EBU_BFCON && defined __EBU_BFCON_VALUE
+; ..\cstart.c	  1114          if(__EBU_BFCON_INIT)  EBU_BFCON.U = __EBU_BFCON_VALUE;
+; ..\cstart.c	  1115  #endif
+; ..\cstart.c	  1116  #if defined EBU_BUSAP0 && defined __EBU_BUSAP0_VALUE
+; ..\cstart.c	  1117          if(__EBU_BUSAP0_INIT)  EBU_BUSAP0.U = __EBU_BUSAP0_VALUE;
+; ..\cstart.c	  1118  #endif
+; ..\cstart.c	  1119  #if defined EBU_BUSAP1 && defined __EBU_BUSAP1_VALUE
+; ..\cstart.c	  1120          if(__EBU_BUSAP1_INIT)  EBU_BUSAP1.U = __EBU_BUSAP1_VALUE;
+; ..\cstart.c	  1121  #endif
+; ..\cstart.c	  1122  #if defined EBU_BUSAP2 && defined __EBU_BUSAP2_VALUE
+; ..\cstart.c	  1123          if(__EBU_BUSAP2_INIT)  EBU_BUSAP2.U = __EBU_BUSAP2_VALUE;
+; ..\cstart.c	  1124  #endif
+; ..\cstart.c	  1125  #if defined EBU_BUSAP3 && defined __EBU_BUSAP3_VALUE
+; ..\cstart.c	  1126          if(__EBU_BUSAP3_INIT)  EBU_BUSAP3.U = __EBU_BUSAP3_VALUE;
+; ..\cstart.c	  1127  #endif
+; ..\cstart.c	  1128  #if defined EBU_BUSAP4 && defined __EBU_BUSAP4_VALUE
+; ..\cstart.c	  1129          if(__EBU_BUSAP4_INIT)  EBU_BUSAP4.U = __EBU_BUSAP4_VALUE;
+; ..\cstart.c	  1130  #endif
+; ..\cstart.c	  1131  #if defined EBU_BUSAP5 && defined __EBU_BUSAP5_VALUE
+; ..\cstart.c	  1132          if(__EBU_BUSAP5_INIT)  EBU_BUSAP5.U = __EBU_BUSAP5_VALUE;
+; ..\cstart.c	  1133  #endif
+; ..\cstart.c	  1134  #if defined EBU_BUSAP6 && defined __EBU_BUSAP6_VALUE
+; ..\cstart.c	  1135          if(__EBU_BUSAP6_INIT)  EBU_BUSAP6.U = __EBU_BUSAP6_VALUE;
+; ..\cstart.c	  1136  #endif
+; ..\cstart.c	  1137  #if defined EBU_BUSCON0 && defined __EBU_BUSCON0_VALUE
+; ..\cstart.c	  1138          if(__EBU_BUSCON0_INIT)  EBU_BUSCON0.U = __EBU_BUSCON0_VALUE;
+; ..\cstart.c	  1139  #endif
+; ..\cstart.c	  1140  #if defined EBU_BUSCON1 && defined __EBU_BUSCON1_VALUE
+; ..\cstart.c	  1141          if(__EBU_BUSCON1_INIT)  EBU_BUSCON1.U = __EBU_BUSCON1_VALUE;
+; ..\cstart.c	  1142  #endif
+; ..\cstart.c	  1143  #if defined EBU_BUSCON2 && defined __EBU_BUSCON2_VALUE
+; ..\cstart.c	  1144          if(__EBU_BUSCON2_INIT)  EBU_BUSCON2.U = __EBU_BUSCON2_VALUE;
+; ..\cstart.c	  1145  #endif
+; ..\cstart.c	  1146  #if defined EBU_BUSCON3 && defined __EBU_BUSCON3_VALUE
+; ..\cstart.c	  1147          if(__EBU_BUSCON3_INIT)  EBU_BUSCON3.U = __EBU_BUSCON3_VALUE;
+; ..\cstart.c	  1148  #endif
+; ..\cstart.c	  1149  #if defined EBU_BUSCON4 && defined __EBU_BUSCON4_VALUE
+; ..\cstart.c	  1150          if(__EBU_BUSCON4_INIT)  EBU_BUSCON4.U = __EBU_BUSCON4_VALUE;
+; ..\cstart.c	  1151  #endif
+; ..\cstart.c	  1152  #if defined EBU_BUSCON5 && defined __EBU_BUSCON5_VALUE
+; ..\cstart.c	  1153          if(__EBU_BUSCON5_INIT)  EBU_BUSCON5.U = __EBU_BUSCON5_VALUE;
+; ..\cstart.c	  1154  #endif
+; ..\cstart.c	  1155  #if defined EBU_BUSCON6 && defined __EBU_BUSCON6_VALUE
+; ..\cstart.c	  1156          if(__EBU_BUSCON6_INIT)  EBU_BUSCON6.U = __EBU_BUSCON6_VALUE;
+; ..\cstart.c	  1157  #endif
+; ..\cstart.c	  1158  #if defined EBU_EMUAS && defined __EBU_EMUAS_VALUE
+; ..\cstart.c	  1159          if(__EBU_EMUAS_INIT)  EBU_EMUAS.U = __EBU_EMUAS_VALUE;
+; ..\cstart.c	  1160  #endif
+; ..\cstart.c	  1161  #if defined EBU_EMUBAP && defined __EBU_EMUBAP_VALUE
+; ..\cstart.c	  1162          if(__EBU_EMUBAP_INIT)  EBU_EMUBAP.U = __EBU_EMUBAP_VALUE;
+; ..\cstart.c	  1163  #endif
+; ..\cstart.c	  1164  #if defined EBU_EMUBC && defined __EBU_EMUBC_VALUE
+; ..\cstart.c	  1165          if(__EBU_EMUBC_INIT)  EBU_EMUBC.U = __EBU_EMUBC_VALUE;
+; ..\cstart.c	  1166  #endif
+; ..\cstart.c	  1167  #if defined EBU_EMUCON && defined __EBU_EMUCON_VALUE
+; ..\cstart.c	  1168          if(__EBU_EMUCON_INIT)  EBU_EMUCON.U = __EBU_EMUCON_VALUE;
+; ..\cstart.c	  1169  #endif
+; ..\cstart.c	  1170  #if defined EBU_EMUOVL && defined __EBU_EMUOVL_VALUE
+; ..\cstart.c	  1171          if(__EBU_EMUOVL_INIT)  EBU_EMUOVL.U = __EBU_EMUOVL_VALUE;
+; ..\cstart.c	  1172  #endif
+; ..\cstart.c	  1173  #if defined EBU_SDRMCON0 && defined __EBU_SDRMCON0_VALUE
+; ..\cstart.c	  1174          if(__EBU_SDRMCON0_INIT)  EBU_SDRMCON0.U = __EBU_SDRMCON0_VALUE;
+; ..\cstart.c	  1175  #endif
+; ..\cstart.c	  1176  #if defined EBU_SDRMOD0 && defined __EBU_SDRMOD0_VALUE
+; ..\cstart.c	  1177          if(__EBU_SDRMOD0_INIT)  EBU_SDRMOD0.U = __EBU_SDRMOD0_VALUE;
+; ..\cstart.c	  1178  #endif
+; ..\cstart.c	  1179  #if defined EBU_SDRMREF0 && defined __EBU_SDRMREF0_VALUE
+; ..\cstart.c	  1180          if(__EBU_SDRMREF0_INIT)  EBU_SDRMREF0.U = __EBU_SDRMREF0_VALUE;
+; ..\cstart.c	  1181  #endif
+; ..\cstart.c	  1182  #if defined EBU_SDRMCON1 && defined __EBU_SDRMCON1_VALUE
+; ..\cstart.c	  1183          if(__EBU_SDRMCON1_INIT)  EBU_SDRMCON1.U = __EBU_SDRMCON1_VALUE;
+; ..\cstart.c	  1184  #endif
+; ..\cstart.c	  1185  #if defined EBU_SDRMOD1 && defined __EBU_SDRMOD1_VALUE
+; ..\cstart.c	  1186          if(__EBU_SDRMOD1_INIT)  EBU_SDRMOD1.U = __EBU_SDRMOD1_VALUE;
+; ..\cstart.c	  1187  #endif
+; ..\cstart.c	  1188  #if defined EBU_SDRMREF1 && defined __EBU_SDRMREF1_VALUE
+; ..\cstart.c	  1189          if(__EBU_SDRMREF1_INIT)  EBU_SDRMREF1.U = __EBU_SDRMREF1_VALUE;
+; ..\cstart.c	  1190  #endif
+; ..\cstart.c	  1191  #if defined CBS_MCDBBS && defined __CBS_MCDBBS_VALUE
+; ..\cstart.c	  1192          if(__CBS_MCDBBS_INIT)  CBS_MCDBBS .U = __CBS_MCDBBS_VALUE;
+; ..\cstart.c	  1193  #endif
+; ..\cstart.c	  1194  #if defined SBCU_CON && defined __SBCU_CON_VALUE
+; ..\cstart.c	  1195          if(__SBCU_CON_INIT)  SBCU_CON.U = __SBCU_CON_VALUE;
+; ..\cstart.c	  1196  #endif
+; ..\cstart.c	  1197  #if defined EBU_BUSRAP1 && defined __EBU_BUSRAP1_VALUE
+; ..\cstart.c	  1198          if(__EBU_BUSRAP1_INIT)  EBU_BUSRAP1.U = __EBU_BUSRAP1_VALUE;
+; ..\cstart.c	  1199  #endif
+; ..\cstart.c	  1200  #if defined EBU_BUSRAP0 && defined __EBU_BUSRAP0_VALUE
+; ..\cstart.c	  1201          if(__EBU_BUSRAP0_INIT)  EBU_BUSRAP0.U = __EBU_BUSRAP0_VALUE;
+; ..\cstart.c	  1202  #endif
+; ..\cstart.c	  1203  #if defined EBU_BUSRAP2 && defined __EBU_BUSRAP2_VALUE
+; ..\cstart.c	  1204          if(__EBU_BUSRAP2_INIT)  EBU_BUSRAP2.U = __EBU_BUSRAP2_VALUE;
+; ..\cstart.c	  1205  #endif
+; ..\cstart.c	  1206  #if defined EBU_BUSRAP3 && defined __EBU_BUSRAP3_VALUE
+; ..\cstart.c	  1207          if(__EBU_BUSRAP3_INIT)  EBU_BUSRAP3.U = __EBU_BUSRAP3_VALUE;
+; ..\cstart.c	  1208  #endif
+; ..\cstart.c	  1209  #if defined EBU_BUSRCON0 && defined __EBU_BUSRCON0_VALUE
+; ..\cstart.c	  1210          if(__EBU_BUSRCON0_INIT)  EBU_BUSRCON0.U = __EBU_BUSRCON0_VALUE;
+; ..\cstart.c	  1211  #endif
+; ..\cstart.c	  1212  #if defined EBU_BUSRCON1 && defined __EBU_BUSRCON1_VALUE
+; ..\cstart.c	  1213          if(__EBU_BUSRCON1_INIT)  EBU_BUSRCON1.U = __EBU_BUSRCON1_VALUE;
+; ..\cstart.c	  1214  #endif
+; ..\cstart.c	  1215  #if defined EBU_BUSRCON2 && defined __EBU_BUSRCON2_VALUE
+; ..\cstart.c	  1216          if(__EBU_BUSRCON2_INIT)  EBU_BUSRCON2.U = __EBU_BUSRCON2_VALUE;
+; ..\cstart.c	  1217  #endif
+; ..\cstart.c	  1218  #if defined EBU_BUSRCON3 && defined __EBU_BUSRCON3_VALUE
+; ..\cstart.c	  1219          if(__EBU_BUSRCON3_INIT)  EBU_BUSRCON3.U = __EBU_BUSRCON3_VALUE;
+; ..\cstart.c	  1220  #endif
+; ..\cstart.c	  1221  #if defined EBU_BUSWAP0 && defined __EBU_BUSWAP0_VALUE
+; ..\cstart.c	  1222          if(__EBU_BUSWAP0_INIT)  EBU_BUSWAP0.U = __EBU_BUSWAP0_VALUE;
+; ..\cstart.c	  1223  #endif
+; ..\cstart.c	  1224  #if defined EBU_BUSWAP1 && defined __EBU_BUSWAP1_VALUE
+; ..\cstart.c	  1225          if(__EBU_BUSWAP1_INIT)  EBU_BUSWAP1.U = __EBU_BUSWAP1_VALUE;
+; ..\cstart.c	  1226  #endif
+; ..\cstart.c	  1227  #if defined EBU_BUSWAP2 && defined __EBU_BUSWAP2_VALUE
+; ..\cstart.c	  1228          if(__EBU_BUSWAP2_INIT)  EBU_BUSWAP2.U = __EBU_BUSWAP2_VALUE;
+; ..\cstart.c	  1229  #endif
+; ..\cstart.c	  1230  #if defined EBU_BUSWAP3 && defined __EBU_BUSWAP3_VALUE
+; ..\cstart.c	  1231          if(__EBU_BUSWAP3_INIT)  EBU_BUSWAP3.U = __EBU_BUSWAP3_VALUE;
+; ..\cstart.c	  1232  #endif
+; ..\cstart.c	  1233  #if defined EBU_BUSWCON0 && defined __EBU_BUSWCON0_VALUE
+; ..\cstart.c	  1234          if(__EBU_BUSWCON0_INIT)  EBU_BUSWCON0.U = __EBU_BUSWCON0_VALUE;
+; ..\cstart.c	  1235  #endif
+; ..\cstart.c	  1236  #if defined EBU_BUSWCON1 && defined __EBU_BUSWCON1_VALUE
+; ..\cstart.c	  1237          if(__EBU_BUSWCON1_INIT)  EBU_BUSWCON1.U = __EBU_BUSWCON1_VALUE;
+; ..\cstart.c	  1238  #endif
+; ..\cstart.c	  1239  #if defined EBU_BUSWCON2 && defined __EBU_BUSWCON2_VALUE
+; ..\cstart.c	  1240          if(__EBU_BUSWCON2_INIT)  EBU_BUSWCON2.U = __EBU_BUSWCON2_VALUE;
+; ..\cstart.c	  1241  #endif
+; ..\cstart.c	  1242  #if defined EBU_BUSWCON3 && defined __EBU_BUSWCON3_VALUE
+; ..\cstart.c	  1243          if(__EBU_BUSWCON3_INIT)  EBU_BUSWCON3.U = __EBU_BUSWCON3_VALUE;
+; ..\cstart.c	  1244  #endif
+; ..\cstart.c	  1245  #if defined EBU_EXTBOOT && defined __EBU_EXTBOOT_VALUE
+; ..\cstart.c	  1246          if(__EBU_EXTBOOT_INIT)  EBU_EXTBOOT.U = __EBU_EXTBOOT_VALUE;
+; ..\cstart.c	  1247  #endif
+; ..\cstart.c	  1248  #if defined EBU_MODCON && defined __EBU_MODCON_VALUE
+; ..\cstart.c	  1249          if(__EBU_MODCON_INIT)  EBU_MODCON.U = __EBU_MODCON_VALUE;
+; ..\cstart.c	  1250  #endif
+; ..\cstart.c	  1251  #if defined EBU_DDRNCON && defined __EBU_DDRNCON_VALUE
+; ..\cstart.c	  1252          if(__EBU_DDRNCON_INIT)  EBU_DDRNCON.U = __EBU_DDRNCON_VALUE;
+; ..\cstart.c	  1253  #endif
+; ..\cstart.c	  1254  #if defined EBU_DDRNMOD && defined __EBU_DDRNMOD_VALUE
+; ..\cstart.c	  1255          if(__EBU_DDRNMOD_INIT)  EBU_DDRNMOD.U = __EBU_DDRNMOD_VALUE;
+; ..\cstart.c	  1256  #endif
+; ..\cstart.c	  1257  #if defined EBU_DDRNMOD2 && defined __EBU_DDRNMOD2_VALUE
+; ..\cstart.c	  1258          if(__EBU_DDRNMOD2_INIT)  EBU_DDRNMOD2.U = __EBU_DDRNMOD2_VALUE;
+; ..\cstart.c	  1259  #endif
+; ..\cstart.c	  1260  #if defined EBU_DDRNPRLD && defined __EBU_DDRNPRLD_VALUE
+; ..\cstart.c	  1261          if(__EBU_DDRNPRLD_INIT)  EBU_DDRNPRLD.U = __EBU_DDRNPRLD_VALUE;
+; ..\cstart.c	  1262  #endif
+; ..\cstart.c	  1263  #if defined EBU_DDRNTAG0 && defined __EBU_DDRNTAG0_VALUE
+; ..\cstart.c	  1264          if(__EBU_DDRNTAG0_INIT)  EBU_DDRNTAG0.U = __EBU_DDRNTAG0_VALUE;
+; ..\cstart.c	  1265  #endif
+; ..\cstart.c	  1266  #if defined EBU_DDRNTAG1 && defined __EBU_DDRNTAG1_VALUE
+; ..\cstart.c	  1267          if(__EBU_DDRNTAG1_INIT)  EBU_DDRNTAG1.U = __EBU_DDRNTAG1_VALUE;
+; ..\cstart.c	  1268  #endif
+; ..\cstart.c	  1269  #if defined EBU_DDRNTAG2 && defined __EBU_DDRNTAG2_VALUE
+; ..\cstart.c	  1270          if(__EBU_DDRNTAG2_INIT)  EBU_DDRNTAG2.U = __EBU_DDRNTAG2_VALUE;
+; ..\cstart.c	  1271  #endif
+; ..\cstart.c	  1272  #if defined EBU_DDRNTAG3 && defined __EBU_DDRNTAG3_VALUE
+; ..\cstart.c	  1273          if(__EBU_DDRNTAG3_INIT)  EBU_DDRNTAG3.U = __EBU_DDRNTAG3_VALUE;
+; ..\cstart.c	  1274  #endif
+; ..\cstart.c	  1275  #if defined EBU_DLLCON && defined __EBU_DLLCON_VALUE
+; ..\cstart.c	  1276          if(__EBU_DLLCON_INIT)  EBU_DLLCON.U = __EBU_DLLCON_VALUE;
+; ..\cstart.c	  1277  #endif
+; ..\cstart.c	  1278  #if defined EBU_SDRMCON && defined __EBU_SDRMCON_VALUE
+; ..\cstart.c	  1279          if(__EBU_SDRMCON_INIT)  EBU_SDRMCON.U = __EBU_SDRMCON_VALUE;
+; ..\cstart.c	  1280  #endif
+; ..\cstart.c	  1281  #if defined EBU_SDRMOD && defined __EBU_SDRMOD_VALUE
+; ..\cstart.c	  1282          if(__EBU_SDRMOD_INIT)  EBU_SDRMOD.U = __EBU_SDRMOD_VALUE;
+; ..\cstart.c	  1283  #endif
+; ..\cstart.c	  1284  #if defined EBU_SDRMREF && defined __EBU_SDRMREF_VALUE
+; ..\cstart.c	  1285          if(__EBU_SDRMREF_INIT)  EBU_SDRMREF.U = __EBU_SDRMREF_VALUE;
+; ..\cstart.c	  1286  #endif
+; ..\cstart.c	  1287  #if defined EBU_SDRSTAT && defined __EBU_SDRSTAT_VALUE
+; ..\cstart.c	  1288          if(__EBU_SDRSTAT_INIT)  EBU_SDRSTAT.U = __EBU_SDRSTAT_VALUE;
+; ..\cstart.c	  1289  #endif
+; ..\cstart.c	  1290  
+; ..\cstart.c	  1291          /*
+; ..\cstart.c	  1292           * Initialize global address registers a0/a1 to support
+; ..\cstart.c	  1293           * __a0/__a1 storage qualifiers of the C compiler.
+; ..\cstart.c	  1294           */
+; ..\cstart.c	  1295  #if __A0A1_INIT
+; ..\cstart.c	  1296          void * a0 = _SMALL_DATA_;        
+; ..\cstart.c	  1297          __asm( "mov.aa\ta0,%0"::"a"(a0) );
+; ..\cstart.c	  1298  
+; ..\cstart.c	  1299          void * a1 = _LITERAL_DATA_;        
+; ..\cstart.c	  1300          __asm( "mov.aa\ta1,%0"::"a"(a1) );
+; ..\cstart.c	  1301  #endif
+; ..\cstart.c	  1302  
+; ..\cstart.c	  1303          /*
+; ..\cstart.c	  1304           * Initialize global address registers a8/a9 to support
+; ..\cstart.c	  1305           * __a8/__a9 storage qualifiers of the C compiler. A8 and A9
+; ..\cstart.c	  1306           * are reserved for OS use, or for application use in cases 
+; ..\cstart.c	  1307           * where the application ans OS are tightly coupled.
+; ..\cstart.c	  1308           */
+; ..\cstart.c	  1309  #if __A8A9_INIT
+; ..\cstart.c	  1310          void * a8 = _A8_DATA_;        
+; ..\cstart.c	  1311          __asm( "mov.aa\ta8,%0"::"a"(a8) );
+; ..\cstart.c	  1312  
+; ..\cstart.c	  1313          void * a9 = _A9_DATA_;        
+; ..\cstart.c	  1314          __asm( "mov.aa\ta9,%0"::"a"(a9) );
+; ..\cstart.c	  1315  #endif
+; ..\cstart.c	  1316          
+; ..\cstart.c	  1317          /* Setup the context save area linked list. */
+; ..\cstart.c	  1318  #if __CSA_INIT
+; ..\cstart.c	  1319  
+; ..\cstart.c	  1320  #if (__CSAS_FOR_FCD_TRAP < 1 || __CSAS_FOR_FCD_TRAP > 4)
+; ..\cstart.c	  1321  # error "Unexpected value for macro __CSAS_FOR_FCD_TRAP, allowed values are: 1-4"
+; ..\cstart.c	  1322  #endif
+; ..\cstart.c	  1323  
+; ..\cstart.c	  1324          extern int _lc_ub_csa_01[][16];    /* context save area 1 begin */
+; ..\cstart.c	  1325          extern int _lc_ue_csa_01[][16];    /* context save area 1 end   */
+; ..\cstart.c	  1326          static __far int (* const csa_area_begin[])[16] = { _lc_ub_csa_01 };
+; ..\cstart.c	  1327          static __far int (* const csa_area_end[])[16]   = { _lc_ue_csa_01 };
+; ..\cstart.c	  1328  
+; ..\cstart.c	  1329          int  i;
+; ..\cstart.c	  1330          int  no_of_csas;
+; ..\cstart.c	  1331          int * csa;
+; ..\cstart.c	  1332          unsigned int  seg_nr, seg_idx, pcxi_val=0;
+; ..\cstart.c	  1333          
+; ..\cstart.c	  1334          /* first calculate nr of CSAs in this area */
+; ..\cstart.c	  1335          no_of_csas = csa_area_end[0] - csa_area_begin[0];
+; ..\cstart.c	  1336                  
+; ..\cstart.c	  1337          for (i=0; i < no_of_csas; i++)
+; ..\cstart.c	  1338          {
+; ..\cstart.c	  1339                  csa = csa_area_begin[0][i];
+; ..\cstart.c	  1340                  /* Store null pointer in last CSA (= very first time!) */
+; ..\cstart.c	  1341                  *csa = pcxi_val;
+; ..\cstart.c	  1342  
+; ..\cstart.c	  1343                  seg_nr  = (((unsigned int)csa >> 28) & 0xf) << 16;
+; ..\cstart.c	  1344                  seg_idx = (((unsigned int)csa >> 6) & 0xffff);
+; ..\cstart.c	  1345                  pcxi_val = seg_nr | seg_idx;
+; ..\cstart.c	  1346                  if (i == __CSAS_FOR_FCD_TRAP)
+; ..\cstart.c	  1347                  {
+; ..\cstart.c	  1348                          __mtcr(LCX, pcxi_val);
+; ..\cstart.c	  1349                  }
+; ..\cstart.c	  1350          }
+; ..\cstart.c	  1351          __mtcr(FCX, pcxi_val);
+; ..\cstart.c	  1352  #endif
+; ..\cstart.c	  1353          
+; ..\cstart.c	  1354          /*
+; ..\cstart.c	  1355           * PMU_TC.004 workaround:
+; ..\cstart.c	  1356           * The split mode is disabled on the LMB bus to workaround.
+; ..\cstart.c	  1357           */
+; ..\cstart.c	  1358  #if __PMU_TC004_INITIAL__  && defined LFI_CON
+; ..\cstart.c	  1359          LFI_CON.U &= 0xfffffffe;        
+; ..\cstart.c	  1360  #endif
+; ..\cstart.c	  1361          
+; ..\cstart.c	  1362          /*
+; ..\cstart.c	  1363           * Initialize and clear C variables.
+; ..\cstart.c	  1364           */
+; ..\cstart.c	  1365  #if __C_INIT
+; ..\cstart.c	  1366          _c_init();      /* initialize data */
+; ..\cstart.c	  1367  #endif  
+; ..\cstart.c	  1368  
+; ..\cstart.c	  1369          /*
+; ..\cstart.c	  1370           * initialize __clocks_per_sec,
+; ..\cstart.c	  1371           * the oscillator frequency is defined by __fOSC.
+; ..\cstart.c	  1372           */
+; ..\cstart.c	  1373  #if __CLOCKS_PER_SEC_INIT
+; ..\cstart.c	  1374          setclockpersec();
+; ..\cstart.c	  1375  #endif  
+; ..\cstart.c	  1376  
+; ..\cstart.c	  1377          /* initialize profiling if required 
+; ..\cstart.c	  1378           */        
+; ..\cstart.c	  1379  #if __PROF_ENABLE__
+; ..\cstart.c	  1380          __prof_init();
+; ..\cstart.c	  1381  #endif
+; ..\cstart.c	  1382  
+; ..\cstart.c	  1383  #if __USP_INIT && ! __NO_STACK_LIMIT
+; ..\cstart.c	  1384          /*
+; ..\cstart.c	  1385           * Initialize the global variable used by the runtime stack overflow check.
+; ..\cstart.c	  1386           */
+; ..\cstart.c	  1387          if (&__stack_limit)
+; ..\cstart.c	  1388          {
+; ..\cstart.c	  1389                  __stack_limit = STACK_LIMIT;
+; ..\cstart.c	  1390          }
+; ..\cstart.c	  1391  #endif
+; ..\cstart.c	  1392  
+; ..\cstart.c	  1393          /*
+; ..\cstart.c	  1394           * Call a user function called _endinit() within one can initialize the 
+; ..\cstart.c	  1395           * registers protected via the EndInit feature.
+; ..\cstart.c	  1396           * Beware that protected registers are unlocked 
+; ..\cstart.c	  1397           * for the duration of the Time-out Period only!
+; ..\cstart.c	  1398           */
+; ..\cstart.c	  1399  #ifdef _CALL_ENDINIT
+; ..\cstart.c	  1400          endinit_set(_ENDINIT_DISABLE);  /* disable the write-protection */
+; ..\cstart.c	  1401          _endinit();        
+; ..\cstart.c	  1402          endinit_set(_ENDINIT_ENABLE);    /* enable the write-protection  */
+; ..\cstart.c	  1403  #endif
+; ..\cstart.c	  1404          
+; ..\cstart.c	  1405          /*
+; ..\cstart.c	  1406           * Call a user function before starting main().
+; ..\cstart.c	  1407           */
+; ..\cstart.c	  1408  #ifdef __CALL_INIT
+; ..\cstart.c	  1409          _call_init();        
+; ..\cstart.c	  1410  #endif
+; ..\cstart.c	  1411  
+; ..\cstart.c	  1412          /*
+; ..\cstart.c	  1413           *      Download image to xc800 XRAM
+; ..\cstart.c	  1414           */
+; ..\cstart.c	  1415  #if ( defined _XC800 )
+; ..\cstart.c	  1416  #if __XC800_INIT
+; ..\cstart.c	  1417          _xc800_init();
+; ..\cstart.c	  1418  #endif
+; ..\cstart.c	  1419  #endif
+; ..\cstart.c	  1420          
+; ..\cstart.c	  1421  #if ( defined _TC16XB || defined _TC162 )
+; ..\cstart.c	  1422  #if (__HALT_INIT_TC1 && (__HALT_VALUE_TC1 & 0x2)) || (__HALT_INIT_TC2 && (__HALT_VALUE_TC2 & 0x2)) || (__HALT_INIT_TC3 && (__HALT_VALUE_TC3 & 0x2)) || (__HALT_INIT_TC4 && (__HALT_VALUE_TC4 & 0x2)) || (__HALT_INIT_TC5 && (__HALT_VALUE_TC5 & 0x2))
+; ..\cstart.c	  1423  #if __C_INIT || __CLOCKS_PER_SEC_INIT || __PROF_ENABLE__ || _CALL_ENDINIT || (defined __CALL_INIT)
+; ..\cstart.c	  1424          __swapmskw( (unsigned int *)&_tcx_end_c_init, 0x1, 0x1 );       /* tc0 end of initialization */
+; ..\cstart.c	  1425          /*
+; ..\cstart.c	  1426           * Before calling main, which has code core association share,
+; ..\cstart.c	  1427           * wait until all cores have done the global initializations
+; ..\cstart.c	  1428           * to avoid race conditions on initialized shared global data.
+; ..\cstart.c	  1429           */
+; ..\cstart.c	  1430          while ( ( _tcx_end_c_init & 0x3f ) != 0x3f ) ;
+; ..\cstart.c	  1431  #endif
+; ..\cstart.c	  1432  #endif
+; ..\cstart.c	  1433  #endif
+; ..\cstart.c	  1434          
+; ..\cstart.c	  1435          /*
+; ..\cstart.c	  1436           * Call C main program.
+; ..\cstart.c	  1437           */
+; ..\cstart.c	  1438  #if __USE_ARGC_ARGV
+; ..\cstart.c	  1439          exit( main( _argcv( argcv, __ARGCV_BUFSIZE ), (char **)argcv ) );
+; ..\cstart.c	  1440  #else
+; ..\cstart.c	  1441          exit( main( 0, NULL ) );                /* argc is 0 */
+; ..\cstart.c	  1442  #endif
+; ..\cstart.c	  1443  
+; ..\cstart.c	  1444          /*
+; ..\cstart.c	  1445           * Default trap vectors are resolved from the C-library.
+; ..\cstart.c	  1446           */
+; ..\cstart.c	  1447  #if __BTV_INIT
+; ..\cstart.c	  1448  #  if __RESOLVE_TRAP_0
+; ..\cstart.c	  1449  #    pragma extern  _trapmmu
+; ..\cstart.c	  1450  #  endif
+; ..\cstart.c	  1451  #  if __RESOLVE_TRAP_1
+; ..\cstart.c	  1452  #    pragma extern  _trapprotection
+; ..\cstart.c	  1453  #  endif
+; ..\cstart.c	  1454  #  if __RESOLVE_TRAP_2
+; ..\cstart.c	  1455  #    pragma extern  _trapinstruction
+; ..\cstart.c	  1456  #  endif
+; ..\cstart.c	  1457  #  if __RESOLVE_TRAP_3
+; ..\cstart.c	  1458  #    pragma extern  _trapcontext
+; ..\cstart.c	  1459  #  endif
+; ..\cstart.c	  1460  #  if __RESOLVE_TRAP_4
+; ..\cstart.c	  1461  #    pragma extern  _trapbus
+; ..\cstart.c	  1462  #  endif
+; ..\cstart.c	  1463  #  if __RESOLVE_TRAP_5
+; ..\cstart.c	  1464  #    pragma extern  _trapassertion
+; ..\cstart.c	  1465  #  endif
+; ..\cstart.c	  1466  #  if __RESOLVE_TRAP_6
+; ..\cstart.c	  1467  #    pragma extern  _trapsystem
+; ..\cstart.c	  1468  #  endif
+; ..\cstart.c	  1469  #  if __RESOLVE_TRAP_7
+; ..\cstart.c	  1470  #    pragma extern  _trapnmi
+; ..\cstart.c	  1471  #  endif
+; ..\cstart.c	  1472  #endif
+; ..\cstart.c	  1473          
+; ..\cstart.c	  1474  }
+; ..\cstart.c	  1475  
+; ..\cstart.c	  1476  /**************************************************************************
+; ..\cstart.c	  1477   *
+; ..\cstart.c	  1478   * FUNCTION:     endinit_set
+; ..\cstart.c	  1479   *
+; ..\cstart.c	  1480   * DESCRIPTION:  Sets or Clears the ENDINIT bit in the WDT_CON0 register
+; ..\cstart.c	  1481   *               in order to enabled or disable the write-protection for
+; ..\cstart.c	  1482   *               registers protected via the EndInit feature
+; ..\cstart.c	  1483   *               (ie. BTV, BIV, ISP, PCON0, DCON0).
+; ..\cstart.c	  1484   *
+; ..\cstart.c	  1485   *************************************************************************/
+; ..\cstart.c	  1486  static void inline endinit_set( _endinit_t endinit_value )
+; ..\cstart.c	  1487  {
+; ..\cstart.c	  1488          unsigned int wdt_con0;
+; ..\cstart.c	  1489  
+; ..\cstart.c	  1490  #if !( defined _TC16X || defined _TC162 )
+; ..\cstart.c	  1491          unsigned int wdt_con1;
+; ..\cstart.c	  1492  #endif
+; ..\cstart.c	  1493          /*
+; ..\cstart.c	  1494           * 1st step: Password access (create password and send to WDT_CON0)
+; ..\cstart.c	  1495           */        
+; ..\cstart.c	  1496          wdt_con0 = WDT_CON0.U;
+	movh.a	a15,#61443
+	lea	a15,[a15]@los(0xf0036100)
+	fcall	.cocofun_1
+.L261:
+
+; ..\cstart.c	  1497  #if !( defined _TC16X || defined _TC162 )
+; ..\cstart.c	  1498          wdt_con1 = WDT_CON1.U;
+; ..\cstart.c	  1499  #endif
+; ..\cstart.c	  1500  
+; ..\cstart.c	  1501          wdt_con0 &= 0xffffff01;         /* clear WDTLCK, WDTHPW0, WDTHPW1 */
+; ..\cstart.c	  1502          wdt_con0 |= 0xf0;               /* set WDTHPW1 to 0xf */
+; ..\cstart.c	  1503  #if ( defined _TC16X || defined _TC162 )
+; ..\cstart.c	  1504          wdt_con0 |= 0x1;                /* 1 must be written to ENDINIT for password access
+; ..\cstart.c	  1505                                           * (but this will not actually modify the bit) */
+; ..\cstart.c	  1506  #else
+; ..\cstart.c	  1507          wdt_con1 &= 0x0c;               /* copy of WDT_CON1.DR and WDT_CON1.IR (d1) */
+; ..\cstart.c	  1508          wdt_con0 |= wdt_con1;           /* HPW0 is WDT_CON1.DR | WDT_CON1.IR */
+; ..\cstart.c	  1509  #endif
+; ..\cstart.c	  1510          WDT_CON0.U = wdt_con0;
+; ..\cstart.c	  1511  
+; ..\cstart.c	  1512          /*
+; ..\cstart.c	  1513           * 2nd step: Modify access, set the bit ENDINIT to 1 or 0 to allow access to
+; ..\cstart.c	  1514           *           registers: WDT_CON1, BTV, BIV, ISP and mod_CLC
+; ..\cstart.c	  1515           */
+; ..\cstart.c	  1516          wdt_con0 &= 0xfffffff0;         /* clear WDTHPW0, WDTLCK, ENDINIT  */
+; ..\cstart.c	  1517          wdt_con0 |= 0x02 | endinit_value;       /* WDTHPW0=0, WDTLCK=1, ENDINIT=0 */
+; ..\cstart.c	  1518          __isync();
+	isync
+.L172:
+
+; ..\cstart.c	  1519          WDT_CON0.U = wdt_con0;          
+	st.w	[a15],d15
+.L262:
+
+; ..\cstart.c	  1520          WDT_CON0.U;                     /* read is required */
+	ld.w	d15,[a15]
+.L152:
+	ret
+.L151:
+	
+___endinit_clear_function_end:
+	.size	_endinit_clear,___endinit_clear_function_end-_endinit_clear
+.L48:
+	; End of function
+	
+	.sdecl	'.text.cstart..cocofun_1',code,cluster('.cocofun_1')
+	.sect	'.text.cstart..cocofun_1'
+	.align	2
+; Function .cocofun_1
+.L9:
+.cocofun_1:	.type	func
+; Function body .cocofun_1, coco_iter:0
+	ld.w	d15,[a15]
+.L179:
+	insert	d15,d15,#0,#1,#7
+.L171:
+	or	d15,#241
+	st.w	[a15],d15
+.L289:
+	insert	d15,d15,#2,#0,#4
+	fret
+.L73:
+	; End of function
+	.sdecl	'.text.cstart._endinit_set',code,cluster('_endinit_set')
+	.sect	'.text.cstart._endinit_set'
+	.align	2
+	
+	.global	_endinit_set
+; Function _endinit_set
+.L11:
+_endinit_set:	.type	func
+	movh.a	a15,#61443
+	lea	a15,[a15]@los(0xf0036100)
+	fcall	.cocofun_2
+.L267:
+	isync
+.L174:
+	st.w	[a15],d15
+.L268:
+	ld.w	d15,[a15]
+.L157:
+	ret
+.L156:
+	
+___endinit_set_function_end:
+	.size	_endinit_set,___endinit_set_function_end-_endinit_set
+.L53:
+	; End of function
+	
+	.sdecl	'.text.cstart..cocofun_2',code,cluster('.cocofun_2')
+	.sect	'.text.cstart..cocofun_2'
+	.align	2
+; Function .cocofun_2
+.L13:
+.cocofun_2:	.type	func
+; Function body .cocofun_2, coco_iter:0
+	ld.w	d15,[a15]
+.L294:
+	insert	d15,d15,#0,#1,#7
+.L173:
+	or	d15,#241
+	st.w	[a15],d15
+.L295:
+	insert	d15,d15,#3,#0,#4
+	fret
+.L78:
+	; End of function
+	.sdecl	'.text.cstart._safety_endinit_clear',code,cluster('_safety_endinit_clear')
+	.sect	'.text.cstart._safety_endinit_clear'
+	.align	2
+	
+	.global	_safety_endinit_clear
+; Function _safety_endinit_clear
+.L15:
+_safety_endinit_clear:	.type	func
+
+; ..\cstart.c	  1521  }
+; ..\cstart.c	  1522  
+; ..\cstart.c	  1523  #if ( defined _TC16X || defined _TC162 )
+; ..\cstart.c	  1524  /**************************************************************************
+; ..\cstart.c	  1525   *
+; ..\cstart.c	  1526   * FUNCTION:     safety_endinit_set
+; ..\cstart.c	  1527   *
+; ..\cstart.c	  1528   * DESCRIPTION:  Sets or Clears the ENDINIT bit in the WDTSCON0 register
+; ..\cstart.c	  1529   *               in order to enabled or disable the write-protection for
+; ..\cstart.c	  1530   *               safety-critical registers protected via the EndInit feature.
+; ..\cstart.c	  1531   *
+; ..\cstart.c	  1532   *************************************************************************/
+; ..\cstart.c	  1533  static void inline safety_endinit_set( _endinit_t endinit_value )
+; ..\cstart.c	  1534  {
+; ..\cstart.c	  1535          unsigned int wdtscon0;
+; ..\cstart.c	  1536  
+; ..\cstart.c	  1537          /*
+; ..\cstart.c	  1538           * 1st step: Password access (create password and send to WDTSCON0)
+; ..\cstart.c	  1539           */
+; ..\cstart.c	  1540          wdtscon0 = SCU_WDTSCON0.U;
+	fcall	.cocofun_5
+	fcall	.cocofun_1
+.L175:
+
+; ..\cstart.c	  1541  
+; ..\cstart.c	  1542          wdtscon0 &= 0xffffff01;         /* clear WDTLCK, WDTHPW0, WDTHPW1 */
+; ..\cstart.c	  1543          wdtscon0 |= 0xf0;               /* set WDTHPW1 to 0xf */
+; ..\cstart.c	  1544          wdtscon0 |= 0x1;                /* 1 must be written to ENDINIT for password access
+; ..\cstart.c	  1545                                           * (but this will not actually modify the bit) */
+; ..\cstart.c	  1546          SCU_WDTSCON0.U = wdtscon0;
+; ..\cstart.c	  1547  
+; ..\cstart.c	  1548          /*
+; ..\cstart.c	  1549           * 2nd step: Modify access, set the bit ENDINIT to 1 or 0 to allow access to
+; ..\cstart.c	  1550           *           registers: SCU_WDTSCON1, BTV, BIV, ISP and mod_CLC
+; ..\cstart.c	  1551           */
+; ..\cstart.c	  1552          wdtscon0 &= 0xfffffff0;         /* clear WDTHPW0, WDTLCK, ENDINIT  */
+; ..\cstart.c	  1553          wdtscon0 |= 0x02 | endinit_value;       /* WDTHPW0=0, WDTLCK=1, ENDINIT=0 */
+; ..\cstart.c	  1554          __isync();
+	isync
+.L273:
+
+; ..\cstart.c	  1555          SCU_WDTSCON0.U = wdtscon0;          
+	st.w	[a15],d15
+.L274:
+
+; ..\cstart.c	  1556          SCU_WDTSCON0.U;                 /* read is required */
+	ld.w	d15,[a15]
+.L162:
+	ret
+.L161:
+	
+___safety_endinit_clear_function_end:
+	.size	_safety_endinit_clear,___safety_endinit_clear_function_end-_safety_endinit_clear
+.L58:
+	; End of function
+	
+	.sdecl	'.text.cstart..cocofun_5',code,cluster('.cocofun_5')
+	.sect	'.text.cstart..cocofun_5'
+	.align	2
+; Function .cocofun_5
+.L17:
+.cocofun_5:	.type	func
+; Function body .cocofun_5, coco_iter:1
+	movh.a	a15,#61443
+	lea	a15,[a15]@los(0xf00360f0)
+	fret
+.L93:
+	; End of function
+	.sdecl	'.text.cstart._safety_endinit_set',code,cluster('_safety_endinit_set')
+	.sect	'.text.cstart._safety_endinit_set'
+	.align	2
+	
+	.global	_safety_endinit_set
+; Function _safety_endinit_set
+.L19:
+_safety_endinit_set:	.type	func
+	fcall	.cocofun_5
+	fcall	.cocofun_2
+.L176:
+	isync
+.L279:
+	st.w	[a15],d15
+.L280:
+	ld.w	d15,[a15]
+.L167:
+	ret
+.L166:
+	
+___safety_endinit_set_function_end:
+	.size	_safety_endinit_set,___safety_endinit_set_function_end-_safety_endinit_set
+.L63:
+	; End of function
+	
+	.sdecl	'.text.libc.reset',code,cluster('_START')
+	.sect	'.text.libc.reset'
+	.align	2
+	
+	.global	_START
+; Function _START
+.L21:
+_START:	.type	func
+	j	__init_sp
+.L170:
+	
+___START_function_end:
+	.size	_START,___START_function_end-_START
+.L68:
+	; End of function
+	
+	.sdecl	'.text.cstart.__init_sp',code,cluster('__init_sp')
+	.sect	'.text.cstart.__init_sp'
+	.align	2
+	
+; Function __init_sp
+.L23:
+__init_sp:	.type	func
+	movh.a	a15,#@his(_lc_ue_ustack)
+	lea	a15,[a15]@los(_lc_ue_ustack)
+	mov.d	d15,a15
+.L207:
+	insert	d15,d15,#0,#0,#3
+.L208:
+	mov.a	a15,d15
+.L209:
+	mov.aa	a10,a15
+.L210:
+	j	_start
+.L94:
+	
+____init_sp_function_end:
+	.size	__init_sp,____init_sp_function_end-__init_sp
+.L38:
+	; End of function
+	
+	.sdecl	'.text.cstart._start',code,cluster('_start')
+	.sect	'.text.cstart._start'
+	.align	2
+	
+; Function _start
+.L25:
+_start:	.type	func
+	dsync
+.L97:
+	mov	d15,#2432
+.L215:
+	mtcr	#65028,d15
+	isync
+.L98:
+	mfcr	d15,#65024
+.L216:
+	insert	d15,d15,#0,#0,#20
+.L177:
+	mtcr	#65024,d15
+	isync
+.L103:
+	fcall	.cocofun_5
+.L178:
+	fcall	.cocofun_1
+.L180:
+	isync
+.L217:
+	st.w	[a15],d15
+.L218:
+	ld.w	d15,[a15]
+.L104:
+	movh.a	a2,#61443
+	ld.w	d15,[a2]@los(0xf00360f4)
+.L219:
+	or	d15,#8
+	st.w	[a2]@los(0xf00360f4),d15
+.L109:
+	fcall	.cocofun_2
+.L181:
+	isync
+.L220:
+	st.w	[a15],d15
+.L221:
+	ld.w	d15,[a15]
+.L110:
+	fcall	.cocofun_1
+.L182:
+	isync
+.L222:
+	st.w	[a15],d15
+.L112:
+	mov.aa	a4,a2
+.L114:
+	ld.w	d15,[a15]
+.L115:
+	lea	a4,[a4]@los(0xf0036100)
+	fcall	.cocofun_3
+.L223:
+	isync
+.L184:
+	st.w	[a4],d15
+.L224:
+	ld.w	d15,[a4]
+.L122:
+	ld.w	d15,[a2]@los(0xf0036104)
+.L225:
+	or	d15,#8
+	st.w	[a2]@los(0xf0036104),d15
+.L124:
+	fcall	.cocofun_4
+.L226:
+	isync
+.L186:
+	st.w	[a4],d15
+.L227:
+	ld.w	d15,[a4]
+.L125:
+	fcall	.cocofun_3
+.L187:
+	isync
+.L228:
+	st.w	[a4],d15
+.L128:
+	movh.a	a2,#@his(_lc_u_trap_tab)
+	lea	a2,[a2]@los(_lc_u_trap_tab)
+.L130:
+	ld.w	d15,[a4]
+.L131:
+	mov.d	d15,a2
+.L229:
+	mtcr	#65060,d15
+	isync
+.L230:
+	movh.a	a2,#@his(_lc_u_int_tab)
+	lea	a2,[a2]@los(_lc_u_int_tab)
+	mov.d	d15,a2
+.L231:
+	mtcr	#65056,d15
+	isync
+.L133:
+	movh.a	a2,#@his(_lc_ue_istack)
+	lea	a2,[a2]@los(_lc_ue_istack)
+	mov.d	d15,a2
+.L232:
+	insert	d15,d15,#0,#0,#3
+.L233:
+	mtcr	#65064,d15
+	isync
+.L234:
+	mov	d15,#0
+.L235:
+	mtcr	#37388,d15
+	isync
+.L236:
+	mtcr	#36928,d15
+	isync
+.L237:
+	movh.a	a2,#61466
+	st.w	[a2]@los(0xf019fd00),d15
+.L134:
+	fcall	.cocofun_4
+.L188:
+	isync
+.L238:
+	st.w	[a4],d15
+.L239:
+	ld.w	d15,[a4]
+.L135:
+	fcall	.cocofun_2
+.L189:
+	isync
+.L240:
+	st.w	[a15],d15
+.L241:
+	ld.w	d15,[a15]
+.L137:
+	movh.a	a15,#@his(_SMALL_DATA_)
+	lea	a15,[a15]@los(_SMALL_DATA_)
+.L242:
+	mov.aa	a0,a15
+.L139:
+	movh.a	a15,#@his(_LITERAL_DATA_)
+	lea	a15,[a15]@los(_LITERAL_DATA_)
+.L243:
+	mov.aa	a1,a15
+.L140:
+	movh.a	a15,#@his(_A8_DATA_)
+	lea	a15,[a15]@los(_A8_DATA_)
+.L244:
+	mov.aa	a8,a15
+.L141:
+	movh.a	a15,#@his(_A9_DATA_)
+	lea	a15,[a15]@los(_A9_DATA_)
+.L245:
+	mov.aa	a9,a15
+.L142:
+	mov	d0,#0
+	movh.a	a15,#@his(_lc_ub_csa_01)
+.L190:
+	lea	a15,[a15]@los(_lc_ub_csa_01)
+.L246:
+	movh.a	a2,#@his(_lc_ue_csa_01)
+	lea	a2,[a2]@los(_lc_ue_csa_01)
+.L247:
+	sub.a	a2,a2,a15
+	mov.d	d1,a2
+.L192:
+	sha	d1,#-6
+.L248:
+	mov	d15,d0
+	j	.L2
+.L3:
+	mov.aa	a2,a15
+.L194:
+	mov.d	d2,a2
+.L195:
+	st.w	[a2],d0
+.L249:
+	sh	d0,d2,#-28
+	lea	a15,[a15]64
+.L191:
+	extr.u	d2,d2,#6,#16
+.L196:
+	sh	d0,d0,#16
+.L197:
+	or	d0,d2
+.L198:
+	jne	d15,#2,.L4
+.L250:
+	mtcr	#65084,d0
+	isync
+.L4:
+	add	d15,#1
+.L2:
+	jlt	d15,d1,.L3
+.L251:
+	mtcr	#65080,d0
+	isync
+.L252:
+	call	_c_init
+.L193:
+	lea	a15,__stack_limit
+.L253:
+	jz.a	a15,.L5
+.L254:
+	movh.a	a15,#@his(_lc_ub_ustack+64)
+	lea	a15,[a15]@los(_lc_ub_ustack+64)
+.L255:
+	st.a	__stack_limit,a15
+.L5:
+	mov	d4,#0
+	mov.a	a4,#0
+	call	main
+.L256:
+	mov	d4,d2
+	j	exit
+.L95:
+	
+___start_function_end:
+	.size	_start,___start_function_end-_start
+.L43:
+	; End of function
+	
+	.sdecl	'.text.cstart..cocofun_4',code,cluster('.cocofun_4')
+	.sect	'.text.cstart..cocofun_4'
+	.align	2
+; Function .cocofun_4
+.L27:
+.cocofun_4:	.type	func
+; Function body .cocofun_4, coco_iter:0
+	ld.w	d15,[a4]
+.L306:
+	insert	d15,d15,#0,#1,#7
+.L185:
+	or	d15,#241
+	st.w	[a4],d15
+.L307:
+	insert	d15,d15,#3,#0,#4
+	fret
+.L88:
+	; End of function
+	.sdecl	'.text.cstart..cocofun_3',code,cluster('.cocofun_3')
+	.sect	'.text.cstart..cocofun_3'
+	.align	2
+; Function .cocofun_3
+.L29:
+.cocofun_3:	.type	func
+; Function body .cocofun_3, coco_iter:0
+	ld.w	d15,[a4]
+.L300:
+	insert	d15,d15,#0,#1,#7
+.L183:
+	or	d15,#241
+	st.w	[a4],d15
+.L301:
+	insert	d15,d15,#2,#0,#4
+	fret
+.L83:
+	; End of function
+	.calls	'_START','__init_sp'
+	.calls	'__init_sp','_start'
+	.calls	'_start','_c_init'
+	.calls	'_start','main'
+	.calls	'_start','exit'
+	.calls	'_endinit_clear','.cocofun_1'
+	.calls	'_endinit_set','.cocofun_2'
+	.calls	'_safety_endinit_clear','.cocofun_5'
+	.calls	'_safety_endinit_clear','.cocofun_1'
+	.calls	'_safety_endinit_set','.cocofun_5'
+	.calls	'_safety_endinit_set','.cocofun_2'
+	.calls	'_start','.cocofun_5'
+	.calls	'_start','.cocofun_1'
+	.calls	'_start','.cocofun_2'
+	.calls	'_start','.cocofun_3'
+	.calls	'_start','.cocofun_4'
+	.calls	'_endinit_clear','',0
+	.calls	'.cocofun_1','',0
+	.calls	'_endinit_set','',0
+	.calls	'.cocofun_2','',0
+	.calls	'_safety_endinit_clear','',0
+	.calls	'.cocofun_5','',0
+	.calls	'_safety_endinit_set','',0
+	.calls	'_START','',0
+	.calls	'__init_sp','',0
+	.calls	'_start','',0
+	.calls	'.cocofun_4','',0
+	.weak	exit
+	.extern	exit
+	.extern	_Exit
+	.extern	_lc_ue_ustack
+	.extern	_lc_ue_istack
+	.extern	_lc_u_int_tab
+	.extern	_lc_u_trap_tab
+	.extern	_SMALL_DATA_
+	.extern	_LITERAL_DATA_
+	.extern	_A8_DATA_
+	.extern	_A9_DATA_
+	.extern	_c_init
+	.extern	main
+	.weak	__stack_limit
+	.extern	__stack_limit
+	.extern	_lc_ub_ustack
+	.extern	_lc_ub_csa_01
+	.extern	_lc_ue_csa_01
+	.extern	_trapmmu
+	.extern	_trapprotection
+	.extern	_trapinstruction
+	.extern	_trapcontext
+	.extern	_trapbus
+	.extern	_trapassertion
+	.extern	_trapsystem
+	.extern	_trapnmi
+	.calls	'.cocofun_3','',0
+	.sdecl	'.debug_info',debug
+	.sect	'.debug_info'
+.L31:
+	.word	1006
+	.half	3
+	.word	.L32
+	.byte	4
+.L30:
+	.byte	1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L33
+	.byte	2,1,157,1,9,1,3
+	.byte	'_ENDINIT_DISABLE',0,0,3
+	.byte	'_ENDINIT_ENABLE',0,1,0
+.L117:
+	.byte	4
+	.byte	'endinit_set',0,3,1,206,11,20,1,1
+.L118:
+	.byte	5
+	.byte	'endinit_value',0,1,206,11,44
+	.word	121
+.L120:
+	.byte	6,0
+.L102:
+	.byte	4
+	.byte	'safety_endinit_set',0,3,1,253,11,20,1,1
+.L105:
+	.byte	5
+	.byte	'endinit_value',0,1,253,11,51
+	.word	121
+.L107:
+	.byte	6,0
+.L96:
+	.byte	4
+	.byte	'reset_psw',0,3,1,238,2,20,1,1
+.L99:
+	.byte	6,0
+.L143:
+	.byte	7
+	.byte	'int',0,4,5,8
+	.word	282
+	.byte	9
+	.byte	'__c11_atomic_thread_fence',0,1,1,1,1,10
+	.word	289
+	.byte	0
+.L100:
+	.byte	7
+	.byte	'unsigned int',0,4,7,11
+	.word	331
+	.byte	12
+	.word	331
+	.byte	13
+	.byte	'__cmpswapw',0
+	.word	347
+	.byte	1,1,1,1,14
+	.byte	'p',0
+	.word	352
+	.byte	14
+	.byte	'value',0
+	.word	331
+	.byte	14
+	.byte	'compare',0
+	.word	331
+	.byte	0,9
+	.byte	'__mtcr',0,1,1,1,1,10
+	.word	282
+	.byte	10
+	.word	282
+	.byte	0,11
+	.word	282
+	.byte	13
+	.byte	'__mfcr',0
+	.word	432
+	.byte	1,1,1,1,10
+	.word	282
+	.byte	0,15
+	.byte	'__isync',0,1,1,1,1,15
+	.byte	'__dsync',0,1,1,1,1,16
+	.byte	'void',0,12
+	.word	485
+	.byte	9
+	.byte	'__set_sp',0,1,1,1,1,10
+	.word	491
+	.byte	0,17
+	.byte	'exit',0,2,100,33,1,1,1,1,18,2,100,44
+	.word	282
+	.byte	0,19
+	.byte	'_c_init',0,1,133,1,13,1,1,1,1
+.L146:
+	.byte	12
+	.word	282
+	.byte	20
+	.word	165
+	.byte	21
+	.word	185
+	.byte	6,0,20
+	.word	210
+	.byte	21
+	.word	237
+	.byte	6,0,20
+	.word	262
+	.byte	6,0,7
+	.byte	'short int',0,2,5,22
+	.byte	'__wchar_t',0,1,1,1
+	.word	591
+	.byte	22
+	.byte	'__size_t',0,1,1,1
+	.word	331
+	.byte	23,1,12
+	.word	639
+	.byte	22
+	.byte	'__codeptr',0,1,1,1
+	.word	641
+	.byte	24
+	.word	485
+	.byte	25,0,26
+	.byte	'_lc_ue_ustack',0,1,122,19
+	.word	664
+	.byte	1,1,26
+	.byte	'_lc_ue_istack',0,1,123,19
+	.word	664
+	.byte	1,1,26
+	.byte	'_lc_u_int_tab',0,1,124,19
+	.word	664
+	.byte	1,1,26
+	.byte	'_lc_u_trap_tab',0,1,125,19
+	.word	664
+	.byte	1,1,26
+	.byte	'_SMALL_DATA_',0,1,126,19
+	.word	664
+	.byte	1,1,26
+	.byte	'_LITERAL_DATA_',0,1,127,19
+	.word	664
+	.byte	1,1,26
+	.byte	'_A8_DATA_',0,1,128,1,19
+	.word	664
+	.byte	1,1,26
+	.byte	'_A9_DATA_',0,1,129,1,19
+	.word	664
+	.byte	1,1,22
+	.byte	'_endinit_t',0,1,161,1,9
+	.word	121
+	.byte	26
+	.byte	'__stack_limit',0,1,153,2,21
+	.word	491
+	.byte	1,1,7
+	.byte	'char',0,1,6,24
+	.word	903
+	.byte	25,0,26
+	.byte	'_lc_ub_ustack',0,1,155,2,13
+	.word	911
+	.byte	1,1,27,64
+	.word	282
+	.byte	28,15,0,24
+	.word	943
+	.byte	25,0,26
+	.byte	'_lc_ub_csa_01',0,1,172,10,20
+	.word	952
+	.byte	1,1,26
+	.byte	'_lc_ue_csa_01',0,1,173,10,20
+	.word	952
+	.byte	1,1,0
+	.sdecl	'.debug_abbrev',debug
+	.sect	'.debug_abbrev'
+.L32:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,16,6,0,0,2,4,1,58,15,59,15,57,15,11,15,0,0,3,40,0,3,8,28,13,0,0,4
+	.byte	46,1,3,8,32,13,58,15,59,15,57,15,54,15,39,12,0,0,5,5,0,3,8,58,15,59,15,57,15,73,19,0,0,6,11,0,0,0,7,36
+	.byte	0,3,8,11,15,62,15,0,0,8,38,0,73,19,0,0,9,46,1,3,8,54,15,39,12,63,12,60,12,0,0,10,5,0,73,19,0,0,11,53,0
+	.byte	73,19,0,0,12,15,0,73,19,0,0,13,46,1,3,8,73,19,54,15,39,12,63,12,60,12,0,0,14,5,0,3,8,73,19,0,0,15,46,0
+	.byte	3,8,54,15,39,12,63,12,60,12,0,0,16,59,0,3,8,0,0,17,46,1,3,8,58,15,59,15,57,15,54,15,39,12,63,12,60,12
+	.byte	0,0,18,5,0,58,15,59,15,57,15,73,19,0,0,19,46,0,3,8,58,15,59,15,57,15,54,15,39,12,63,12,60,12,0,0,20,46
+	.byte	1,49,19,0,0,21,5,0,49,19,0,0,22,22,0,3,8,58,15,59,15,57,15,73,19,0,0,23,21,0,54,15,0,0,24,1,1,73,19,0
+	.byte	0,25,33,0,0,0,26,52,0,3,8,58,15,59,15,57,15,73,19,63,12,60,12,0,0,27,1,1,11,15,73,19,0,0,28,33,0,47,15
+	.byte	0,0,0
+	.sdecl	'.debug_line',debug
+	.sect	'.debug_line'
+.L33:
+	.word	.L200-.L199
+.L199:
+	.half	3
+	.word	.L202-.L201
+.L201:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1
+	.byte	'C:\\TASKING\\TriCore v6.3r1\\ctc\\include\\',0,0
+	.byte	'..\\cstart.c',0,0,0,0
+	.byte	'stdlib.h',0,1,0,0,0
+.L202:
+.L200:
+	.sdecl	'.debug_info',debug,cluster('__init_sp')
+	.sect	'.debug_info'
+.L34:
+	.word	166
+	.half	3
+	.word	.L35
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L37,.L36
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'__init_sp',0,1,193,2,48,1,1
+	.word	.L23,.L94,.L22
+	.byte	4
+	.word	.L23,.L94
+	.byte	0,0
+	.sdecl	'.debug_abbrev',debug,cluster('__init_sp')
+	.sect	'.debug_abbrev'
+.L35:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,17,1,18,1,64,6,0,0,4,11,0,17,1,18,1,0,0,0
+	.sdecl	'.debug_line',debug,cluster('__init_sp')
+	.sect	'.debug_line'
+.L36:
+	.word	.L204-.L203
+.L203:
+	.half	3
+	.word	.L206-.L205
+.L205:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L206:
+	.byte	5,45,7,0,5,2
+	.word	.L23
+	.byte	3,225,2,1,5,60,9
+	.half	.L207-.L23
+	.byte	1,5,21,9
+	.half	.L208-.L207
+	.byte	1,5,17,9
+	.half	.L209-.L208
+	.byte	3,2,1,5,15,9
+	.half	.L210-.L209
+	.byte	3,2,1,5,1,7,9
+	.half	.L38-.L210
+	.byte	3,1,0,1,1
+.L204:
+	.sdecl	'.debug_ranges',debug,cluster('__init_sp')
+	.sect	'.debug_ranges'
+.L37:
+	.word	-1,.L23,0,.L38-.L23,0,0
+	.sdecl	'.debug_info',debug,cluster('_start')
+	.sect	'.debug_info'
+.L39:
+	.word	923
+	.half	3
+	.word	.L40
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L42,.L41
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'_start',0,1,128,3,48,1,1
+	.word	.L25,.L95,.L24
+	.byte	4
+	.word	.L25,.L95
+	.byte	5
+	.word	.L96,.L97,.L98
+	.byte	6
+	.word	.L99,.L97,.L98
+	.byte	0,4
+	.word	.L98,.L95
+	.byte	7
+	.byte	'pcxi',0,1,153,4,22
+	.word	.L100,.L101
+	.byte	5
+	.word	.L102,.L103,.L104
+	.byte	8
+	.word	.L105,.L106
+	.byte	9
+	.word	.L107,.L103,.L104
+	.byte	7
+	.byte	'wdtscon0',0,1,255,11,22
+	.word	.L100,.L108
+	.byte	0,0,5
+	.word	.L102,.L109,.L110
+	.byte	8
+	.word	.L105,.L106
+	.byte	9
+	.word	.L107,.L109,.L110
+	.byte	7
+	.byte	'wdtscon0',0,1,255,11,22
+	.word	.L100,.L111
+	.byte	0,0,5
+	.word	.L102,.L110,.L112
+	.byte	8
+	.word	.L105,.L106
+	.byte	10
+	.word	.L107,.L113
+	.byte	7
+	.byte	'wdtscon0',0,1,255,11,22
+	.word	.L100,.L116
+	.byte	0,0,5
+	.word	.L117,.L112,.L114
+	.byte	8
+	.word	.L118,.L119
+	.byte	10
+	.word	.L120,.L121
+	.byte	7
+	.byte	'wdt_con0',0,1,208,11,22
+	.word	.L100,.L123
+	.byte	0,0,5
+	.word	.L102,.L114,.L115
+	.byte	8
+	.word	.L105,.L106
+	.byte	0,5
+	.word	.L117,.L115,.L122
+	.byte	8
+	.word	.L118,.L119
+	.byte	0,5
+	.word	.L117,.L124,.L125
+	.byte	8
+	.word	.L118,.L119
+	.byte	10
+	.word	.L120,.L126
+	.byte	7
+	.byte	'wdt_con0',0,1,208,11,22
+	.word	.L100,.L127
+	.byte	0,0,5
+	.word	.L117,.L125,.L128
+	.byte	8
+	.word	.L118,.L119
+	.byte	10
+	.word	.L120,.L129
+	.byte	7
+	.byte	'wdt_con0',0,1,208,11,22
+	.word	.L100,.L132
+	.byte	0,0,5
+	.word	.L117,.L130,.L131
+	.byte	8
+	.word	.L118,.L119
+	.byte	0,4
+	.word	.L133,.L95
+	.byte	5
+	.word	.L117,.L134,.L135
+	.byte	8
+	.word	.L118,.L119
+	.byte	9
+	.word	.L120,.L134,.L135
+	.byte	7
+	.byte	'wdt_con0',0,1,208,11,22
+	.word	.L100,.L136
+	.byte	0,0,5
+	.word	.L102,.L135,.L137
+	.byte	8
+	.word	.L105,.L106
+	.byte	9
+	.word	.L107,.L135,.L137
+	.byte	7
+	.byte	'wdtscon0',0,1,255,11,22
+	.word	.L100,.L138
+	.byte	0,0,4
+	.word	.L137,.L95
+	.byte	4
+	.word	.L139,.L95
+	.byte	4
+	.word	.L140,.L95
+	.byte	4
+	.word	.L141,.L95
+	.byte	4
+	.word	.L142,.L95
+	.byte	7
+	.byte	'i',0,1,177,10,14
+	.word	.L143,.L144
+	.byte	7
+	.byte	'no_of_csas',0,1,178,10,14
+	.word	.L143,.L145
+	.byte	7
+	.byte	'csa',0,1,179,10,15
+	.word	.L146,.L147
+	.byte	7
+	.byte	'seg_nr',0,1,180,10,23
+	.word	.L100,.L148
+	.byte	7
+	.byte	'seg_idx',0,1,180,10,31
+	.word	.L100,.L149
+	.byte	7
+	.byte	'pcxi_val',0,1,180,10,40
+	.word	.L100,.L150
+	.byte	0,0,0,0,0,0,0,0,0,0
+	.sdecl	'.debug_abbrev',debug,cluster('_start')
+	.sect	'.debug_abbrev'
+.L40:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,17,1,18,1,64,6,0,0,4,11,1,17,1,18,1,0,0,5,29,1,49,16,17,1,18,1,0,0,6,11,0,49,16,17,1,18,1,0,0,7
+	.byte	52,0,3,8,58,15,59,15,57,15,73,16,2,6,0,0,8,5,0,49,16,2,6,0,0,9,11,1,49,16,17,1,18,1,0,0,10,11,1,49,16
+	.byte	85,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('_start')
+	.sect	'.debug_line'
+.L41:
+	.word	.L212-.L211
+.L211:
+	.half	3
+	.word	.L214-.L213
+.L213:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L214:
+	.byte	5,16,7,0,5,2
+	.word	.L25
+	.byte	3,146,4,1,5,21,9
+	.half	.L97-.L25
+	.byte	3,230,126,1,5,15,9
+	.half	.L215-.L97
+	.byte	1,5,35,9
+	.half	.L98-.L215
+	.byte	3,160,1,1,5,14,9
+	.half	.L216-.L98
+	.byte	3,1,1,5,15,9
+	.half	.L177-.L216
+	.byte	3,1,1,5,32,9
+	.half	.L103-.L177
+	.byte	3,233,7,1,5,16,9
+	.half	.L180-.L103
+	.byte	3,14,1,5,24,9
+	.half	.L217-.L180
+	.byte	3,1,1,5,21,9
+	.half	.L218-.L217
+	.byte	3,1,1,9
+	.half	.L104-.L218
+	.byte	3,193,120,1,5,24,9
+	.half	.L219-.L104
+	.byte	1,5,32,9
+	.half	.L109-.L219
+	.byte	3,175,7,1,5,16,9
+	.half	.L181-.L109
+	.byte	3,14,1,5,24,9
+	.half	.L220-.L181
+	.byte	3,1,1,5,21,9
+	.half	.L221-.L220
+	.byte	3,1,1,5,32,9
+	.half	.L110-.L221
+	.byte	3,112,1,5,16,9
+	.half	.L182-.L110
+	.byte	3,14,1,5,24,9
+	.half	.L222-.L182
+	.byte	3,1,1,5,28,9
+	.half	.L112-.L222
+	.byte	3,69,1,5,21,9
+	.half	.L114-.L112
+	.byte	3,60,1,5,28,9
+	.half	.L115-.L114
+	.byte	3,68,1,5,16,9
+	.half	.L223-.L115
+	.byte	3,22,1,5,20,9
+	.half	.L184-.L223
+	.byte	3,1,1,5,17,9
+	.half	.L224-.L184
+	.byte	3,1,1,9
+	.half	.L122-.L224
+	.byte	3,248,120,1,5,20,9
+	.half	.L225-.L122
+	.byte	1,5,28,9
+	.half	.L124-.L225
+	.byte	3,240,6,1,5,16,9
+	.half	.L226-.L124
+	.byte	3,22,1,5,20,9
+	.half	.L186-.L226
+	.byte	3,1,1,5,17,9
+	.half	.L227-.L186
+	.byte	3,1,1,5,28,9
+	.half	.L125-.L227
+	.byte	3,104,1,5,16,9
+	.half	.L187-.L125
+	.byte	3,22,1,5,20,9
+	.half	.L228-.L187
+	.byte	3,1,1,5,36,9
+	.half	.L128-.L228
+	.byte	3,143,121,1,5,17,9
+	.half	.L130-.L128
+	.byte	3,242,6,1,5,36,9
+	.half	.L131-.L130
+	.byte	3,142,121,1,5,15,9
+	.half	.L229-.L131
+	.byte	1,5,36,9
+	.half	.L230-.L229
+	.byte	3,25,1,5,15,9
+	.half	.L231-.L230
+	.byte	1,5,43,9
+	.half	.L133-.L231
+	.byte	3,11,1,5,58,9
+	.half	.L232-.L133
+	.byte	1,5,15,9
+	.half	.L233-.L232
+	.byte	3,1,1,5,40,9
+	.half	.L234-.L233
+	.byte	3,45,1,5,32,9
+	.half	.L235-.L234
+	.byte	1,9
+	.half	.L236-.L235
+	.byte	3,7,1,5,39,9
+	.half	.L237-.L236
+	.byte	3,194,2,1,5,28,9
+	.half	.L134-.L237
+	.byte	3,191,3,1,5,16,9
+	.half	.L188-.L134
+	.byte	3,22,1,5,20,9
+	.half	.L238-.L188
+	.byte	3,1,1,5,17,9
+	.half	.L239-.L238
+	.byte	3,1,1,5,32,9
+	.half	.L135-.L239
+	.byte	3,20,1,5,16,9
+	.half	.L189-.L135
+	.byte	3,14,1,5,24,9
+	.half	.L240-.L189
+	.byte	3,1,1,5,21,9
+	.half	.L241-.L240
+	.byte	3,1,1,9
+	.half	.L137-.L241
+	.byte	3,252,125,1,5,9,9
+	.half	.L242-.L137
+	.byte	3,1,1,5,21,9
+	.half	.L139-.L242
+	.byte	3,2,1,5,9,9
+	.half	.L243-.L139
+	.byte	3,1,1,5,21,9
+	.half	.L140-.L243
+	.byte	3,10,1,5,9,9
+	.half	.L244-.L140
+	.byte	3,1,1,5,21,9
+	.half	.L141-.L244
+	.byte	3,2,1,5,9,9
+	.half	.L245-.L141
+	.byte	3,1,1,5,48,9
+	.half	.L142-.L245
+	.byte	3,18,1,5,61,3,122,1,9
+	.half	.L246-.L142
+	.byte	3,1,1,5,38,9
+	.half	.L247-.L246
+	.byte	3,8,1,5,15,9
+	.half	.L248-.L247
+	.byte	3,2,1,5,33,1,5,21,9
+	.half	.L3-.L248
+	.byte	3,2,1,5,43,9
+	.half	.L194-.L3
+	.byte	3,4,1,5,22,9
+	.half	.L195-.L194
+	.byte	3,126,1,5,47,9
+	.half	.L249-.L195
+	.byte	3,2,1,5,36,3,122,1,5,53,9
+	.half	.L191-.L249
+	.byte	3,7,1,5,61,9
+	.half	.L196-.L191
+	.byte	3,127,1,5,35,9
+	.half	.L197-.L196
+	.byte	3,2,1,5,17,9
+	.half	.L198-.L197
+	.byte	3,1,1,5,31,7,9
+	.half	.L250-.L198
+	.byte	3,2,1,5,36,9
+	.half	.L4-.L250
+	.byte	3,117,1,5,33,9
+	.half	.L2-.L4
+	.byte	1,5,15,7,9
+	.half	.L251-.L2
+	.byte	3,14,1,5,16,9
+	.half	.L252-.L251
+	.byte	3,15,1,5,14,9
+	.half	.L193-.L252
+	.byte	3,21,1,5,9,9
+	.half	.L253-.L193
+	.byte	1,5,33,7,9
+	.half	.L254-.L253
+	.byte	3,2,1,5,31,9
+	.half	.L255-.L254
+	.byte	1,5,21,9
+	.half	.L5-.L255
+	.byte	3,52,1,5,24,1,5,19,9
+	.half	.L256-.L5
+	.byte	1,5,1,9
+	.half	.L43-.L256
+	.byte	3,33,0,1,1
+.L212:
+	.sdecl	'.debug_ranges',debug,cluster('_start')
+	.sect	'.debug_ranges'
+.L42:
+	.word	-1,.L25,0,.L43-.L25,0,0
+.L113:
+	.word	-1,.L25,.L110-.L25,.L112-.L25,.L114-.L25,.L115-.L25,0,0
+.L121:
+	.word	-1,.L25,.L112-.L25,.L114-.L25,.L115-.L25,.L122-.L25,-1,.L29,0,.L83-.L29,0,0
+.L126:
+	.word	-1,.L25,.L124-.L25,.L125-.L25,-1,.L27,0,.L88-.L27,0,0
+.L129:
+	.word	-1,.L25,.L125-.L25,.L128-.L25,.L130-.L25,.L131-.L25,0,0
+	.sdecl	'.debug_info',debug,cluster('_endinit_clear')
+	.sect	'.debug_info'
+.L44:
+	.word	228
+	.half	3
+	.word	.L45
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L47,.L46
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'_endinit_clear',0,1,175,1,13,1,1,1
+	.word	.L7,.L151,.L6
+	.byte	4
+	.word	.L7,.L151
+	.byte	5
+	.word	.L117,.L7,.L152
+	.byte	6
+	.word	.L118,.L153
+	.byte	7
+	.word	.L120,.L154
+	.byte	8
+	.byte	'wdt_con0',0,1,208,11,22
+	.word	.L100,.L155
+	.byte	0,0,0,0,0
+	.sdecl	'.debug_abbrev',debug,cluster('_endinit_clear')
+	.sect	'.debug_abbrev'
+.L45:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,63,12,17,1,18,1,64,6,0,0,4,11,1,17,1,18,1,0,0,5,29,1,49,16,17,1,18,1,0,0,6,5,0,49,16,2,6,0,0,7,11
+	.byte	1,49,16,85,6,0,0,8,52,0,3,8,58,15,59,15,57,15,73,16,2,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('_endinit_clear')
+	.sect	'.debug_line'
+.L46:
+	.word	.L258-.L257
+.L257:
+	.half	3
+	.word	.L260-.L259
+.L259:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L260:
+	.byte	5,28,7,0,5,2
+	.word	.L7
+	.byte	3,215,11,1,5,16,9
+	.half	.L261-.L7
+	.byte	3,22,1,5,20,9
+	.half	.L172-.L261
+	.byte	3,1,1,5,17,9
+	.half	.L262-.L172
+	.byte	3,1,1,5,67,9
+	.half	.L152-.L262
+	.byte	3,191,117,1,7,9
+	.half	.L48-.L152
+	.byte	0,1,1
+.L258:
+	.sdecl	'.debug_ranges',debug,cluster('_endinit_clear')
+	.sect	'.debug_ranges'
+.L47:
+	.word	-1,.L7,0,.L48-.L7,0,0
+.L154:
+	.word	-1,.L7,0,.L152-.L7,-1,.L9,0,.L73-.L9,0,0
+	.sdecl	'.debug_info',debug,cluster('_endinit_set')
+	.sect	'.debug_info'
+.L49:
+	.word	226
+	.half	3
+	.word	.L50
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L52,.L51
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'_endinit_set',0,1,176,1,13,1,1,1
+	.word	.L11,.L156,.L10
+	.byte	4
+	.word	.L11,.L156
+	.byte	5
+	.word	.L117,.L11,.L157
+	.byte	6
+	.word	.L118,.L158
+	.byte	7
+	.word	.L120,.L159
+	.byte	8
+	.byte	'wdt_con0',0,1,208,11,22
+	.word	.L100,.L160
+	.byte	0,0,0,0,0
+	.sdecl	'.debug_abbrev',debug,cluster('_endinit_set')
+	.sect	'.debug_abbrev'
+.L50:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,63,12,17,1,18,1,64,6,0,0,4,11,1,17,1,18,1,0,0,5,29,1,49,16,17,1,18,1,0,0,6,5,0,49,16,2,6,0,0,7,11
+	.byte	1,49,16,85,6,0,0,8,52,0,3,8,58,15,59,15,57,15,73,16,2,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('_endinit_set')
+	.sect	'.debug_line'
+.L51:
+	.word	.L264-.L263
+.L263:
+	.half	3
+	.word	.L266-.L265
+.L265:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L266:
+	.byte	5,28,7,0,5,2
+	.word	.L11
+	.byte	3,215,11,1,5,16,9
+	.half	.L267-.L11
+	.byte	3,22,1,5,20,9
+	.half	.L174-.L267
+	.byte	3,1,1,5,17,9
+	.half	.L268-.L174
+	.byte	3,1,1,5,66,9
+	.half	.L157-.L268
+	.byte	3,192,117,1,7,9
+	.half	.L53-.L157
+	.byte	0,1,1
+.L264:
+	.sdecl	'.debug_ranges',debug,cluster('_endinit_set')
+	.sect	'.debug_ranges'
+.L52:
+	.word	-1,.L11,0,.L53-.L11,0,0
+.L159:
+	.word	-1,.L11,0,.L157-.L11,-1,.L13,0,.L78-.L13,0,0
+	.sdecl	'.debug_info',debug,cluster('_safety_endinit_clear')
+	.sect	'.debug_info'
+.L54:
+	.word	235
+	.half	3
+	.word	.L55
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L57,.L56
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'_safety_endinit_clear',0,1,200,1,13,1,1,1
+	.word	.L15,.L161,.L14
+	.byte	4
+	.word	.L15,.L161
+	.byte	5
+	.word	.L102,.L15,.L162
+	.byte	6
+	.word	.L105,.L163
+	.byte	7
+	.word	.L107,.L164
+	.byte	8
+	.byte	'wdtscon0',0,1,255,11,22
+	.word	.L100,.L165
+	.byte	0,0,0,0,0
+	.sdecl	'.debug_abbrev',debug,cluster('_safety_endinit_clear')
+	.sect	'.debug_abbrev'
+.L55:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,63,12,17,1,18,1,64,6,0,0,4,11,1,17,1,18,1,0,0,5,29,1,49,16,17,1,18,1,0,0,6,5,0,49,16,2,6,0,0,7,11
+	.byte	1,49,16,85,6,0,0,8,52,0,3,8,58,15,59,15,57,15,73,16,2,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('_safety_endinit_clear')
+	.sect	'.debug_line'
+.L56:
+	.word	.L270-.L269
+.L269:
+	.half	3
+	.word	.L272-.L271
+.L271:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L272:
+	.byte	5,32,7,0,5,2
+	.word	.L15
+	.byte	3,131,12,1,5,16,9
+	.half	.L175-.L15
+	.byte	3,14,1,5,24,9
+	.half	.L273-.L175
+	.byte	3,1,1,5,21,9
+	.half	.L274-.L273
+	.byte	3,1,1,5,81,9
+	.half	.L162-.L274
+	.byte	3,180,117,1,7,9
+	.half	.L58-.L162
+	.byte	0,1,1
+.L270:
+	.sdecl	'.debug_ranges',debug,cluster('_safety_endinit_clear')
+	.sect	'.debug_ranges'
+.L57:
+	.word	-1,.L15,0,.L58-.L15,0,0
+.L164:
+	.word	-1,.L15,0,.L162-.L15,-1,.L17,0,.L93-.L17,0,0
+	.sdecl	'.debug_info',debug,cluster('_safety_endinit_set')
+	.sect	'.debug_info'
+.L59:
+	.word	237
+	.half	3
+	.word	.L60
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L62,.L61
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'_safety_endinit_set',0,1,201,1,13,1,1,1
+	.word	.L19,.L166,.L18
+	.byte	4
+	.word	.L19,.L166
+	.byte	5
+	.word	.L102,.L19,.L167
+	.byte	6
+	.word	.L105,.L168
+	.byte	7
+	.word	.L107,.L19,.L167
+	.byte	8
+	.byte	'wdtscon0',0,1,255,11,22
+	.word	.L100,.L169
+	.byte	0,0,0,0,0
+	.sdecl	'.debug_abbrev',debug,cluster('_safety_endinit_set')
+	.sect	'.debug_abbrev'
+.L60:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,63,12,17,1,18,1,64,6,0,0,4,11,1,17,1,18,1,0,0,5,29,1,49,16,17,1,18,1,0,0,6,5,0,49,16,2,6,0,0,7,11
+	.byte	1,49,16,17,1,18,1,0,0,8,52,0,3,8,58,15,59,15,57,15,73,16,2,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('_safety_endinit_set')
+	.sect	'.debug_line'
+.L61:
+	.word	.L276-.L275
+.L275:
+	.half	3
+	.word	.L278-.L277
+.L277:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L278:
+	.byte	5,32,7,0,5,2
+	.word	.L19
+	.byte	3,131,12,1,5,16,9
+	.half	.L176-.L19
+	.byte	3,14,1,5,24,9
+	.half	.L279-.L176
+	.byte	3,1,1,5,21,9
+	.half	.L280-.L279
+	.byte	3,1,1,5,80,9
+	.half	.L167-.L280
+	.byte	3,181,117,1,7,9
+	.half	.L63-.L167
+	.byte	0,1,1
+.L276:
+	.sdecl	'.debug_ranges',debug,cluster('_safety_endinit_set')
+	.sect	'.debug_ranges'
+.L62:
+	.word	-1,.L19,0,.L63-.L19,0,0
+	.sdecl	'.debug_info',debug,cluster('_START')
+	.sect	'.debug_info'
+.L64:
+	.word	164
+	.half	3
+	.word	.L65
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L67,.L66
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'_START',0,1,165,2,6,1,1,1
+	.word	.L21,.L170,.L20
+	.byte	4
+	.word	.L21,.L170
+	.byte	0,0
+	.sdecl	'.debug_abbrev',debug,cluster('_START')
+	.sect	'.debug_abbrev'
+.L65:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,63,12,17,1,18,1,64,6,0,0,4,11,0,17,1,18,1,0,0,0
+	.sdecl	'.debug_line',debug,cluster('_START')
+	.sect	'.debug_line'
+.L66:
+	.word	.L282-.L281
+.L281:
+	.half	3
+	.word	.L284-.L283
+.L283:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L284:
+	.byte	5,18,7,0,5,2
+	.word	.L21
+	.byte	3,166,2,1,5,1,7,9
+	.half	.L68-.L21
+	.byte	3,1,0,1,1
+.L282:
+	.sdecl	'.debug_ranges',debug,cluster('_START')
+	.sect	'.debug_ranges'
+.L67:
+	.word	-1,.L21,0,.L68-.L21,0,0
+	.sdecl	'.debug_info',debug,cluster('.cocofun_1')
+	.sect	'.debug_info'
+.L69:
+	.word	156
+	.half	3
+	.word	.L70
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L72,.L71
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'.cocofun_1',0,1,175,1,13,1
+	.word	.L9,.L73,.L8
+	.byte	0
+	.sdecl	'.debug_abbrev',debug,cluster('.cocofun_1')
+	.sect	'.debug_abbrev'
+.L70:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,0,3,8,58,15,59,15,57,15,54,15
+	.byte	17,1,18,1,64,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('.cocofun_1')
+	.sect	'.debug_line'
+.L71:
+	.word	.L286-.L285
+.L285:
+	.half	3
+	.word	.L288-.L287
+.L287:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L288:
+	.byte	5,28,7,0,5,2
+	.word	.L9
+	.byte	3,215,11,1,5,18,9
+	.half	.L179-.L9
+	.byte	3,5,1,5,20,9
+	.half	.L171-.L179
+	.byte	3,9,1,5,18,9
+	.half	.L289-.L171
+	.byte	3,7,1,9
+	.half	.L73-.L289
+	.byte	0,1,1,5,32,0,5,2
+	.word	.L9
+	.byte	3,131,12,1,5,18,9
+	.half	.L179-.L9
+	.byte	3,2,1,5,24,9
+	.half	.L171-.L179
+	.byte	3,4,1,5,18,9
+	.half	.L289-.L171
+	.byte	3,7,1,3,92,1,7,9
+	.half	.L73-.L289
+	.byte	0,1,1,5,32,0,5,2
+	.word	.L9
+	.byte	3,131,12,1,5,18,9
+	.half	.L179-.L9
+	.byte	3,2,1,5,24,9
+	.half	.L171-.L179
+	.byte	3,4,1,5,18,9
+	.half	.L289-.L171
+	.byte	3,7,1,3,92,1,7,9
+	.half	.L73-.L289
+	.byte	0,1,1,5,32,0,5,2
+	.word	.L9
+	.byte	3,131,12,1,5,18,9
+	.half	.L179-.L9
+	.byte	3,2,1,5,24,9
+	.half	.L171-.L179
+	.byte	3,4,1,5,18,9
+	.half	.L289-.L171
+	.byte	3,7,1,3,92,1,7,9
+	.half	.L73-.L289
+	.byte	0,1,1
+.L286:
+	.sdecl	'.debug_ranges',debug,cluster('.cocofun_1')
+	.sect	'.debug_ranges'
+.L72:
+	.word	-1,.L9,0,.L73-.L9,0,0
+	.sdecl	'.debug_info',debug,cluster('.cocofun_2')
+	.sect	'.debug_info'
+.L74:
+	.word	156
+	.half	3
+	.word	.L75
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L77,.L76
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'.cocofun_2',0,1,176,1,13,1
+	.word	.L13,.L78,.L12
+	.byte	0
+	.sdecl	'.debug_abbrev',debug,cluster('.cocofun_2')
+	.sect	'.debug_abbrev'
+.L75:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,0,3,8,58,15,59,15,57,15,54,15
+	.byte	17,1,18,1,64,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('.cocofun_2')
+	.sect	'.debug_line'
+.L76:
+	.word	.L291-.L290
+.L290:
+	.half	3
+	.word	.L293-.L292
+.L292:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L293:
+	.byte	5,28,7,0,5,2
+	.word	.L13
+	.byte	3,215,11,1,5,18,9
+	.half	.L294-.L13
+	.byte	3,5,1,5,20,9
+	.half	.L173-.L294
+	.byte	3,9,1,5,18,9
+	.half	.L295-.L173
+	.byte	3,7,1,9
+	.half	.L78-.L295
+	.byte	0,1,1,5,32,0,5,2
+	.word	.L13
+	.byte	3,131,12,1,5,18,9
+	.half	.L294-.L13
+	.byte	3,2,1,5,24,9
+	.half	.L173-.L294
+	.byte	3,4,1,5,18,9
+	.half	.L295-.L173
+	.byte	3,7,1,3,92,1,7,9
+	.half	.L78-.L295
+	.byte	0,1,1,5,32,0,5,2
+	.word	.L13
+	.byte	3,131,12,1,5,18,9
+	.half	.L294-.L13
+	.byte	3,2,1,5,24,9
+	.half	.L173-.L294
+	.byte	3,4,1,5,18,9
+	.half	.L295-.L173
+	.byte	3,7,1,3,92,1,7,9
+	.half	.L78-.L295
+	.byte	0,1,1,5,32,0,5,2
+	.word	.L13
+	.byte	3,131,12,1,5,18,9
+	.half	.L294-.L13
+	.byte	3,2,1,5,24,9
+	.half	.L173-.L294
+	.byte	3,4,1,5,18,9
+	.half	.L295-.L173
+	.byte	3,7,1,3,92,1,7,9
+	.half	.L78-.L295
+	.byte	0,1,1
+.L291:
+	.sdecl	'.debug_ranges',debug,cluster('.cocofun_2')
+	.sect	'.debug_ranges'
+.L77:
+	.word	-1,.L13,0,.L78-.L13,0,0
+	.sdecl	'.debug_info',debug,cluster('.cocofun_3')
+	.sect	'.debug_info'
+.L79:
+	.word	156
+	.half	3
+	.word	.L80
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L82,.L81
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'.cocofun_3',0,1,128,3,48,1
+	.word	.L29,.L83,.L28
+	.byte	0
+	.sdecl	'.debug_abbrev',debug,cluster('.cocofun_3')
+	.sect	'.debug_abbrev'
+.L80:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,0,3,8,58,15,59,15,57,15,54,15
+	.byte	17,1,18,1,64,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('.cocofun_3')
+	.sect	'.debug_line'
+.L81:
+	.word	.L297-.L296
+.L296:
+	.half	3
+	.word	.L299-.L298
+.L298:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L299:
+	.byte	5,28,7,0,5,2
+	.word	.L29
+	.byte	3,215,11,1,5,18,9
+	.half	.L300-.L29
+	.byte	3,5,1,5,20,9
+	.half	.L183-.L300
+	.byte	3,9,1,5,18,9
+	.half	.L301-.L183
+	.byte	3,7,1,9
+	.half	.L83-.L301
+	.byte	0,1,1,5,28,0,5,2
+	.word	.L29
+	.byte	3,215,11,1,5,18,9
+	.half	.L300-.L29
+	.byte	3,5,1,5,20,9
+	.half	.L183-.L300
+	.byte	3,9,1,5,18,9
+	.half	.L301-.L183
+	.byte	3,7,1,9
+	.half	.L83-.L301
+	.byte	0,1,1
+.L297:
+	.sdecl	'.debug_ranges',debug,cluster('.cocofun_3')
+	.sect	'.debug_ranges'
+.L82:
+	.word	-1,.L29,0,.L83-.L29,0,0
+	.sdecl	'.debug_info',debug,cluster('.cocofun_4')
+	.sect	'.debug_info'
+.L84:
+	.word	156
+	.half	3
+	.word	.L85
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L87,.L86
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'.cocofun_4',0,1,128,3,48,1
+	.word	.L27,.L88,.L26
+	.byte	0
+	.sdecl	'.debug_abbrev',debug,cluster('.cocofun_4')
+	.sect	'.debug_abbrev'
+.L85:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,0,3,8,58,15,59,15,57,15,54,15
+	.byte	17,1,18,1,64,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('.cocofun_4')
+	.sect	'.debug_line'
+.L86:
+	.word	.L303-.L302
+.L302:
+	.half	3
+	.word	.L305-.L304
+.L304:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L305:
+	.byte	5,28,7,0,5,2
+	.word	.L27
+	.byte	3,215,11,1,5,18,9
+	.half	.L306-.L27
+	.byte	3,5,1,5,20,9
+	.half	.L185-.L306
+	.byte	3,9,1,5,18,9
+	.half	.L307-.L185
+	.byte	3,7,1,9
+	.half	.L88-.L307
+	.byte	0,1,1,5,28,0,5,2
+	.word	.L27
+	.byte	3,215,11,1,5,18,9
+	.half	.L306-.L27
+	.byte	3,5,1,5,20,9
+	.half	.L185-.L306
+	.byte	3,9,1,5,18,9
+	.half	.L307-.L185
+	.byte	3,7,1,9
+	.half	.L88-.L307
+	.byte	0,1,1
+.L303:
+	.sdecl	'.debug_ranges',debug,cluster('.cocofun_4')
+	.sect	'.debug_ranges'
+.L87:
+	.word	-1,.L27,0,.L88-.L27,0,0
+	.sdecl	'.debug_info',debug,cluster('.cocofun_5')
+	.sect	'.debug_info'
+.L89:
+	.word	156
+	.half	3
+	.word	.L90
+	.byte	4,1
+	.byte	'..\\cstart.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L92,.L91
+	.byte	2
+	.word	.L30
+	.byte	3
+	.byte	'.cocofun_5',0,1,200,1,13,1
+	.word	.L17,.L93,.L16
+	.byte	0
+	.sdecl	'.debug_abbrev',debug,cluster('.cocofun_5')
+	.sect	'.debug_abbrev'
+.L90:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,0,3,8,58,15,59,15,57,15,54,15
+	.byte	17,1,18,1,64,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('.cocofun_5')
+	.sect	'.debug_line'
+.L91:
+	.word	.L309-.L308
+.L308:
+	.half	3
+	.word	.L311-.L310
+.L310:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart.c',0,0,0,0,0
+.L311:
+	.byte	5,32,7,0,5,2
+	.word	.L17
+	.byte	3,131,12,1,9
+	.half	.L93-.L17
+	.byte	0,1,1,5,32,0,5,2
+	.word	.L17
+	.byte	3,131,12,1,9
+	.half	.L93-.L17
+	.byte	0,1,1,5,32,0,5,2
+	.word	.L17
+	.byte	3,131,12,1,9
+	.half	.L93-.L17
+	.byte	0,1,1
+.L309:
+	.sdecl	'.debug_ranges',debug,cluster('.cocofun_5')
+	.sect	'.debug_ranges'
+.L92:
+	.word	-1,.L17,0,.L93-.L17,0,0
+	.sdecl	'.debug_loc',debug,cluster('.cocofun_1')
+	.sect	'.debug_loc'
+.L8:
+	.word	-1,.L9,0,.L73-.L9
+	.half	2
+	.byte	138,0
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('.cocofun_2')
+	.sect	'.debug_loc'
+.L12:
+	.word	-1,.L13,0,.L78-.L13
+	.half	2
+	.byte	138,0
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('.cocofun_3')
+	.sect	'.debug_loc'
+.L28:
+	.word	-1,.L29,0,.L83-.L29
+	.half	2
+	.byte	138,0
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('.cocofun_4')
+	.sect	'.debug_loc'
+.L26:
+	.word	-1,.L27,0,.L88-.L27
+	.half	2
+	.byte	138,0
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('.cocofun_5')
+	.sect	'.debug_loc'
+.L16:
+	.word	-1,.L17,0,.L93-.L17
+	.half	2
+	.byte	138,0
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('_START')
+	.sect	'.debug_loc'
+.L20:
+	.word	-1,.L21,0,.L170-.L21
+	.half	2
+	.byte	138,0
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('__init_sp')
+	.sect	'.debug_loc'
+.L22:
+	.word	-1,.L23,0,.L94-.L23
+	.half	2
+	.byte	138,0
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('_endinit_clear')
+	.sect	'.debug_loc'
+.L6:
+	.word	-1,.L7,0,.L151-.L7
+	.half	2
+	.byte	138,0
+	.word	0,0
+.L153:
+	.word	0,0
+.L155:
+	.word	-1,.L7,.L171-.L7,.L73-.L7
+	.half	1
+	.byte	95
+	.word	.L172-.L7,.L152-.L7
+	.half	1
+	.byte	95
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('_endinit_set')
+	.sect	'.debug_loc'
+.L10:
+	.word	-1,.L11,0,.L156-.L11
+	.half	2
+	.byte	138,0
+	.word	0,0
+.L158:
+	.word	0,0
+.L160:
+	.word	-1,.L11,.L173-.L11,.L78-.L11
+	.half	1
+	.byte	95
+	.word	.L174-.L11,.L157-.L11
+	.half	1
+	.byte	95
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('_safety_endinit_clear')
+	.sect	'.debug_loc'
+.L14:
+	.word	-1,.L15,0,.L161-.L15
+	.half	2
+	.byte	138,0
+	.word	0,0
+.L163:
+	.word	0,0
+.L165:
+	.word	-1,.L15,.L171-.L15,.L73-.L15
+	.half	1
+	.byte	95
+	.word	.L175-.L15,.L162-.L15
+	.half	1
+	.byte	95
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('_safety_endinit_set')
+	.sect	'.debug_loc'
+.L18:
+	.word	-1,.L19,0,.L166-.L19
+	.half	2
+	.byte	138,0
+	.word	0,0
+.L168:
+	.word	0,0
+.L169:
+	.word	-1,.L19,.L173-.L19,.L78-.L19
+	.half	1
+	.byte	95
+	.word	.L176-.L19,.L167-.L19
+	.half	1
+	.byte	95
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('_start')
+	.sect	'.debug_loc'
+.L24:
+	.word	-1,.L25,0,.L95-.L25
+	.half	2
+	.byte	138,0
+	.word	0,0
+.L147:
+	.word	-1,.L25,.L194-.L25,.L2-.L25
+	.half	1
+	.byte	98
+	.word	.L195-.L25,.L196-.L25
+	.half	1
+	.byte	82
+	.word	0,0
+.L119:
+	.word	0,0
+.L106:
+	.word	0,0
+.L144:
+	.word	-1,.L25,.L3-.L25,.L95-.L25
+	.half	1
+	.byte	95
+	.word	0,0
+.L145:
+	.word	-1,.L25,.L192-.L25,.L193-.L25
+	.half	1
+	.byte	81
+	.word	0,0
+.L101:
+	.word	-1,.L25,.L177-.L25,.L178-.L25
+	.half	1
+	.byte	95
+	.word	.L17-.L25,.L93-.L25
+	.half	1
+	.byte	95
+	.word	.L9-.L25,.L179-.L25
+	.half	1
+	.byte	95
+	.word	0,0
+.L150:
+	.word	-1,.L25,.L190-.L25,.L191-.L25
+	.half	5
+	.byte	144,32,157,32,0
+	.word	.L197-.L25,.L193-.L25
+	.half	5
+	.byte	144,32,157,32,0
+	.word	0,0
+.L149:
+	.word	-1,.L25,.L196-.L25,.L2-.L25
+	.half	1
+	.byte	82
+	.word	0,0
+.L148:
+	.word	-1,.L25,.L197-.L25,.L198-.L25
+	.half	5
+	.byte	144,32,157,32,0
+	.word	0,0
+.L123:
+	.word	-1,.L25,.L183-.L25,.L83-.L25
+	.half	1
+	.byte	95
+	.word	.L184-.L25,.L122-.L25
+	.half	1
+	.byte	95
+	.word	0,0
+.L127:
+	.word	-1,.L25,.L185-.L25,.L88-.L25
+	.half	1
+	.byte	95
+	.word	.L186-.L25,.L187-.L25
+	.half	1
+	.byte	95
+	.word	0,0
+.L132:
+	.word	-1,.L25,.L183-.L25,.L83-.L25
+	.half	1
+	.byte	95
+	.word	.L187-.L25,.L131-.L25
+	.half	1
+	.byte	95
+	.word	0,0
+.L136:
+	.word	-1,.L25,.L185-.L25,.L88-.L25
+	.half	1
+	.byte	95
+	.word	.L188-.L25,.L189-.L25
+	.half	1
+	.byte	95
+	.word	0,0
+.L108:
+	.word	-1,.L25,.L171-.L25,.L73-.L25
+	.half	1
+	.byte	95
+	.word	.L180-.L25,.L104-.L25
+	.half	1
+	.byte	95
+	.word	0,0
+.L111:
+	.word	-1,.L25,.L173-.L25,.L78-.L25
+	.half	1
+	.byte	95
+	.word	.L181-.L25,.L182-.L25
+	.half	1
+	.byte	95
+	.word	0,0
+.L116:
+	.word	-1,.L25,.L171-.L25,.L73-.L25
+	.half	1
+	.byte	95
+	.word	.L182-.L25,.L115-.L25
+	.half	1
+	.byte	95
+	.word	0,0
+.L138:
+	.word	-1,.L25,.L173-.L25,.L78-.L25
+	.half	1
+	.byte	95
+	.word	.L189-.L25,.L137-.L25
+	.half	1
+	.byte	95
+	.word	0,0
+	.sdecl	'.debug_frame',debug
+	.sect	'.debug_frame'
+.L312:
+	.word	48
+	.word	-1
+	.byte	3,0,2,1,27,12,26,0,8,27,8,26,8,28,8,29,8,30,8,31,8,34,8,35,8,32,8,33,8,16,8,17,8,24,8,25,8,36,8,37,8,38
+	.byte	8,39
+	.sdecl	'.debug_frame',debug,cluster('_endinit_clear')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L312,.L7,.L151-.L7
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+	.sdecl	'.debug_frame',debug,cluster('_endinit_set')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L312,.L11,.L156-.L11
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+	.sdecl	'.debug_frame',debug,cluster('_safety_endinit_clear')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L312,.L15,.L161-.L15
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+	.sdecl	'.debug_frame',debug,cluster('_safety_endinit_set')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L312,.L19,.L166-.L19
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+	.sdecl	'.debug_frame',debug,cluster('_START')
+	.sect	'.debug_frame'
+	.word	12
+	.word	.L312,.L21,.L170-.L21
+	.sdecl	'.debug_frame',debug,cluster('__init_sp')
+	.sect	'.debug_frame'
+	.word	12
+	.word	.L312,.L23,.L94-.L23
+	.sdecl	'.debug_frame',debug,cluster('_start')
+	.sect	'.debug_frame'
+	.word	12
+	.word	.L312,.L25,.L95-.L25
+	.sdecl	'.debug_frame',debug
+	.sect	'.debug_frame'
+.L313:
+	.word	52
+	.word	-1
+	.byte	3,0,2,1,40,12,26,0,9,40,27,155,0,7,26,8,28,8,29,8,30,8,31,8,34,8,35,8,32,8,33,8,16,8,17,8,24,8,25,8,36
+	.byte	8,37,8,38,8,39,0
+	.sdecl	'.debug_frame',debug,cluster('.cocofun_1')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L313,.L9,.L73-.L9
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+	.sdecl	'.debug_frame',debug,cluster('.cocofun_2')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L313,.L13,.L78-.L13
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+	.sdecl	'.debug_frame',debug,cluster('.cocofun_5')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L313,.L17,.L93-.L17
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+	.sdecl	'.debug_frame',debug,cluster('.cocofun_4')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L313,.L27,.L88-.L27
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+	.sdecl	'.debug_frame',debug,cluster('.cocofun_3')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L313,.L29,.L83-.L29
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+
+; ..\cstart.c	  1557  }
+; ..\cstart.c	  1558  #endif
+; ..\cstart.c	  1559  
+; ..\cstart.c	  1560  #if     __CLOCKS_PER_SEC_INIT
+; ..\cstart.c	  1561  static void setclockpersec(void)
+; ..\cstart.c	  1562  {
+; ..\cstart.c	  1563          unsigned long long hz = 0;
+; ..\cstart.c	  1564  
+; ..\cstart.c	  1565  #if defined PLL_CLC && defined __fOSC
+; ..\cstart.c	  1566  
+; ..\cstart.c	  1567  #if     ( defined _TC13 )
+; ..\cstart.c	  1568  #define P               (PLL_CLC.B.PDIV+1)
+; ..\cstart.c	  1569  #define N               (PLL_CLC.B.NDIV+1)
+; ..\cstart.c	  1570  #define K               (PLL_CLC.B.KDIV+1)
+; ..\cstart.c	  1571  #if     ( defined _REGTC1130_H )
+; ..\cstart.c	  1572  #define __SYSFS__       SYSFSL
+; ..\cstart.c	  1573  #else
+; ..\cstart.c	  1574  #if     (  defined _REGTC1762_H || defined _REGTC1764_H || defined _REGTC1766B_H \ 
+; ..\cstart.c	  1575          || defined _REGTC1164_H || defined _REGTC1166_H )
+; ..\cstart.c	  1576  #define __SYSFS__       RSV
+; ..\cstart.c	  1577  #else
+; ..\cstart.c	  1578  #define __SYSFS__       SYSFS
+; ..\cstart.c	  1579  #endif
+; ..\cstart.c	  1580  #endif
+; ..\cstart.c	  1581  #define SYSCLK(CPUCLK)  (CPUCLK/(2-PLL_CLC.B.__SYSFS__))
+; ..\cstart.c	  1582  #define STMCLK(CPUCLK)  (SYSCLK(CPUCLK)/STM_CLC.B.RMC)
+; ..\cstart.c	  1583  #define FVCOBASE        __fOSC
+; ..\cstart.c	  1584          if ( PLL_CLC.B.BYPPIN )                                                         /* Direct drive */
+; ..\cstart.c	  1585          {
+; ..\cstart.c	  1586                  hz = STMCLK(__fOSC);
+; ..\cstart.c	  1587          }
+; ..\cstart.c	  1588          else
+; ..\cstart.c	  1589          {
+; ..\cstart.c	  1590                  if ( PLL_CLC.B.VCOBYP )                                                 /* VCO Bypass Mode */
+; ..\cstart.c	  1591                  {
+; ..\cstart.c	  1592                          hz = STMCLK(__fOSC/(P*K));
+; ..\cstart.c	  1593                  }
+; ..\cstart.c	  1594                  else
+; ..\cstart.c	  1595                  {
+; ..\cstart.c	  1596                          if ( !PLL_CLC.B.OSCDISC && PLL_CLC.B.LOCK )     /* PLL Mode */
+; ..\cstart.c	  1597                          {
+; ..\cstart.c	  1598                                  hz = STMCLK((N*__fOSC)/(P*K));
+; ..\cstart.c	  1599                          }
+; ..\cstart.c	  1600                          else                                                                            /* PLL base mode */
+; ..\cstart.c	  1601                          {
+; ..\cstart.c	  1602                                  hz = STMCLK(FVCOBASE/K);
+; ..\cstart.c	  1603                          }
+; ..\cstart.c	  1604                  }
+; ..\cstart.c	  1605          }
+; ..\cstart.c	  1606  #endif
+; ..\cstart.c	  1607  #endif
+; ..\cstart.c	  1608  
+; ..\cstart.c	  1609  #if     ( ( defined SCU_PLLSTAT && defined SCU_PLLCON0 && defined SCU_PLLCON1 ) \ 
+; ..\cstart.c	  1610            || ( defined SCU_SYSPLLCON0 && defined SCU_SYSPLLCON1 ) && defined __fOSC )
+; ..\cstart.c	  1611  #if     ( defined _TC131 || defined _TC16 || defined _TC16X || defined _TC162 )
+; ..\cstart.c	  1612  #if     ( defined _TC162 )
+; ..\cstart.c	  1613  #define P               (SCU_SYSPLLCON0.B.PDIV+1)
+; ..\cstart.c	  1614  #define N               (SCU_SYSPLLCON0.B.NDIV+1)
+; ..\cstart.c	  1615  #define K2              (SCU_SYSPLLCON1.B.K2DIV+1)
+; ..\cstart.c	  1616  #else
+; ..\cstart.c	  1617  #define P               (SCU_PLLCON0.B.PDIV+1)
+; ..\cstart.c	  1618  #define N               (SCU_PLLCON0.B.NDIV+1)
+; ..\cstart.c	  1619  #define K1              (SCU_PLLCON1.B.K1DIV+1)
+; ..\cstart.c	  1620  #define K2              (SCU_PLLCON1.B.K2DIV+1)
+; ..\cstart.c	  1621  #endif
+; ..\cstart.c	  1622  #if     ( defined _TC16X || defined _TC162 )
+; ..\cstart.c	  1623  #define STM_CLC_RMC     1
+; ..\cstart.c	  1624  #else   
+; ..\cstart.c	  1625  #define STM_CLC_RMC     (STM_CLC.B.RMC)         
+; ..\cstart.c	  1626  #endif
+; ..\cstart.c	  1627  #if     ( defined _REGTC1337_H || defined _REGTC1367_H || defined _REGTC1387_H || defined _REGTC1768_H )
+; ..\cstart.c	  1628  #define SYSCLK(CPUCLK)  (CPUCLK)
+; ..\cstart.c	  1629  #else
+; ..\cstart.c	  1630  #if ( defined _TC16X )
+; ..\cstart.c	  1631  #define SYSCLK(CPUCLK)  (CPUCLK/SCU_CCUCON1.B.STMDIV)
+; ..\cstart.c	  1632  #else
+; ..\cstart.c	  1633  #if ( defined _TC162 )
+; ..\cstart.c	  1634  #define SYSCLK(CPUCLK)  (CPUCLK/SCU_CCUCON0.B.STMDIV)
+; ..\cstart.c	  1635  #else
+; ..\cstart.c	  1636  #define SYSCLK(CPUCLK)  (CPUCLK/(SCU_CCUCON0.B.FPIDIV+1))
+; ..\cstart.c	  1637  #endif
+; ..\cstart.c	  1638  #endif
+; ..\cstart.c	  1639  #endif
+; ..\cstart.c	  1640  #define STMCLK(CPUCLK)  (SYSCLK(CPUCLK)/STM_CLC_RMC)
+; ..\cstart.c	  1641  #define FVCOBASE        __fOSC
+; ..\cstart.c	  1642  #if     !( defined _TC162 )
+; ..\cstart.c	  1643          if ( SCU_PLLSTAT.B.VCOBYST )    /* Prescaler mode */
+; ..\cstart.c	  1644          {
+; ..\cstart.c	  1645                  hz = STMCLK(__fOSC/K1);
+; ..\cstart.c	  1646          }
+; ..\cstart.c	  1647          else
+; ..\cstart.c	  1648  #endif
+; ..\cstart.c	  1649  #if ( defined _TC16X || defined _TC162 )
+; ..\cstart.c	  1650          if ( SCU_CCUCON0.B.CLKSEL==0)
+; ..\cstart.c	  1651          {
+; ..\cstart.c	  1652                  hz = STMCLK(100000000);         /* back-up clock */
+; ..\cstart.c	  1653          }
+; ..\cstart.c	  1654          else
+; ..\cstart.c	  1655  #endif
+; ..\cstart.c	  1656  #if ( defined _TC162 )
+; ..\cstart.c	  1657          if ( SCU_CCUCON0.B.CLKSEL==2 )
+; ..\cstart.c	  1658          {
+; ..\cstart.c	  1659                  hz = STMCLK(20000000);          /* SYSCLK clock */
+; ..\cstart.c	  1660          }
+; ..\cstart.c	  1661          else
+; ..\cstart.c	  1662  #endif
+; ..\cstart.c	  1663          {
+; ..\cstart.c	  1664  #if     !( defined _TC162 )
+; ..\cstart.c	  1665                  if ( SCU_PLLSTAT.B.FINDIS )     /* Free running mode */
+; ..\cstart.c	  1666                  {
+; ..\cstart.c	  1667                          hz = STMCLK(FVCOBASE/K2);
+; ..\cstart.c	  1668                  }
+; ..\cstart.c	  1669                  else                                            /* Normal mode */
+; ..\cstart.c	  1670  #endif
+; ..\cstart.c	  1671                  {
+; ..\cstart.c	  1672                          hz = STMCLK((N*__fOSC)/(P*K2));
+; ..\cstart.c	  1673                  }
+; ..\cstart.c	  1674          }
+; ..\cstart.c	  1675  #endif
+; ..\cstart.c	  1676  #endif
+; ..\cstart.c	  1677          
+; ..\cstart.c	  1678          setfoschz ( hz );
+; ..\cstart.c	  1679  }
+; ..\cstart.c	  1680  #endif
+; ..\cstart.c	  1681  
+; ..\cstart.c	  1682  #if ( defined _XC800 )
+; ..\cstart.c	  1683  #if __XC800_INIT
+; ..\cstart.c	  1684  
+; ..\cstart.c	  1685  static  void inline scr_enable( void );
+; ..\cstart.c	  1686  static  void scr_boot( unsigned char boot_mode );
+; ..\cstart.c	  1687  static  _Bool scr_init( void );
+; ..\cstart.c	  1688  
+; ..\cstart.c	  1689  #if ( defined _REGTC26 )
+; ..\cstart.c	  1690  #define __PMSWCR2       SCU_PMSWCR2
+; ..\cstart.c	  1691  #define __PMSWCRx       SCU_PMSWCR1
+; ..\cstart.c	  1692  #define __PMSWCRx_type  SCU_PMSWCR1_type
+; ..\cstart.c	  1693  #define __PMSWSTAT      SCU_PMSWSTAT
+; ..\cstart.c	  1694  #define __PMSWSTATCLR   SCU_PMSWSTATCLR
+; ..\cstart.c	  1695  #endif
+; ..\cstart.c	  1696  
+; ..\cstart.c	  1697  #if ( defined _TC162 )
+; ..\cstart.c	  1698  #define __PMSWCR2       PMS_PMSWCR2
+; ..\cstart.c	  1699  #define __PMSWCRx       PMS_PMSWCR4
+; ..\cstart.c	  1700  #define __PMSWCRx_type  PMS_PMSWCR4_type
+; ..\cstart.c	  1701  #define __PMSWSTAT      PMS_PMSWSTAT
+; ..\cstart.c	  1702  #define __PMSWSTATCLR   PMS_PMSWSTATCLR
+; ..\cstart.c	  1703  #define __XRAM_ADDR     (void *)0xf0240000
+; ..\cstart.c	  1704  #endif
+; ..\cstart.c	  1705  
+; ..\cstart.c	  1706  #if ( defined _REGTC26 )
+; ..\cstart.c	  1707  static  void inline scr_wait( void );
+; ..\cstart.c	  1708  static  void qspi2_init( void );
+; ..\cstart.c	  1709  static  void qspi2_end( void );
+; ..\cstart.c	  1710  static  void inline qspi2_end_of_frame( void );
+; ..\cstart.c	  1711  static  void inline qspi2_start_of_frame( void );
+; ..\cstart.c	  1712  static  void qspi2_send_data( unsigned int data_entry );
+; ..\cstart.c	  1713  static  void qspi2_write_word( unsigned short address, unsigned short data );
+; ..\cstart.c	  1714  void    _scr_write( const unsigned char *romdata, unsigned int length );
+; ..\cstart.c	  1715  
+; ..\cstart.c	  1716  #ifdef _USER_MODE_1
+; ..\cstart.c	  1717  static  void inline scr_set_user_mode_1( void );
+; ..\cstart.c	  1718  #endif
+; ..\cstart.c	  1719  
+; ..\cstart.c	  1720  
+; ..\cstart.c	  1721  #endif
+; ..\cstart.c	  1722  
+; ..\cstart.c	  1723  
+; ..\cstart.c	  1724  static void inline scr_enable( void )
+; ..\cstart.c	  1725  {
+; ..\cstart.c	  1726  #if ( defined _REGTC26 )
+; ..\cstart.c	  1727          /*
+; ..\cstart.c	  1728           *      Set SCU_PMSWCR0.SCREN Standby Controller is enabled
+; ..\cstart.c	  1729           *      set SCU_PMSWCR0.SCRCLKSEL Both 100 KHz Oscillator
+; ..\cstart.c	  1730           *      and 100 MHz oscillator are active in Standby Mode
+; ..\cstart.c	  1731           */
+; ..\cstart.c	  1732          SCU_PMSWCR0.U |= (0x1 << 16) | (0x1 << 19);
+; ..\cstart.c	  1733  #else
+; ..\cstart.c	  1734          /*
+; ..\cstart.c	  1735           *      Set PMS_PMSWCR4.SCREN Standby Controller is enabled
+; ..\cstart.c	  1736           *      set PMS_PMSWCR4.SCRCLKSEL Both 70 KHz Oscillator
+; ..\cstart.c	  1737           *      and 100 MHz oscillator are active in Standby Mode
+; ..\cstart.c	  1738           */
+; ..\cstart.c	  1739          PMS_PMSWCR4.U |= (0x1 << 25) | (0x1 << 6);
+; ..\cstart.c	  1740  #endif
+; ..\cstart.c	  1741  
+; ..\cstart.c	  1742          /*
+; ..\cstart.c	  1743           *      Wait until Standby Controller is enabled.
+; ..\cstart.c	  1744           *      This bit is updated when PMSWCR0.SCREN bit is set.
+; ..\cstart.c	  1745           */
+; ..\cstart.c	  1746          while( !__PMSWSTAT.B.SCR )
+; ..\cstart.c	  1747          {
+; ..\cstart.c	  1748                  /* wait until enabled */
+; ..\cstart.c	  1749          }
+; ..\cstart.c	  1750  }
+; ..\cstart.c	  1751  
+; ..\cstart.c	  1752  static void scr_boot( unsigned char boot_mode )
+; ..\cstart.c	  1753  {
+; ..\cstart.c	  1754          /*
+; ..\cstart.c	  1755           *      Set __PMSWCRx.SCRSTEN aka .BPSCRSTREQ so SCRSTREQ can be updated
+; ..\cstart.c	  1756           *      Set __PMSWCRx.SCRSTREQ for Standby Controller reset request
+; ..\cstart.c	  1757           *      set __PMSWCRx.SCRCFG [23:16] boot_mode
+; ..\cstart.c	  1758           *              00H 8 bit XRAM is not programmed
+; ..\cstart.c	  1759           *              01H User Mode (Execution from t.b.d XRAM address)
+; ..\cstart.c	  1760           *              02H User Mode (DAP mode active)
+; ..\cstart.c	  1761           *              03H User Mode (SPD mode active)
+; ..\cstart.c	  1762           *
+; ..\cstart.c	  1763           *      Note: Any change in SCRCFG is followed by a SCRSTREQ reset request
+; ..\cstart.c	  1764           *      of the xc800 controller to start off in the chosen mode.
+; ..\cstart.c	  1765           */
+; ..\cstart.c	  1766          __PMSWCRx_type          regval;
+; ..\cstart.c	  1767          regval.U = __PMSWCRx.U;
+; ..\cstart.c	  1768  #if ( defined _REGTC26 || defined _REGTC39X_H )
+; ..\cstart.c	  1769          regval.B.SCRSTEN = 1;
+; ..\cstart.c	  1770  #else
+; ..\cstart.c	  1771          regval.B.BPSCRSTREQ = 1;
+; ..\cstart.c	  1772  #endif
+; ..\cstart.c	  1773          regval.B.SCRSTREQ = 1;
+; ..\cstart.c	  1774          regval.B.SCRCFG = boot_mode;
+; ..\cstart.c	  1775          __PMSWCRx.U = regval.U;
+; ..\cstart.c	  1776  
+; ..\cstart.c	  1777          /*
+; ..\cstart.c	  1778           *      Wait until Reset of Standby controller took place.
+; ..\cstart.c	  1779           */
+; ..\cstart.c	  1780          while( !__PMSWSTAT.B.SCRST )
+; ..\cstart.c	  1781          {
+; ..\cstart.c	  1782                  /* Wait until reset */
+; ..\cstart.c	  1783          }
+; ..\cstart.c	  1784  
+; ..\cstart.c	  1785          /*
+; ..\cstart.c	  1786           *      Clear PMSWSTAT.SCRST after reset took place
+; ..\cstart.c	  1787           */
+; ..\cstart.c	  1788          __PMSWSTATCLR.B.SCRSTCLR = 1;
+; ..\cstart.c	  1789  
+; ..\cstart.c	  1790          /*
+; ..\cstart.c	  1791           *      SCRINT [7:0] Data exchange from Standby Controller to SCU.
+; ..\cstart.c	  1792           *
+; ..\cstart.c	  1793           *      Boot mode 0:
+; ..\cstart.c	  1794           *      At the end of startup code, an interrupt would be triggered to
+; ..\cstart.c	  1795           *      the main controller by setting bit NMICON.SCRINTTC to 1 with a
+; ..\cstart.c	  1796           *      value of 80H in SCRINT register. This is used to indicate
+; ..\cstart.c	  1797           *      that TC2x_SCR is ready for CPUx to download code to XRAM.
+; ..\cstart.c	  1798           *
+; ..\cstart.c	  1799           *      Boot mode 1:
+; ..\cstart.c	  1800           *      XRAM pattern found then, the same interrupt is triggered to the
+; ..\cstart.c	  1801           *      main controller with a value of 80H in SCRINT register to
+; ..\cstart.c	  1802           *      indicate the execution of user code.
+; ..\cstart.c	  1803           *
+; ..\cstart.c	  1804           *      A value of 81H in SCRINT indicates that boot failed.
+; ..\cstart.c	  1805           */
+; ..\cstart.c	  1806          while( __PMSWCR2.B.SCRINT != 0x80
+; ..\cstart.c	  1807                 && __PMSWCR2.B.SCRINT != 0x81
+; ..\cstart.c	  1808                 )
+; ..\cstart.c	  1809          {
+; ..\cstart.c	  1810                  /* Wait until end of boot mode reached */
+; ..\cstart.c	  1811          }
+; ..\cstart.c	  1812  }
+; ..\cstart.c	  1813  
+; ..\cstart.c	  1814  static _Bool scr_init( void )
+; ..\cstart.c	  1815  {
+; ..\cstart.c	  1816          _Bool download = 0;
+; ..\cstart.c	  1817  
+; ..\cstart.c	  1818          _safety_endinit_clear();
+; ..\cstart.c	  1819  
+; ..\cstart.c	  1820          scr_enable();
+; ..\cstart.c	  1821  
+; ..\cstart.c	  1822          /*
+; ..\cstart.c	  1823           *      For Infineon TriBoard tc26x the suspend mode is supported
+; ..\cstart.c	  1824           *      and can not be disabled. PMSWSTAT.HWCFGEVR=7
+; ..\cstart.c	  1825           *      The Standby Controller Reset Indication flag is always zero
+; ..\cstart.c	  1826           *      after any kind of reset. __PMSWSTAT.SCRST=0
+; ..\cstart.c	  1827           *
+; ..\cstart.c	  1828           *      Upon cold power-on, the XRAM can be programmed immediately
+; ..\cstart.c	  1829           *      when __PMSWCRx.SCRCFG=0 indicates that it is not programmed
+; ..\cstart.c	  1830           *      and __PMSWCR2.B.SCRINT=0x80 indicates that it is booted,
+; ..\cstart.c	  1831           *      else request for boot mode 0.
+; ..\cstart.c	  1832           *
+; ..\cstart.c	  1833           *      When the SCR is executing from XRAM after TriCore reset 
+; ..\cstart.c	  1834           *      it is operating in standby mode __PMSWCRx.SCRCFG=1, no
+; ..\cstart.c	  1835           *      download should be required. For debugging TriCore download to
+; ..\cstart.c	  1836           *      SCR it might be required to force downloading, this requires a
+; ..\cstart.c	  1837           *      boot mode 0 request. Enable _SCR_FORCE_DOWNLOAD.
+; ..\cstart.c	  1838           */
+; ..\cstart.c	  1839  //      #define _SCR_FORCE_DOWNLOAD
+; ..\cstart.c	  1840  
+; ..\cstart.c	  1841          if ( __PMSWCRx.B.SCRCFG == 0 )
+; ..\cstart.c	  1842          {
+; ..\cstart.c	  1843                  if ( __PMSWCR2.B.SCRINT == 0x80 )
+; ..\cstart.c	  1844                  {
+; ..\cstart.c	  1845                          download = 1;           /* Download to XRAM */
+; ..\cstart.c	  1846                  }
+; ..\cstart.c	  1847                  else
+; ..\cstart.c	  1848                  {
+; ..\cstart.c	  1849                          /*
+; ..\cstart.c	  1850                           *      When the TriCore is (soft) reset after a cold
+; ..\cstart.c	  1851                           *      boot of the SCR the SCRINT is not valid any
+; ..\cstart.c	  1852                           *      more, request for boot mode 0.
+; ..\cstart.c	  1853                           */
+; ..\cstart.c	  1854                          scr_boot( 0 );
+; ..\cstart.c	  1855                          if ( __PMSWCR2.B.SCRINT == 0x80 )
+; ..\cstart.c	  1856                          {
+; ..\cstart.c	  1857                                  download = 1;   /* Download to XRAM */
+; ..\cstart.c	  1858                          }
+; ..\cstart.c	  1859                  }
+; ..\cstart.c	  1860          }
+; ..\cstart.c	  1861          else if ( __PMSWCRx.B.SCRCFG == 1 )
+; ..\cstart.c	  1862          {
+; ..\cstart.c	  1863                  /*
+; ..\cstart.c	  1864                   *      SCR is already running in user mode 1,
+; ..\cstart.c	  1865                   *      code is not downloaded by default.
+; ..\cstart.c	  1866                   */
+; ..\cstart.c	  1867  #ifdef _SCR_FORCE_DOWNLOAD
+; ..\cstart.c	  1868                  scr_boot( 0 );
+; ..\cstart.c	  1869                  if ( __PMSWCR2.B.SCRINT == 0x80 )
+; ..\cstart.c	  1870                  {
+; ..\cstart.c	  1871                          download = 1;           /* Download to XRAM */
+; ..\cstart.c	  1872                  }
+; ..\cstart.c	  1873  #endif
+; ..\cstart.c	  1874          }
+; ..\cstart.c	  1875          else
+; ..\cstart.c	  1876          {
+; ..\cstart.c	  1877                  /*
+; ..\cstart.c	  1878                   *      SCR debug DAP or SPD user mode
+; ..\cstart.c	  1879                   *      no TriCore download.
+; ..\cstart.c	  1880                   */
+; ..\cstart.c	  1881          }
+; ..\cstart.c	  1882  
+; ..\cstart.c	  1883          _safety_endinit_set();
+; ..\cstart.c	  1884  
+; ..\cstart.c	  1885          return download;
+; ..\cstart.c	  1886  }
+; ..\cstart.c	  1887  
+; ..\cstart.c	  1888  _Bool _scr_start( void )
+; ..\cstart.c	  1889  {
+; ..\cstart.c	  1890          _Bool start = 0;
+; ..\cstart.c	  1891          
+; ..\cstart.c	  1892          _safety_endinit_clear();
+; ..\cstart.c	  1893  
+; ..\cstart.c	  1894          scr_boot( 1 );                          /* Reset xc800 to start user code */
+; ..\cstart.c	  1895  
+; ..\cstart.c	  1896          if ( __PMSWCR2.B.SCRINT == 0x80 )
+; ..\cstart.c	  1897          {
+; ..\cstart.c	  1898                  start = 1;                      /* User code started */
+; ..\cstart.c	  1899          }
+; ..\cstart.c	  1900                  
+; ..\cstart.c	  1901          _safety_endinit_set();
+; ..\cstart.c	  1902  
+; ..\cstart.c	  1903          return  start;
+; ..\cstart.c	  1904  }
+; ..\cstart.c	  1905  
+; ..\cstart.c	  1906  
+; ..\cstart.c	  1907  /*
+; ..\cstart.c	  1908   *      The image of the xc800 has a fixed length
+; ..\cstart.c	  1909   */
+; ..\cstart.c	  1910  #define LENGTH  1024*8/sizeof(unsigned int)
+; ..\cstart.c	  1911  extern unsigned int const _lc_ub__rodata_xc800init[LENGTH];
+; ..\cstart.c	  1912  
+; ..\cstart.c	  1913  #if !( defined _REGTC26 )
+; ..\cstart.c	  1914  /* library version uses double word instructions this causes exception with XRAM */
+; ..\cstart.c	  1915  static void localmemcpy(unsigned int * dest, unsigned int const * src, int len)
+; ..\cstart.c	  1916  {
+; ..\cstart.c	  1917          for (int i = 0; i < len; i++)
+; ..\cstart.c	  1918          {
+; ..\cstart.c	  1919                  dest[i] = src[i];
+; ..\cstart.c	  1920          }
+; ..\cstart.c	  1921  }
+; ..\cstart.c	  1922  #endif
+; ..\cstart.c	  1923  
+; ..\cstart.c	  1924  static void _xc800_init ( void )
+; ..\cstart.c	  1925  {
+; ..\cstart.c	  1926          if ( scr_init() )                                       /* Only download when allowed */
+; ..\cstart.c	  1927          {
+; ..\cstart.c	  1928  #if ( defined _REGTC26 )
+; ..\cstart.c	  1929                  qspi2_init();
+; ..\cstart.c	  1930  
+; ..\cstart.c	  1931                  _scr_write( (unsigned char const *)_lc_ub__rodata_xc800init, LENGTH*sizeof(unsigned int) );     /* write data to xc800 xram */
+; ..\cstart.c	  1932  
+; ..\cstart.c	  1933  #ifdef _USER_MODE_1
+; ..\cstart.c	  1934                  /*
+; ..\cstart.c	  1935                   *      The XRAM signature should be part of your xc800
+; ..\cstart.c	  1936                   *      application ROM image.
+; ..\cstart.c	  1937                   */
+; ..\cstart.c	  1938                  scr_set_user_mode_1();                          /* Set XRAM signature */
+; ..\cstart.c	  1939  #endif
+; ..\cstart.c	  1940                  qspi2_end();
+; ..\cstart.c	  1941  #else
+; ..\cstart.c	  1942                  localmemcpy( __XRAM_ADDR, _lc_ub__rodata_xc800init, LENGTH );
+; ..\cstart.c	  1943  #endif
+; ..\cstart.c	  1944          }
+; ..\cstart.c	  1945  }
+; ..\cstart.c	  1946  
+; ..\cstart.c	  1947  #if ( defined _REGTC26 )
+; ..\cstart.c	  1948  /*
+; ..\cstart.c	  1949   *      The SCR interacts with the main core domain via a dedicated
+; ..\cstart.c	  1950   *      SPI (QSPI2) interface and PMSWCR2 register bits.
+; ..\cstart.c	  1951   */
+; ..\cstart.c	  1952  static void inline scr_wait( void )
+; ..\cstart.c	  1953  {
+; ..\cstart.c	  1954          /*
+; ..\cstart.c	  1955           *      SCR Arbiter Busy status flag, when set the RAM is
+; ..\cstart.c	  1956           *      not accessible via QSPI as the arbiter is currently
+; ..\cstart.c	  1957           *      busy.
+; ..\cstart.c	  1958           */
+; ..\cstart.c	  1959          while( SCU_PMSWCR2.B.BUSY )
+; ..\cstart.c	  1960          {
+; ..\cstart.c	  1961                  /* Wait */
+; ..\cstart.c	  1962          }
+; ..\cstart.c	  1963  }
+; ..\cstart.c	  1964  
+; ..\cstart.c	  1965  #ifdef _USER_MODE_1
+; ..\cstart.c	  1966  /*
+; ..\cstart.c	  1967   *      The XRAM signature should be part of your XC800
+; ..\cstart.c	  1968   *      application ROM image. For example:
+; ..\cstart.c	  1969   *      __rom const unsigned char boot_mode_1[8] __at( 0x1ff8 ) =
+; ..\cstart.c	  1970   *      {0x55,0xaa,0x55,0xaa,0x55,0xaa,0x55,0xaa};
+; ..\cstart.c	  1971   *
+; ..\cstart.c	  1972   *      Set XRAM User Mode 1
+; ..\cstart.c	  1973   *
+; ..\cstart.c	  1974   *      If the User mode 1 is selected, the Boot ROM will jump to program memory
+; ..\cstart.c	  1975   *      address 0000H to execute the user code in the XRAM memory. To use this
+; ..\cstart.c	  1976   *      mode, the XRAM must be pre-loaded with user code. This is the normal
+; ..\cstart.c	  1977   *      operating mode of the TC2x_SCR. For the last 8 bytes of XRAM starting
+; ..\cstart.c	  1978   *      at address 0FF8H, user need to program 4 sets of pre-fixed bytes with
+; ..\cstart.c	  1979   *      each set containing 55H followed by AAH. User code will not be executed
+; ..\cstart.c	  1980   *      and SCR will enter an endless loop if the memory content does not match
+; ..\cstart.c	  1981   *      these data sequence. It is used to avoid an unintentional entry to User
+; ..\cstart.c	  1982   *      Mode 1. Before entering the endless loop, the start-up code will trigger
+; ..\cstart.c	  1983   *      an interrupt to the main controller by setting bit NMICON.SCRINTTC to 1
+; ..\cstart.c	  1984   *      with a value of 81H in SCRINTEXCHG register. If there is a match, the same
+; ..\cstart.c	  1985   *      interrupt is triggered to the main controller with a value of 80H in
+; ..\cstart.c	  1986   *      SCRINTEXCHG register to indicate the execution of user code.
+; ..\cstart.c	  1987   *
+; ..\cstart.c	  1988   */
+; ..\cstart.c	  1989  static void inline scr_set_user_mode_1( void )
+; ..\cstart.c	  1990  {
+; ..\cstart.c	  1991          unsigned char i;
+; ..\cstart.c	  1992  
+; ..\cstart.c	  1993          qspi2_start_of_frame();
+; ..\cstart.c	  1994  
+; ..\cstart.c	  1995          for( i = 0; i < 4; i++ )
+; ..\cstart.c	  1996          {
+; ..\cstart.c	  1997                  qspi2_write_word( 0x1FF8 + 2*i, 0xAA55 );
+; ..\cstart.c	  1998          }
+; ..\cstart.c	  1999  
+; ..\cstart.c	  2000          qspi2_end_of_frame();
+; ..\cstart.c	  2001  }
+; ..\cstart.c	  2002  #endif
+; ..\cstart.c	  2003  
+; ..\cstart.c	  2004  
+; ..\cstart.c	  2005  void _scr_write( const unsigned char *romdata, unsigned int length )
+; ..\cstart.c	  2006  {
+; ..\cstart.c	  2007          unsigned short addr;
+; ..\cstart.c	  2008          unsigned short data;
+; ..\cstart.c	  2009  
+; ..\cstart.c	  2010          qspi2_start_of_frame();
+; ..\cstart.c	  2011          
+; ..\cstart.c	  2012          for( addr = 0; addr < length; addr += 2 )
+; ..\cstart.c	  2013          {
+; ..\cstart.c	  2014                  data = romdata[addr] | (romdata[addr + 1] << 8);
+; ..\cstart.c	  2015                  qspi2_write_word( addr, data );
+; ..\cstart.c	  2016          }
+; ..\cstart.c	  2017          
+; ..\cstart.c	  2018          qspi2_end_of_frame();
+; ..\cstart.c	  2019  }
+; ..\cstart.c	  2020  
+; ..\cstart.c	  2021  
+; ..\cstart.c	  2022  /*
+; ..\cstart.c	  2023   *      QSPI2 Configuration for transferring data to and from XRAM.
+; ..\cstart.c	  2024   */
+; ..\cstart.c	  2025  enum {
+; ..\cstart.c	  2026          TOS_CPU0=0,
+; ..\cstart.c	  2027          TOS_CPU1=1,
+; ..\cstart.c	  2028          TOS_CPU2=2
+; ..\cstart.c	  2029  };
+; ..\cstart.c	  2030  
+; ..\cstart.c	  2031  #define QSPI2_INTERRUPT_NR      255
+; ..\cstart.c	  2032  
+; ..\cstart.c	  2033  /*
+; ..\cstart.c	  2034   *      Baud rate configuration QSPI2
+; ..\cstart.c	  2035   *      Baud rate = fBAUD2 / ((QSPI2TQ+1) * (ECONQ+1) * (ECONA+1 + ECONB + ECONC ) )
+; ..\cstart.c	  2036   *      50Mbaud = 200Mhz/4
+; ..\cstart.c	  2037   */
+; ..\cstart.c	  2038  #define QSPI2TQ 0
+; ..\cstart.c	  2039  #define ECONQ   0
+; ..\cstart.c	  2040  #define ECONA   1
+; ..\cstart.c	  2041  #define ECONB   2
+; ..\cstart.c	  2042  #define ECONC   0
+; ..\cstart.c	  2043  #define ECON    ((ECONQ) | (ECONA << 6) | (ECONB << 8) | (ECONC << 10))
+; ..\cstart.c	  2044  
+; ..\cstart.c	  2045  static void qspi2_init( void )
+; ..\cstart.c	  2046  {
+; ..\cstart.c	  2047          _endinit_clear();
+; ..\cstart.c	  2048  
+; ..\cstart.c	  2049          QSPI2_CLC.U=0x8;                        /* Enable QSPI2 */
+; ..\cstart.c	  2050  
+; ..\cstart.c	  2051          _endinit_set();
+; ..\cstart.c	  2052  
+; ..\cstart.c	  2053          QSPI2_GLOBALCON.B.TQ = QSPI2TQ;         /* Divide Global Time Quantum Length */
+; ..\cstart.c	  2054          QSPI2_PISEL.B.MRIS = 0x7;               /* SPI MRST input MRST2H (7=H,0..7->A..H) */
+; ..\cstart.c	  2055          QSPI2_GLOBALCON1.U = (0x3 << 9);        /* Tx and Rx Interrupt Event Enabled */
+; ..\cstart.c	  2056          QSPI2_ECON7.U = ECON;                   /* Set baud rate */
+; ..\cstart.c	  2057          QSPI2_SSOC.U = (0x1 << 31);             /* Enable SLSO Output 31 */
+; ..\cstart.c	  2058          QSPI2_GLOBALCON.B.EN = 1;               /* RUN requested */
+; ..\cstart.c	  2059  
+; ..\cstart.c	  2060          /*
+; ..\cstart.c	  2061           * QSPI2 is serviced by TOS_CPU0
+; ..\cstart.c	  2062           *
+; ..\cstart.c	  2063           * [0..7] SRPN=QSPI2_TXRX_INTERRUPT_NR
+; ..\cstart.c	  2064           * [10] Service Request enable
+; ..\cstart.c	  2065           * [11..12] TOS=TriCore interrupt 0=CPU0, 1=CPU1, 2=CPU2, 3=SDMA, 4=DMA
+; ..\cstart.c	  2066           */
+; ..\cstart.c	  2067          SRC_QSPI2TX.U = QSPI2_INTERRUPT_NR | ( 1<<10 ) | (TOS_CPU0<<11);
+; ..\cstart.c	  2068          SRC_QSPI2RX.U = QSPI2_INTERRUPT_NR | ( 1<<10 ) | (TOS_CPU0<<11);
+; ..\cstart.c	  2069          
+; ..\cstart.c	  2070          __enable();                             /* QSPI2 interrupts are serviced */
+; ..\cstart.c	  2071  }
+; ..\cstart.c	  2072  
+; ..\cstart.c	  2073  static void qspi2_end( void )
+; ..\cstart.c	  2074  {
+; ..\cstart.c	  2075          QSPI2_GLOBALCON.B.EN = 0;               /* PAUSE requested */
+; ..\cstart.c	  2076  
+; ..\cstart.c	  2077          SRC_QSPI2TX.U = 0;                      /* QSPI2 TX service disabled */
+; ..\cstart.c	  2078          SRC_QSPI2RX.U = 0;                      /* QSPI2 RX service disabled */
+; ..\cstart.c	  2079  
+; ..\cstart.c	  2080          __disable();                            /* QSPI2 interrupts are disabled */
+; ..\cstart.c	  2081          
+; ..\cstart.c	  2082          _endinit_clear();
+; ..\cstart.c	  2083  
+; ..\cstart.c	  2084          QSPI2_CLC.U = 0x1;                      /* Disable QSPI2 */
+; ..\cstart.c	  2085  
+; ..\cstart.c	  2086          _endinit_set();
+; ..\cstart.c	  2087  }
+; ..\cstart.c	  2088  
+; ..\cstart.c	  2089  static void inline qspi2_start_of_frame( void )
+; ..\cstart.c	  2090  {
+; ..\cstart.c	  2091          /*
+; ..\cstart.c	  2092           *      The communication between the main TC2x system and XRAM is
+; ..\cstart.c	  2093           *      based on a pre-fixed SPI software protocol.
+; ..\cstart.c	  2094           *
+; ..\cstart.c	  2095           *      BACON_ENTRY     Writes to this location are BACON configurations
+; ..\cstart.c	  2096           *      BACON.TRAIL     Trailing Delay Length 2 TQSPI units
+; ..\cstart.c	  2097           *      BACON.MSB       Shift MSB first
+; ..\cstart.c	  2098           *      BACON.BYTE      Data length in bits
+; ..\cstart.c	  2099           *      BACON.DL        Data Length 32 bits
+; ..\cstart.c	  2100           *      BACON.BS        SLSO15 channel select. Access the SCR XRAM
+; ..\cstart.c	  2101           *                      via QSPI2 (SLSO15) interface.
+; ..\cstart.c	  2102           */
+; ..\cstart.c	  2103          QSPI2_BACONENTRY.U = (0x0 |(0x1 << 16) | (0x1 << 21 ) | (0 << 22) | (0x1F << 23) | (0xF << 28));
+; ..\cstart.c	  2104  }
+; ..\cstart.c	  2105  
+; ..\cstart.c	  2106  static void inline qspi2_end_of_frame( void )
+; ..\cstart.c	  2107  {
+; ..\cstart.c	  2108          QSPI2_BACONENTRY.U = 1; /* Last frame */
+; ..\cstart.c	  2109          
+; ..\cstart.c	  2110          /*
+; ..\cstart.c	  2111           *      When the 32-bit SPI frame contains the value FFFF:FFFFH,
+; ..\cstart.c	  2112           *      it indicates that the current frame is the End-of-Frame (EOF).
+; ..\cstart.c	  2113           *      This frame will then be ignored by the arbiter state machine.
+; ..\cstart.c	  2114           */
+; ..\cstart.c	  2115          qspi2_write_word( 0xFFFF, 0xFFFF );
+; ..\cstart.c	  2116  }
+; ..\cstart.c	  2117  
+; ..\cstart.c	  2118  static volatile _Bool __far     qspi2_transmitted;
+; ..\cstart.c	  2119  static volatile _Bool __far     qspi2_received;
+; ..\cstart.c	  2120  static unsigned int __far       qspi2_rxexit;
+; ..\cstart.c	  2121  
+; ..\cstart.c	  2122  static void qspi2_send_data( unsigned int data_entry )
+; ..\cstart.c	  2123  {
+; ..\cstart.c	  2124          qspi2_transmitted = 0;
+; ..\cstart.c	  2125  
+; ..\cstart.c	  2126          scr_wait();                             /* Wait until XRAM accessible */
+; ..\cstart.c	  2127  
+; ..\cstart.c	  2128          QSPI2_DATAENTRY0.U = data_entry;        /* Write TX FIFO */
+; ..\cstart.c	  2129  
+; ..\cstart.c	  2130          while( !qspi2_transmitted );            /* Wait until transmitted */
+; ..\cstart.c	  2131  }
+; ..\cstart.c	  2132  
+; ..\cstart.c	  2133  /*
+; ..\cstart.c	  2134   *      qspi2_write_word and qspi2_read_word data_extry:
+; ..\cstart.c	  2135   *
+; ..\cstart.c	  2136   *      [31]    Read/Write indication:
+; ..\cstart.c	  2137   *              - 1 indicates a write access to XRAM.
+; ..\cstart.c	  2138   *              - 0 indicates a read access from XRAM.
+; ..\cstart.c	  2139   *      [30:29] Control bits:
+; ..\cstart.c	  2140   *              - Should be written with 0.
+; ..\cstart.c	  2141   *      [28:16] 13-bit XRAM address.
+; ..\cstart.c	  2142   *              Note: For smaller XRAM where the address width is
+; ..\cstart.c	  2143   *              less than 13 bits, the unused uppermost bits should
+; ..\cstart.c	  2144   *              be written with 0.
+; ..\cstart.c	  2145   *      [15:0]  16-bit data.
+; ..\cstart.c	  2146   */
+; ..\cstart.c	  2147  static void qspi2_write_word( unsigned short address, unsigned short data )
+; ..\cstart.c	  2148  {
+; ..\cstart.c	  2149          unsigned int data_entry = (0x1 << 31) | (address << 16) | data;
+; ..\cstart.c	  2150  
+; ..\cstart.c	  2151          qspi2_send_data( data_entry );
+; ..\cstart.c	  2152  }
+; ..\cstart.c	  2153  
+; ..\cstart.c	  2154  void __interrupt( QSPI2_INTERRUPT_NR ) qspi2_rxtx( void )
+; ..\cstart.c	  2155  {
+; ..\cstart.c	  2156          if ( QSPI2_STATUS.B.TXF == 1 )
+; ..\cstart.c	  2157          {
+; ..\cstart.c	  2158                  /*
+; ..\cstart.c	  2159                   *      Transmit Interrupt Request Flag
+; ..\cstart.c	  2160                   *      Flags an occurrence of a request to feed the TXFIFO,
+; ..\cstart.c	  2161                   *      which is generated when an element is fetched from the
+; ..\cstart.c	  2162                   *      FIFO, and the FIFO filling level is equal or less than the
+; ..\cstart.c	  2163                   *      set threshold level.
+; ..\cstart.c	  2164                   *
+; ..\cstart.c	  2165                   *      Transmit Event Flag Clear
+; ..\cstart.c	  2166                   *      Write clears the STATUS.TXF bit.
+; ..\cstart.c	  2167                   */
+; ..\cstart.c	  2168                  QSPI2_FLAGSCLEAR.B.TXC = 1;
+; ..\cstart.c	  2169                  QSPI2_STATUS.B.TXF;             /* Read back else TXF not cleared immediate, why? */
+; ..\cstart.c	  2170                  qspi2_transmitted = 1;          /* Flag transmitted */
+; ..\cstart.c	  2171          }
+; ..\cstart.c	  2172          else if ( QSPI2_STATUS.B.RXF == 1 )
+; ..\cstart.c	  2173          {
+; ..\cstart.c	  2174                  /*
+; ..\cstart.c	  2175                   *      Receive Interrupt Request Flag
+; ..\cstart.c	  2176                   *      Flags an occurrence of a request to empty the RXFIFO,
+; ..\cstart.c	  2177                   *      which is generated when an element is written into the
+; ..\cstart.c	  2178                   *      FIFO, and the FIFO filling level is equal or greater than
+; ..\cstart.c	  2179                   *      the set threshold level.
+; ..\cstart.c	  2180                   *
+; ..\cstart.c	  2181                   *      Receive Event Flag Clear
+; ..\cstart.c	  2182                   *      Write clears the STATUS.RXF bit.
+; ..\cstart.c	  2183                   */
+; ..\cstart.c	  2184                  QSPI2_FLAGSCLEAR.B.RXC = 1;
+; ..\cstart.c	  2185                  /*
+; ..\cstart.c	  2186                   *      RXEXIT - reads from this location deliver either
+; ..\cstart.c	  2187                   *      data or data and status, based on a set of rules.
+; ..\cstart.c	  2188                   */
+; ..\cstart.c	  2189                  qspi2_rxexit = QSPI2_RXEXIT.U;
+; ..\cstart.c	  2190                  qspi2_received = 1;             /* Flag received */
+; ..\cstart.c	  2191          }
+; ..\cstart.c	  2192  }
+; ..\cstart.c	  2193  
+; ..\cstart.c	  2194  #endif
+; ..\cstart.c	  2195  #endif
+; ..\cstart.c	  2196  #endif
+
+	; Module end

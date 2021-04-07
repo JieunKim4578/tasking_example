@@ -1,0 +1,158 @@
+
+INFINEON TECHNOLOGIES TRICORE ISS
+
+ATTENTION: TSIM is an ARCHITECTURAL MODEL
+cycle counts are approximate.
+
+VERSION: TC_MODELS_1.18.1
+         Build Time: 16:40:08 on Mar 16 2018
+         64 bit build
+         Setting simulator to TC16P B-STEP mode
+
+Command Line Arguments:
+    -project_path D:/Projects/workspace_ctc_v6.3r1/example
+    -tasking_path C:\TASKING\TriCore v6.3r1\ctc\eclipse\plugins\com.tasking.ctc.debug.win32.x86_64_1.10.0.0\ctc
+    -output_path D:/Projects/workspace_ctc_v6.3r1/example
+
+Reading MConfig file for memory configuration: D:/Projects/workspace_ctc_v6.3r1/example/MConfig
+Code cache: enabled:1 lines:128   ways:4   line size:32 access time:0 lru:pseudo LRU
+DATA cache: enabled:1 lines:64   ways:4   line size:32 access time:0 lru:pseudo LRU
+SCRATCH 0   SCRATCH: FROM 0xc0000000 UNTIL 0xc0007fff  0T wait
+PARTITION 1   PSPR1: FROM 0x60100000 UNTIL 0x60107fff  0T wait
+PARTITION 2   PSPR2: FROM 0x50100000 UNTIL 0x50107fff  0T wait
+SCRATCH 3   SCRATCH: FROM 0xd0000000 UNTIL 0xd001dfff  0T wait
+PARTITION 4   DSPR1: FROM 0x60000000 UNTIL 0x6003bfff  0T wait
+PARTITION 5   DSPR2: FROM 0x50000000 UNTIL 0x5003bfff  0T wait
+PARTITION 6   DFLASH0: FROM 0xaf000000 UNTIL 0xaf0bffff  0T wait
+Memory accesses to addresses 0xaf000000 - 0xaf0bffff access physical memory in segment 0x8
+PARTITION 7   DFLASH0: FROM 0xaf100000 UNTIL 0xaf103fff  0T wait
+Memory accesses to addresses 0xaf100000 - 0xaf103fff access physical memory in segment 0x8
+PARTITION 8   DFLASH1: FROM 0xaf110000 UNTIL 0xaf11ffff  0T wait
+Memory accesses to addresses 0xaf110000 - 0xaf11ffff access physical memory in segment 0x8
+PARTITION 9   PFLASH0: FROM 0xa0000000 UNTIL 0xa01fffff  0T wait
+Memory accesses to addresses 0xa0000000 - 0xa01fffff access physical memory in segment 0x8
+PARTITION 10   PFLASH1: FROM 0xa0200000 UNTIL 0xa03fffff  0T wait
+Memory accesses to addresses 0xa0200000 - 0xa03fffff access physical memory in segment 0x8
+PARTITION 11   PFLASH2: FROM 0xa0400000 UNTIL 0xa05fffff  0T wait
+Memory accesses to addresses 0xa0400000 - 0xa05fffff access physical memory in segment 0x8
+PARTITION 12   PFLASH3: FROM 0xa0600000 UNTIL 0xa07fffff  0T wait
+Memory accesses to addresses 0xa0600000 - 0xa07fffff access physical memory in segment 0x8
+PARTITION 13   LMU: FROM 0xb0000000 UNTIL 0xb0007fff  0T wait
+Memory accesses to addresses 0xb0000000 - 0xb0007fff access physical memory in segment 0x9
+PARTITION 14   MCS00_RAM: FROM 0xf0138000 UNTIL 0xf0139fff  0T wait
+PARTITION 15   MCS01_RAM: FROM 0xf0140000 UNTIL 0xf0141fff  0T wait
+PARTITION 16   MCS02_RAM: FROM 0xf0148000 UNTIL 0xf0149fff  0T wait
+PARTITION 17   MCS03_RAM: FROM 0xf0150000 UNTIL 0xf0151fff  0T wait
+PARTITION 18   MCS04_RAM: FROM 0xf0158000 UNTIL 0xf0159fff  0T wait
+PARTITION 19   MCS05_RAM: FROM 0xf0160000 UNTIL 0xf0161fff  0T wait
+PARTITION 20   SFR_BASE_ADDRESS_TC1: FROM 0xf8820000 UNTIL 0xf883ffff  0T wait
+PARTITION 21   SFR_BASE_ADDRESS_TC2: FROM 0xf8840000 UNTIL 0xf885ffff  0T wait
+PARTITION 22   SFR_BASE_ADDRESS_GTM: FROM 0xf0190000 UNTIL 0xf019ffff  0T wait
+
+Peripheral Register Base Address Configuration:
+sfr base address   : 0xf8810000
+cps base address   : 0xf8800000
+dmi base address   : 0xf87ffc00
+pmi base address   : 0xf87ffd00
+lfi base address   : 0xf87fff00
+wdt base address   : 0xf0036000
+stm base address   : 0xf0000000
+gptu0 base address : 0xf0000600
+IR SRC base address: 0xf0038000
+
+reset: pc = a0000000
+
+(PConfig) No peripheral configuration file specified / Error opening: D:/Projects/workspace_ctc_v6.3r1/example/PConfig
+Reading PConfig file for peripheral configuration: C:\TASKING\TriCore v6.3r1\ctc\eclipse\plugins\com.tasking.ctc.debug.win32.x86_64_1.10.0.0\ctc\etc\/PConfig
+No peripheral addresses specified
+
+(IConfig) No external interrupt file specified / Error opening: D:/Projects/workspace_ctc_v6.3r1/example/IConfig
+Reading IConfig file for external interrupt: C:\TASKING\TriCore v6.3r1\ctc\eclipse\plugins\com.tasking.ctc.debug.win32.x86_64_1.10.0.0\ctc\etc\/IConfig
+Reading DConfig file for device plugin: D:/Projects/workspace_ctc_v6.3r1/example/DConfig
+
+Number of protection register sets: 4
+Number of code protection ranges:   8
+Number of data protection ranges:   16
+
+All Files setup for simulation run
+reset: pc = a0000000
+reset: pc = a0000000
+reset: pc = a0000000
+Warning(gpt): Can't open stimulus file "stimulus_0" for read.
+reset: pc = a0000000
+Warning(gpt): Can't open stimulus file "stimulus_0" for read.
+reset: pc = a0000000
+Warning(gpt): Can't open stimulus file "stimulus_0" for read.
+reset: pc = a0000000
+Warning(gpt): Can't open stimulus file "stimulus_0" for read.
+Simulation complete
+
+**************** Simulation statistics ****************
+
+Total number of instructions executed =                1347
+Total number of cycles run            =                1801
+Total number of seconds for execution =                0.00 seconds
+Instruction delay count               =                1385
+total number of interrupts fired      = 0
+DCache Hit Rate: 75.00%
+Total Dcache accesses:   16 Dcache hits: 12
+
+Ccache Hit Rate: 98.21%
+Total Ccache accesses:   5210 Ccache hits: 5117
+
+
+Instruction histogram:   %       (Num of instructions)
+    MAC:               0.00%     (                  0)
+    JMPS:             21.08%     (                284)
+    LOADS:            15.52%     (                209)
+    STORES:           14.03%     (                189)
+    ARITHMETIC:       47.07%     (                634)
+    SYS:               2.30%     (                 31)
+    MISC:              0.00%     (                  0)
+    FPU (total):       0.00%     (                  0)
+    FPU (arithmetic):  0.00%     (                  0)
+    FPU (MAC):         0.00%     (                  0)
+
+Data Register usage for 32 bit instructions: 
+
+    DR[00] = 325                 DR[01] = 66                 
+    DR[02] = 257                 DR[03] = 0                  
+    DR[04] = 0                   DR[05] = 0                  
+    DR[06] = 0                   DR[07] = 0                  
+    DR[08] = 5                   DR[09] = 5                  
+    DR[10] = 5                   DR[11] = 5                  
+    DR[12] = 5                   DR[13] = 5                  
+    DR[14] = 5                   DR[15] = 493                
+
+Address Register usage for 32 bit instructions: 
+
+    AR[00] = 0                   AR[01] = 0                  
+    AR[02] = 263                 AR[03] = 0                  
+    AR[04] = 22                  AR[05] = 0                  
+    AR[06] = 0                   AR[07] = 0                  
+    AR[08] = 0                   AR[09] = 0                  
+    AR[10] = 65                  AR[11] = 62                 
+    AR[12] = 5                   AR[13] = 5                  
+    AR[14] = 5                   AR[15] = 460                
+
+Data Register usage for 16 bit instructions:
+
+    DR[00] = 194                 DR[01] = 3                  
+    DR[02] = 130                 DR[03] = 0                  
+    DR[04] = 2                   DR[05] = 0                  
+    DR[06] = 0                   DR[07] = 0                  
+    DR[08] = 6                   DR[09] = 6                  
+    DR[10] = 6                   DR[11] = 6                  
+    DR[12] = 6                   DR[13] = 5                  
+    DR[14] = 5                   DR[15] = 681                
+
+Address Register usage for 16 bit instructions:
+
+    AR[00] = 1                   AR[01] = 1                  
+    AR[02] = 235                 AR[03] = 0                  
+    AR[04] = 18                  AR[05] = 0                  
+    AR[06] = 0                   AR[07] = 0                  
+    AR[08] = 1                   AR[09] = 1                  
+    AR[10] = 40                  AR[11] = 31                 
+    AR[12] = 6                   AR[13] = 6                  
+    AR[14] = 5                   AR[15] = 348                

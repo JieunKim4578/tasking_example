@@ -1,0 +1,2068 @@
+	; Module start
+	.compiler_version	"TASKING VX-toolset for TriCore: C compiler v6.3r1 Build 19041558 SN 08076959"
+	.compiler_invocation	"ctc --dep-file=.cstart_tc2.o.d --fp-model=c,f,l,n,r,S,T,z -D__CPU__=tc29x -D__CPU_TC29X__ --core=tc1.6.x --iso=11 -ID:\\Projects\\workspace_ctc_v6.3r1\\example -I../my_header -g2 --make-target=cstart_tc2.o -t4 --language=-gcc,-volatile,+strings,-kanji --default-near-size=8 -O2 --default-a1-size=0 --default-a0-size=0 --source --align=0 --compact-max-size=200 --switch=auto --error-limit=42 -o cstart_tc2.src ..\\cstart_tc2.c"
+	.compiler_name		"ctc"
+	;source	'..\\cstart_tc2.c'
+
+	
+$TC16X
+	
+	.sdecl	'.text.cstart_tc2._endinit_clear_tc2',code,cluster('_endinit_clear_tc2')
+	.sect	'.text.cstart_tc2._endinit_clear_tc2'
+	.align	2
+	
+	.global	_endinit_clear_tc2
+
+; ..\cstart_tc2.c	     1  /**************************************************************************
+; ..\cstart_tc2.c	     2  **                                                                        *
+; ..\cstart_tc2.c	     3  **  FILE        :  cstart_tc2.c                                           *
+; ..\cstart_tc2.c	     4  **                                                                        *
+; ..\cstart_tc2.c	     5  **  DESCRIPTION :                                                         *
+; ..\cstart_tc2.c	     6  **      The system startup code initializes the processor's registers     *
+; ..\cstart_tc2.c	     7  **      and the application C variables for core 2.                       *
+; ..\cstart_tc2.c	     8  **                                                                        *
+; ..\cstart_tc2.c	     9  **  Copyright 1996-2019 TASKING BV                                        *
+; ..\cstart_tc2.c	    10  **                                                                        *
+; ..\cstart_tc2.c	    11  **************************************************************************/
+; ..\cstart_tc2.c	    12  
+; ..\cstart_tc2.c	    13  #include <stdlib.h>
+; ..\cstart_tc2.c	    14  #include <stdbool.h>
+; ..\cstart_tc2.c	    15  
+; ..\cstart_tc2.c	    16  #pragma nomisrac                                /* disable MISRA-C checking */
+; ..\cstart_tc2.c	    17  
+; ..\cstart_tc2.c	    18  #ifdef __CPU__
+; ..\cstart_tc2.c	    19  #include __SFRFILE__(__CPU__)
+; ..\cstart_tc2.c	    20  #endif
+; ..\cstart_tc2.c	    21  
+; ..\cstart_tc2.c	    22  #if ! defined CPU2_CORE_ID
+; ..\cstart_tc2.c	    23  
+; ..\cstart_tc2.c	    24  #pragma message "cstart_tc2.c: This derivative does not support core 2"
+; ..\cstart_tc2.c	    25  
+; ..\cstart_tc2.c	    26  #else // ! defined CPU2_CORE_ID
+; ..\cstart_tc2.c	    27  
+; ..\cstart_tc2.c	    28  #pragma weak    exit
+; ..\cstart_tc2.c	    29  #pragma extern  _Exit
+; ..\cstart_tc2.c	    30  #pragma tradeoff 4                              /* preset tradeoff level (for size) */
+; ..\cstart_tc2.c	    31  #pragma runtime BCM                             /* disable runtime error checking for cstart */
+; ..\cstart_tc2.c	    32  #pragma immediate_in_code                       /* no external ROM access before bus configuration */
+; ..\cstart_tc2.c	    33  
+; ..\cstart_tc2.c	    34  #include "cstart_tc2.h"                         /* include configuration */
+; ..\cstart_tc2.c	    35  
+; ..\cstart_tc2.c	    36  #ifndef __NO_VTC
+; ..\cstart_tc2.c	    37  
+; ..\cstart_tc2.c	    38  #if __USE_ARGC_ARGV
+; ..\cstart_tc2.c	    39  #pragma noclear                                 /* bss clearing not before cinit */
+; ..\cstart_tc2.c	    40  static char argcv_tc2[__ARGCV_BUFSIZE] __align(4);
+; ..\cstart_tc2.c	    41  #pragma clear
+; ..\cstart_tc2.c	    42  extern int _argcv( const char *, size_t );
+; ..\cstart_tc2.c	    43  #endif
+; ..\cstart_tc2.c	    44  
+; ..\cstart_tc2.c	    45  /* linker definitions */
+; ..\cstart_tc2.c	    46  extern __far void _lc_ue_ustack_tc2[];  /* user stack end */
+; ..\cstart_tc2.c	    47  extern __far void _lc_ue_istack_tc2[];  /* interrupt stack end */
+; ..\cstart_tc2.c	    48  extern __far void _lc_u_int_tab_tc2[];  /* interrupt table */
+; ..\cstart_tc2.c	    49  extern __far void _lc_u_trap_tab_tc2[]; /* trap table */
+; ..\cstart_tc2.c	    50  extern __far void _SMALL_DATA_TC2[];       /* centre of A0 addressable area */
+; ..\cstart_tc2.c	    51  extern __far void _LITERAL_DATA_TC2[];     /* centre of A1 addressable area */
+; ..\cstart_tc2.c	    52  extern __far void _A8_DATA_TC2[];          /* centre of A8 addressable area */
+; ..\cstart_tc2.c	    53  extern __far void _A9_DATA_TC2[];          /* centre of A9 addressable area */
+; ..\cstart_tc2.c	    54  
+; ..\cstart_tc2.c	    55  /* external functions */
+; ..\cstart_tc2.c	    56  #if __C_INIT
+; ..\cstart_tc2.c	    57  extern void _c_init_tc2(void);          /* C initialization function */
+; ..\cstart_tc2.c	    58  #endif
+; ..\cstart_tc2.c	    59  #ifdef __CALL_INIT
+; ..\cstart_tc2.c	    60  extern void _call_init_tc2(void);               /* call a user function before main() */
+; ..\cstart_tc2.c	    61  #endif
+; ..\cstart_tc2.c	    62  #ifdef _CALL_ENDINIT
+; ..\cstart_tc2.c	    63  extern void _endinit_tc2(void);         /* call a user function with protection switched off */
+; ..\cstart_tc2.c	    64  #endif
+; ..\cstart_tc2.c	    65  
+; ..\cstart_tc2.c	    66  /* main references with default core association share */
+; ..\cstart_tc2.c	    67  #pragma extern main
+; ..\cstart_tc2.c	    68  extern int main( int argc, char *argv[] );
+; ..\cstart_tc2.c	    69  
+; ..\cstart_tc2.c	    70  /* local functions */
+; ..\cstart_tc2.c	    71  static void __noinline__ __noreturn__ __jump__ __init_sp( void );
+; ..\cstart_tc2.c	    72  static void __noinline__ __noreturn__ __jump__ _start( void );
+; ..\cstart_tc2.c	    73  
+; ..\cstart_tc2.c	    74  /* endinit types */
+; ..\cstart_tc2.c	    75  typedef enum
+; ..\cstart_tc2.c	    76  {
+; ..\cstart_tc2.c	    77          _ENDINIT_DISABLE,
+; ..\cstart_tc2.c	    78          _ENDINIT_ENABLE
+; ..\cstart_tc2.c	    79  }       _endinit_t;
+; ..\cstart_tc2.c	    80  
+; ..\cstart_tc2.c	    81  /*
+; ..\cstart_tc2.c	    82   *      Inlining is required for endinit_set and safety_endinit_set,
+; ..\cstart_tc2.c	    83   *      because the CSA list is not ready to support function calls.
+; ..\cstart_tc2.c	    84   */
+; ..\cstart_tc2.c	    85  static void inline endinit_set(_endinit_t endinit_value);
+; ..\cstart_tc2.c	    86          
+; ..\cstart_tc2.c	    87  /* external interface to endinit_set */
+; ..\cstart_tc2.c	    88  extern void _endinit_clear_tc2(void) { endinit_set(_ENDINIT_DISABLE); }
+; Function _endinit_clear_tc2
+.L9:
+_endinit_clear_tc2:	.type	func
+
+; ..\cstart_tc2.c	    89  extern void _endinit_set_tc2  (void) { endinit_set(_ENDINIT_ENABLE); }
+; ..\cstart_tc2.c	    90  
+; ..\cstart_tc2.c	    91  #ifdef __RM_INIT
+; ..\cstart_tc2.c	    92  #if __RM_INIT
+; ..\cstart_tc2.c	    93  #include <fenv.h>
+; ..\cstart_tc2.c	    94  #endif
+; ..\cstart_tc2.c	    95  #endif
+; ..\cstart_tc2.c	    96  
+; ..\cstart_tc2.c	    97  #if __C_INIT || _CALL_ENDINIT || (defined __CALL_INIT)
+; ..\cstart_tc2.c	    98  /* c init semaphores */
+; ..\cstart_tc2.c	    99  extern unsigned int volatile __far      _tcx_end_c_init;        /* _tcx_end_c_init := 1 << core_id */
+; ..\cstart_tc2.c	   100  #pragma   weak  _tcx_end_c_init
+; ..\cstart_tc2.c	   101  #endif
+; ..\cstart_tc2.c	   102  
+; ..\cstart_tc2.c	   103  #if __USP_INIT
+; ..\cstart_tc2.c	   104  /*
+; ..\cstart_tc2.c	   105   * Initialize a global variable used by the runtime stack overflow check.
+; ..\cstart_tc2.c	   106   * A small amount of space is reserved for the stack overflow handler.
+; ..\cstart_tc2.c	   107   * Since we only want to allocate the variable when the overflow check is
+; ..\cstart_tc2.c	   108   * enabled, we use a weak reference.
+; ..\cstart_tc2.c	   109   */
+; ..\cstart_tc2.c	   110  extern __clone __near void* __stack_limit;
+; ..\cstart_tc2.c	   111  #pragma weak __stack_limit
+; ..\cstart_tc2.c	   112  extern char _lc_ub_ustack_tc2[];
+; ..\cstart_tc2.c	   113  #define STACK_LIMIT     (_lc_ub_ustack_tc2 + 64)
+; ..\cstart_tc2.c	   114  #endif
+; ..\cstart_tc2.c	   115  
+; ..\cstart_tc2.c	   116  void __noreturn__ __jump__ _start_tc2( void )
+; ..\cstart_tc2.c	   117  {
+; ..\cstart_tc2.c	   118          __init_sp();
+; ..\cstart_tc2.c	   119  }
+; ..\cstart_tc2.c	   120  
+; ..\cstart_tc2.c	   121  /*
+; ..\cstart_tc2.c	   122   * Disable the optimization for code compaction (reverse inlining),
+; ..\cstart_tc2.c	   123   * for initialization of the stackpointer.
+; ..\cstart_tc2.c	   124   */
+; ..\cstart_tc2.c	   125  #pragma optimize R
+; ..\cstart_tc2.c	   126  
+; ..\cstart_tc2.c	   127  static void __noinline__ __noreturn__ __jump__ __init_sp( void )
+; ..\cstart_tc2.c	   128  {
+; ..\cstart_tc2.c	   129          /* The initialization of the stackpointer is done in a seperate function, 
+; ..\cstart_tc2.c	   130             because it must be executed in a function which has no stack use.
+; ..\cstart_tc2.c	   131             
+; ..\cstart_tc2.c	   132             When a function uses a stack it will be updated at the start of the 
+; ..\cstart_tc2.c	   133             function. In this function, however, the stackpointer has an irrelevant
+; ..\cstart_tc2.c	   134             value at the start of the function. A starting value for the stackpointer
+; ..\cstart_tc2.c	   135             is determined and written in this function. The update to the 
+; ..\cstart_tc2.c	   136             stackpointer at the start of the function would therefore be undone.
+; ..\cstart_tc2.c	   137           */
+; ..\cstart_tc2.c	   138           
+; ..\cstart_tc2.c	   139          /* 
+; ..\cstart_tc2.c	   140           * Load user stack pointer.
+; ..\cstart_tc2.c	   141           */
+; ..\cstart_tc2.c	   142  # define STACK_ALIGN    0xfffffff8
+; ..\cstart_tc2.c	   143  #if  __USP_INIT
+; ..\cstart_tc2.c	   144          void * sp = (void *)((unsigned int)(_lc_ue_ustack_tc2) & STACK_ALIGN);
+; ..\cstart_tc2.c	   145          
+; ..\cstart_tc2.c	   146          __set_sp( sp );
+; ..\cstart_tc2.c	   147  #endif
+; ..\cstart_tc2.c	   148  
+; ..\cstart_tc2.c	   149          _start();
+; ..\cstart_tc2.c	   150  }
+; ..\cstart_tc2.c	   151  
+; ..\cstart_tc2.c	   152  /*
+; ..\cstart_tc2.c	   153   * Restore the optimization options.
+; ..\cstart_tc2.c	   154   */
+; ..\cstart_tc2.c	   155  #pragma optimize restore
+; ..\cstart_tc2.c	   156  
+; ..\cstart_tc2.c	   157  /* Set the PSW to its reset value in case of a warm start */
+; ..\cstart_tc2.c	   158  static void inline reset_psw( void )
+; ..\cstart_tc2.c	   159  {
+; ..\cstart_tc2.c	   160          unsigned int    value = 0x980;  /* Reset value */
+; ..\cstart_tc2.c	   161  
+; ..\cstart_tc2.c	   162          value |= (__CDC & 0x7f);        /* PSW.CDC call depth counter */
+; ..\cstart_tc2.c	   163  
+; ..\cstart_tc2.c	   164  #if __USER_STACK
+; ..\cstart_tc2.c	   165          value &= ~0x200;                /* clear PSW.IS */
+; ..\cstart_tc2.c	   166  #else
+; ..\cstart_tc2.c	   167          value |= 0x200;                 /* set PSW.IS */
+; ..\cstart_tc2.c	   168  #endif
+; ..\cstart_tc2.c	   169          __mtcr(PSW, value);
+; ..\cstart_tc2.c	   170  }
+; ..\cstart_tc2.c	   171  
+; ..\cstart_tc2.c	   172  static void __noinline__ __noreturn__ __jump__ _start( void )
+; ..\cstart_tc2.c	   173  {
+; ..\cstart_tc2.c	   174          /* Do a dsync before changing any of the csfr values, thus any previous
+; ..\cstart_tc2.c	   175           * background state gets flushed first. Required for applications that jump
+; ..\cstart_tc2.c	   176           * to the reset address.
+; ..\cstart_tc2.c	   177           */
+; ..\cstart_tc2.c	   178          __dsync();
+; ..\cstart_tc2.c	   179          
+; ..\cstart_tc2.c	   180          /* Set the PSW to its reset value in case of a warm start */
+; ..\cstart_tc2.c	   181          reset_psw();
+; ..\cstart_tc2.c	   182  
+; ..\cstart_tc2.c	   183          /* Set the PCXS and PCXO to its reset value in case of a warm start */
+; ..\cstart_tc2.c	   184          unsigned int pcxi = __mfcr(PCXI);
+; ..\cstart_tc2.c	   185          pcxi &= 0xfff00000;
+; ..\cstart_tc2.c	   186          __mtcr(PCXI, pcxi);
+; ..\cstart_tc2.c	   187  
+; ..\cstart_tc2.c	   188          /*
+; ..\cstart_tc2.c	   189           * Initialize Compatibility Control Register
+; ..\cstart_tc2.c	   190           *
+; ..\cstart_tc2.c	   191           * bit 3 (COMPAT.RM)
+; ..\cstart_tc2.c	   192           *      Rounding Mode Compatibility
+; ..\cstart_tc2.c	   193           *      0B PSW.RM not restored by RET.
+; ..\cstart_tc2.c	   194           *      1B PSW.RM restored by RET. TriCore 1.3 backwards compatibility.
+; ..\cstart_tc2.c	   195           *
+; ..\cstart_tc2.c	   196           * bit 4 (COMPAT.SP)
+; ..\cstart_tc2.c	   197           *      SYSCON Safety Protection Mode Compatibility
+; ..\cstart_tc2.c	   198           *      0B SYSCON[31:1] safety endinit protected.
+; ..\cstart_tc2.c	   199           *      1B SYSCON[31:1] not safety endinit protected (TC1.3 behavior).
+; ..\cstart_tc2.c	   200           */
+; ..\cstart_tc2.c	   201  #ifdef __COMPAT
+; ..\cstart_tc2.c	   202  #if __COMPAT != 0xf
+; ..\cstart_tc2.c	   203          __mtcr(COMPAT, (~0x18|__COMPAT));
+; ..\cstart_tc2.c	   204  #endif
+; ..\cstart_tc2.c	   205  #endif
+; ..\cstart_tc2.c	   206          
+; ..\cstart_tc2.c	   207          /*
+; ..\cstart_tc2.c	   208           * Clear the ENDINIT bit in the SCU_WDTCPU2CON0 register in order
+; ..\cstart_tc2.c	   209           * to disable the write-protection for registers protected via the EndInit feature.
+; ..\cstart_tc2.c	   210           */
+; ..\cstart_tc2.c	   211          endinit_set(_ENDINIT_DISABLE);
+; ..\cstart_tc2.c	   212          
+; ..\cstart_tc2.c	   213          /*
+; ..\cstart_tc2.c	   214           * Load Base Address of Trap Vector Table.
+; ..\cstart_tc2.c	   215           */
+; ..\cstart_tc2.c	   216  #if __BTV_INIT
+; ..\cstart_tc2.c	   217          __mtcr(BTV,  (unsigned int)_lc_u_trap_tab_tc2);
+; ..\cstart_tc2.c	   218  #endif
+; ..\cstart_tc2.c	   219  
+; ..\cstart_tc2.c	   220          /*
+; ..\cstart_tc2.c	   221           * Load Base Address of Interrupt Vector Table.
+; ..\cstart_tc2.c	   222           */
+; ..\cstart_tc2.c	   223  #if __BIV_INIT
+; ..\cstart_tc2.c	   224  #if __BIV_SINGLE_INIT && (defined _REGUSERDEF16X_H || defined _REGUSERDEF162_H || defined _REGTC27X_H || defined _REGTC27XB_H || defined _REGTC27XC_H || defined _REGTC27XD_H || defined _REGTC26X_H  || defined _REGTC26XB_H || defined _REGTC29X_H)
+; ..\cstart_tc2.c	   225          /*
+; ..\cstart_tc2.c	   226           * Single Entry Vector Table, for core tc1.6.x or tc1.6.2, is supported
+; ..\cstart_tc2.c	   227           * by _sevt_isr_tc2() calling interrupt handlers installed
+; ..\cstart_tc2.c	   228           * with _sevt_isr_install() stored in _sevt_isrs_tc2 list.
+; ..\cstart_tc2.c	   229           * The _sevt_isr_tc2() is located at interrupt vector table
+; ..\cstart_tc2.c	   230           * entry 64. The start address of the interrupt vector table
+; ..\cstart_tc2.c	   231           * is defined by linker definition INTTAB2.
+; ..\cstart_tc2.c	   232           */
+; ..\cstart_tc2.c	   233  #pragma extern _sevt_isr_tc2
+; ..\cstart_tc2.c	   234          __mtcr(BIV, (unsigned int)(_lc_u_int_tab_tc2) | (0xff<<3) | 1 );
+; ..\cstart_tc2.c	   235  #else
+; ..\cstart_tc2.c	   236  #if __BIV_8BYTE_INIT && (defined _REGUSERDEF16X_H || defined _REGUSERDEF162_H || defined _REGTC27X_H || defined _REGTC27XB_H || defined _REGTC27XC_H || defined _REGTC27XD_H || defined _REGTC26X_H || defined _REGTC26XB_H || defined _REGTC29X_H)
+; ..\cstart_tc2.c	   237          __mtcr(BIV, (unsigned int)(_lc_u_int_tab_tc2) | 1 );    /* 8 Byte vector spacing */
+; ..\cstart_tc2.c	   238  #else
+; ..\cstart_tc2.c	   239          __mtcr(BIV, (unsigned int)(_lc_u_int_tab_tc2));         /* 32 Byte vector spacing */
+; ..\cstart_tc2.c	   240  #endif
+; ..\cstart_tc2.c	   241  #endif
+; ..\cstart_tc2.c	   242  #endif
+; ..\cstart_tc2.c	   243          
+; ..\cstart_tc2.c	   244          /*
+; ..\cstart_tc2.c	   245           * Load interrupt stack pointer.
+; ..\cstart_tc2.c	   246           */
+; ..\cstart_tc2.c	   247  #if __ISP_INIT
+; ..\cstart_tc2.c	   248          unsigned int isp = (unsigned int)(_lc_ue_istack_tc2) & STACK_ALIGN;
+; ..\cstart_tc2.c	   249          __mtcr(ISP, isp);
+; ..\cstart_tc2.c	   250  #endif
+; ..\cstart_tc2.c	   251  
+; ..\cstart_tc2.c	   252          /*
+; ..\cstart_tc2.c	   253           * PCON0 configuration.
+; ..\cstart_tc2.c	   254           */
+; ..\cstart_tc2.c	   255  #if     defined PCON0 && defined __PCON0_VALUE
+; ..\cstart_tc2.c	   256          if(__PCON0_INIT) __mtcr(PCON0, __PCON0_VALUE);
+; ..\cstart_tc2.c	   257  #endif
+; ..\cstart_tc2.c	   258  
+; ..\cstart_tc2.c	   259          /*
+; ..\cstart_tc2.c	   260           * DCON0 configuration.
+; ..\cstart_tc2.c	   261           */
+; ..\cstart_tc2.c	   262  #if     defined DCON0 && defined __DCON0_VALUE
+; ..\cstart_tc2.c	   263          if(__DCON0_INIT) __mtcr(DCON0, __DCON0_VALUE);
+; ..\cstart_tc2.c	   264  #endif
+; ..\cstart_tc2.c	   265  
+; ..\cstart_tc2.c	   266          /*
+; ..\cstart_tc2.c	   267           * Set the rounding mode (PSW.RM)
+; ..\cstart_tc2.c	   268           */
+; ..\cstart_tc2.c	   269  #ifdef __RM_INIT
+; ..\cstart_tc2.c	   270  #if __RM_INIT
+; ..\cstart_tc2.c	   271          __fesetround( __RM_VALUE );
+; ..\cstart_tc2.c	   272  #endif
+; ..\cstart_tc2.c	   273  #endif
+; ..\cstart_tc2.c	   274  
+; ..\cstart_tc2.c	   275          /*
+; ..\cstart_tc2.c	   276           * Set the ENDINIT bit in the SCU_WDTCPU2CON0 register again
+; ..\cstart_tc2.c	   277           * to enable the write-protection and to prevent a time-out. 
+; ..\cstart_tc2.c	   278           */
+; ..\cstart_tc2.c	   279          endinit_set(_ENDINIT_ENABLE);
+; ..\cstart_tc2.c	   280  
+; ..\cstart_tc2.c	   281          /*
+; ..\cstart_tc2.c	   282           * Initialize global address registers a0/a1 to support
+; ..\cstart_tc2.c	   283           * __a0/__a1 storage qualifiers of the C compiler.
+; ..\cstart_tc2.c	   284           */
+; ..\cstart_tc2.c	   285  #if __A0A1_INIT
+; ..\cstart_tc2.c	   286          void * a0 = _SMALL_DATA_TC2;
+; ..\cstart_tc2.c	   287          __asm( "mov.aa\ta0,%0"::"a"(a0) );
+; ..\cstart_tc2.c	   288  
+; ..\cstart_tc2.c	   289          void * a1 = _LITERAL_DATA_TC2;
+; ..\cstart_tc2.c	   290          __asm( "mov.aa\ta1,%0"::"a"(a1) );
+; ..\cstart_tc2.c	   291  #endif
+; ..\cstart_tc2.c	   292  
+; ..\cstart_tc2.c	   293          /*
+; ..\cstart_tc2.c	   294           * Initialize global address registers a8/a9 to support
+; ..\cstart_tc2.c	   295           * __a8/__a9 storage qualifiers of the C compiler. A8 and A9
+; ..\cstart_tc2.c	   296           * are reserved for OS use, or for application use in cases 
+; ..\cstart_tc2.c	   297           * where the application ans OS are tightly coupled.
+; ..\cstart_tc2.c	   298           */
+; ..\cstart_tc2.c	   299  #if __A8A9_INIT
+; ..\cstart_tc2.c	   300          void * a8 = _A8_DATA_TC2;
+; ..\cstart_tc2.c	   301          __asm( "mov.aa\ta8,%0"::"a"(a8) );
+; ..\cstart_tc2.c	   302  
+; ..\cstart_tc2.c	   303          void * a9 = _A9_DATA_TC2;
+; ..\cstart_tc2.c	   304          __asm( "mov.aa\ta9,%0"::"a"(a9) );
+; ..\cstart_tc2.c	   305  #endif
+; ..\cstart_tc2.c	   306          
+; ..\cstart_tc2.c	   307          /* Setup the context save area linked list. */
+; ..\cstart_tc2.c	   308  #if __CSA_INIT
+; ..\cstart_tc2.c	   309  
+; ..\cstart_tc2.c	   310  #if (__CSAS_FOR_FCD_TRAP < 1 || __CSAS_FOR_FCD_TRAP > 4)
+; ..\cstart_tc2.c	   311  # error "Unexpected value for macro __CSAS_FOR_FCD_TRAP, allowed values are: 1-4"
+; ..\cstart_tc2.c	   312  #endif
+; ..\cstart_tc2.c	   313  
+; ..\cstart_tc2.c	   314          extern int _lc_ub_csa_tc2[][16];    /* context save area 1 begin */
+; ..\cstart_tc2.c	   315          extern int _lc_ue_csa_tc2[][16];    /* context save area 1 end   */
+; ..\cstart_tc2.c	   316          static __far int (* const csa_area_begin[])[16] = { _lc_ub_csa_tc2};
+; ..\cstart_tc2.c	   317          static __far int (* const csa_area_end[])[16]   = { _lc_ue_csa_tc2};
+; ..\cstart_tc2.c	   318  
+; ..\cstart_tc2.c	   319          int  i;
+; ..\cstart_tc2.c	   320          int  no_of_csas;
+; ..\cstart_tc2.c	   321          int * csa;
+; ..\cstart_tc2.c	   322          unsigned int  seg_nr, seg_idx, pcxi_val=0;
+; ..\cstart_tc2.c	   323          
+; ..\cstart_tc2.c	   324          /* first calculate nr of CSAs in this area */
+; ..\cstart_tc2.c	   325          no_of_csas = csa_area_end[0] - csa_area_begin[0];
+; ..\cstart_tc2.c	   326                  
+; ..\cstart_tc2.c	   327          for (i=0; i < no_of_csas; i++)
+; ..\cstart_tc2.c	   328          {
+; ..\cstart_tc2.c	   329                  csa = csa_area_begin[0][i];
+; ..\cstart_tc2.c	   330                  /* Store null pointer in last CSA (= very first time!) */
+; ..\cstart_tc2.c	   331                  *csa = pcxi_val;                        
+; ..\cstart_tc2.c	   332  
+; ..\cstart_tc2.c	   333                  seg_nr  = (((unsigned int)csa >> 28) & 0xf) << 16;
+; ..\cstart_tc2.c	   334                  seg_idx = (((unsigned int)csa >> 6) & 0xffff);
+; ..\cstart_tc2.c	   335                  pcxi_val = seg_nr | seg_idx;
+; ..\cstart_tc2.c	   336                  if (i ==__CSAS_FOR_FCD_TRAP)
+; ..\cstart_tc2.c	   337                  {
+; ..\cstart_tc2.c	   338                          __mtcr(LCX, pcxi_val);
+; ..\cstart_tc2.c	   339                  }                        
+; ..\cstart_tc2.c	   340          }
+; ..\cstart_tc2.c	   341          __mtcr(FCX, pcxi_val);
+; ..\cstart_tc2.c	   342  #endif 
+; ..\cstart_tc2.c	   343  
+; ..\cstart_tc2.c	   344          /*
+; ..\cstart_tc2.c	   345           * Initialize and clear C variables.
+; ..\cstart_tc2.c	   346           */
+; ..\cstart_tc2.c	   347  #if __C_INIT
+; ..\cstart_tc2.c	   348          _c_init_tc2();
+; ..\cstart_tc2.c	   349  #endif  
+; ..\cstart_tc2.c	   350  
+; ..\cstart_tc2.c	   351  #if __USP_INIT && ! __NO_STACK_LIMIT
+; ..\cstart_tc2.c	   352          /*
+; ..\cstart_tc2.c	   353           * Initialize the global variable used by the runtime stack overflow check.
+; ..\cstart_tc2.c	   354           */
+; ..\cstart_tc2.c	   355          if (&__stack_limit)
+; ..\cstart_tc2.c	   356          {
+; ..\cstart_tc2.c	   357                  __stack_limit = STACK_LIMIT;
+; ..\cstart_tc2.c	   358          }
+; ..\cstart_tc2.c	   359  #endif
+; ..\cstart_tc2.c	   360  
+; ..\cstart_tc2.c	   361          /*
+; ..\cstart_tc2.c	   362           * Call a user function within one can initialize the 
+; ..\cstart_tc2.c	   363           * registers protected via the EndInit feature.
+; ..\cstart_tc2.c	   364           * Beware that protected registers are unlocked 
+; ..\cstart_tc2.c	   365           * for the duration of the Time-out Period only!
+; ..\cstart_tc2.c	   366           */
+; ..\cstart_tc2.c	   367  #ifdef _CALL_ENDINIT
+; ..\cstart_tc2.c	   368          endinit_set(_ENDINIT_DISABLE);  /* disable the write-protection */
+; ..\cstart_tc2.c	   369          _endinit_tc2();
+; ..\cstart_tc2.c	   370          endinit_set(_ENDINIT_ENABLE);   /* enable the write-protection  */
+; ..\cstart_tc2.c	   371  #endif
+; ..\cstart_tc2.c	   372  
+; ..\cstart_tc2.c	   373          /*
+; ..\cstart_tc2.c	   374           * Call a user function before starting main().
+; ..\cstart_tc2.c	   375           */
+; ..\cstart_tc2.c	   376  #ifdef __CALL_INIT
+; ..\cstart_tc2.c	   377          _call_init_tc2();
+; ..\cstart_tc2.c	   378  #endif
+; ..\cstart_tc2.c	   379  
+; ..\cstart_tc2.c	   380  #if __C_INIT || _CALL_ENDINIT || (defined __CALL_INIT)
+; ..\cstart_tc2.c	   381          if ( &_tcx_end_c_init )
+; ..\cstart_tc2.c	   382          {
+; ..\cstart_tc2.c	   383                  __swapmskw( (unsigned int *)&_tcx_end_c_init, 1<<2, 1<<2 );     /* tc2 end of initialization */
+; ..\cstart_tc2.c	   384                  /*
+; ..\cstart_tc2.c	   385                   * Before calling main, which has code core association share,
+; ..\cstart_tc2.c	   386                   * wait until all cores have done the global initializations
+; ..\cstart_tc2.c	   387                   * to avoid race conditions on initialized shared global data.
+; ..\cstart_tc2.c	   388                   */
+; ..\cstart_tc2.c	   389                  while ( ( _tcx_end_c_init & 0x3f ) != 0x3f ) ;
+; ..\cstart_tc2.c	   390          }
+; ..\cstart_tc2.c	   391  #endif
+; ..\cstart_tc2.c	   392          
+; ..\cstart_tc2.c	   393          /*
+; ..\cstart_tc2.c	   394           * Call C main program.
+; ..\cstart_tc2.c	   395           * exit, main and _argcv have code core association share
+; ..\cstart_tc2.c	   396           */
+; ..\cstart_tc2.c	   397  #if __USE_ARGC_ARGV
+; ..\cstart_tc2.c	   398          exit( main( _argcv( argcv_tc2, __ARGCV_BUFSIZE), (char **)argcv_tc2) );
+; ..\cstart_tc2.c	   399  #else
+; ..\cstart_tc2.c	   400          exit( main( 0, NULL ) );                /* argc is 0 */
+; ..\cstart_tc2.c	   401  #endif
+; ..\cstart_tc2.c	   402  
+; ..\cstart_tc2.c	   403          /*
+; ..\cstart_tc2.c	   404           * Default trap vectors are resolved from the C-library.
+; ..\cstart_tc2.c	   405           */
+; ..\cstart_tc2.c	   406  #if __BTV_INIT
+; ..\cstart_tc2.c	   407  #  if __RESOLVE_TRAP_0
+; ..\cstart_tc2.c	   408  #    pragma extern  _trapmmu
+; ..\cstart_tc2.c	   409  #  endif
+; ..\cstart_tc2.c	   410  #  if __RESOLVE_TRAP_1
+; ..\cstart_tc2.c	   411  #    pragma extern  _trapprotection
+; ..\cstart_tc2.c	   412  #  endif
+; ..\cstart_tc2.c	   413  #  if __RESOLVE_TRAP_2
+; ..\cstart_tc2.c	   414  #    pragma extern  _trapinstruction
+; ..\cstart_tc2.c	   415  #  endif
+; ..\cstart_tc2.c	   416  #  if __RESOLVE_TRAP_3
+; ..\cstart_tc2.c	   417  #    pragma extern  _trapcontext
+; ..\cstart_tc2.c	   418  #  endif
+; ..\cstart_tc2.c	   419  #  if __RESOLVE_TRAP_4
+; ..\cstart_tc2.c	   420  #    pragma extern  _trapbus
+; ..\cstart_tc2.c	   421  #  endif
+; ..\cstart_tc2.c	   422  #  if __RESOLVE_TRAP_5
+; ..\cstart_tc2.c	   423  #    pragma extern  _trapassertion
+; ..\cstart_tc2.c	   424  #  endif
+; ..\cstart_tc2.c	   425  #  if __RESOLVE_TRAP_6
+; ..\cstart_tc2.c	   426  #    pragma extern  _trapsystem
+; ..\cstart_tc2.c	   427  #  endif
+; ..\cstart_tc2.c	   428  #  if __RESOLVE_TRAP_7
+; ..\cstart_tc2.c	   429  #    pragma extern  _trapnmi
+; ..\cstart_tc2.c	   430  #  endif
+; ..\cstart_tc2.c	   431  #endif
+; ..\cstart_tc2.c	   432  
+; ..\cstart_tc2.c	   433  }
+; ..\cstart_tc2.c	   434  
+; ..\cstart_tc2.c	   435  #pragma optimize R
+; ..\cstart_tc2.c	   436  
+; ..\cstart_tc2.c	   437  /**************************************************************************
+; ..\cstart_tc2.c	   438   *
+; ..\cstart_tc2.c	   439   * FUNCTION:     endinit_set
+; ..\cstart_tc2.c	   440   *
+; ..\cstart_tc2.c	   441   * DESCRIPTION:  Sets or Clears the ENDINIT bit in the SCU_WDTCPU2CON0
+; ..\cstart_tc2.c	   442   *               register in order to enabled or disable the write-protection for
+; ..\cstart_tc2.c	   443   *               registers protected via the EndInit feature
+; ..\cstart_tc2.c	   444   *               (ie. BTV, BIV, ISP, PCON0, DCON0).
+; ..\cstart_tc2.c	   445   *
+; ..\cstart_tc2.c	   446   *************************************************************************/
+; ..\cstart_tc2.c	   447  static void inline endinit_set( _endinit_t endinit_value )
+; ..\cstart_tc2.c	   448  {
+; ..\cstart_tc2.c	   449          unsigned int wdt_con0;
+; ..\cstart_tc2.c	   450  
+; ..\cstart_tc2.c	   451          /*
+; ..\cstart_tc2.c	   452           * 1st step: Password access (create password and send to SCU_WDTCPU2CON0)
+; ..\cstart_tc2.c	   453           */        
+; ..\cstart_tc2.c	   454          wdt_con0 = SCU_WDTCPU2CON0.U;
+	movh.a	a15,#61443
+	lea	a15,[a15]@los(0xf0036118)
+	ld.w	d15,[a15]
+.L162:
+
+; ..\cstart_tc2.c	   455  
+; ..\cstart_tc2.c	   456          wdt_con0 &= 0xffffff01;                 /* clear WDTLCK, WDTHPW0, WDTHPW1 */
+	insert	d15,d15,#0,#1,#7
+.L87:
+
+; ..\cstart_tc2.c	   457          wdt_con0 |= 0xf1;                       /* set WDTHPW1 to 0xf and ENDINIT to 1
+; ..\cstart_tc2.c	   458                                                   * (but the latter will not actually change this bit) */
+; ..\cstart_tc2.c	   459          SCU_WDTCPU2CON0.U = wdt_con0;
+	or	d15,#241
+	st.w	[a15],d15
+.L163:
+
+; ..\cstart_tc2.c	   460  
+; ..\cstart_tc2.c	   461          /*
+; ..\cstart_tc2.c	   462           * 2nd step: Modify access, set the bit ENDINIT to 1 or 0 to allow access to
+; ..\cstart_tc2.c	   463           *           registers: SCU_WDTCPU2CON1, BTV, BIV, ISP and mod_CLC
+; ..\cstart_tc2.c	   464           *
+; ..\cstart_tc2.c	   465           */
+; ..\cstart_tc2.c	   466          wdt_con0 &= 0xfffffff0;                 /* clear WDTHPW0, WDTLCK, ENDINIT  */
+; ..\cstart_tc2.c	   467          wdt_con0 |= 0x02 | endinit_value;       /* WDTHPW0=0, WDTLCK=1, ENDINIT=endinit_value */
+	insert	d15,d15,#2,#0,#4
+.L164:
+
+; ..\cstart_tc2.c	   468          __isync();
+	isync
+.L165:
+
+; ..\cstart_tc2.c	   469          SCU_WDTCPU2CON0.U = wdt_con0;          
+	st.w	[a15],d15
+.L166:
+
+; ..\cstart_tc2.c	   470          SCU_WDTCPU2CON0.U;         /* read is required */
+	ld.w	d15,[a15]
+.L79:
+	ret
+.L78:
+	
+___endinit_clear_tc2_function_end:
+	.size	_endinit_clear_tc2,___endinit_clear_tc2_function_end-_endinit_clear_tc2
+.L36:
+	; End of function
+	
+	.sdecl	'.text.cstart_tc2._endinit_set_tc2',code,cluster('_endinit_set_tc2')
+	.sect	'.text.cstart_tc2._endinit_set_tc2'
+	.align	2
+	
+	.global	_endinit_set_tc2
+; Function _endinit_set_tc2
+.L11:
+_endinit_set_tc2:	.type	func
+	movh.a	a15,#61443
+	lea	a15,[a15]@los(0xf0036118)
+	ld.w	d15,[a15]
+.L171:
+	insert	d15,d15,#0,#1,#7
+.L88:
+	or	d15,#241
+	st.w	[a15],d15
+.L172:
+	insert	d15,d15,#3,#0,#4
+.L173:
+	isync
+.L174:
+	st.w	[a15],d15
+.L175:
+	ld.w	d15,[a15]
+.L83:
+	ret
+.L82:
+	
+___endinit_set_tc2_function_end:
+	.size	_endinit_set_tc2,___endinit_set_tc2_function_end-_endinit_set_tc2
+.L41:
+	; End of function
+	
+	.sdecl	'.text.cstart_tc2._start_tc2',code,cluster('_start_tc2')
+	.sect	'.text.cstart_tc2._start_tc2'
+	.align	2
+	
+	.global	_start_tc2
+; Function _start_tc2
+.L13:
+_start_tc2:	.type	func
+	j	__init_sp
+.L86:
+	
+___start_tc2_function_end:
+	.size	_start_tc2,___start_tc2_function_end-_start_tc2
+.L46:
+	; End of function
+	
+	.sdecl	'.text.cstart_tc2.__init_sp',code,cluster('__init_sp')
+	.sect	'.text.cstart_tc2.__init_sp'
+	.align	2
+	
+; Function __init_sp
+.L15:
+__init_sp:	.type	func
+	movh.a	a15,#@his(_lc_ue_ustack_tc2)
+	lea	a15,[a15]@los(_lc_ue_ustack_tc2)
+	mov.d	d15,a15
+.L110:
+	insert	d15,d15,#0,#0,#3
+.L111:
+	mov.a	a15,d15
+.L112:
+	mov.aa	a10,a15
+.L113:
+	j	_start
+.L47:
+	
+____init_sp_function_end:
+	.size	__init_sp,____init_sp_function_end-__init_sp
+.L26:
+	; End of function
+	
+	.sdecl	'.text.cstart_tc2._start',code,cluster('_start')
+	.sect	'.text.cstart_tc2._start'
+	.align	2
+	
+; Function _start
+.L17:
+_start:	.type	func
+	dsync
+.L50:
+	mov	d15,#2432
+.L118:
+	mtcr	#65028,d15
+	isync
+.L51:
+	mfcr	d15,#65024
+.L119:
+	insert	d15,d15,#0,#0,#20
+.L89:
+	mtcr	#65024,d15
+	isync
+.L56:
+	movh.a	a15,#61443
+	lea	a15,[a15]@los(0xf0036118)
+	ld.w	d15,[a15]
+.L90:
+	insert	d15,d15,#0,#1,#7
+.L91:
+	or	d15,#241
+	st.w	[a15],d15
+.L120:
+	insert	d15,d15,#2,#0,#4
+.L121:
+	isync
+.L122:
+	st.w	[a15],d15
+.L123:
+	ld.w	d15,[a15]
+.L57:
+	movh.a	a2,#@his(_lc_u_trap_tab_tc2)
+	lea	a2,[a2]@los(_lc_u_trap_tab_tc2)
+	mov.d	d15,a2
+.L124:
+	mtcr	#65060,d15
+	isync
+.L125:
+	movh.a	a2,#@his(_lc_u_int_tab_tc2)
+	lea	a2,[a2]@los(_lc_u_int_tab_tc2)
+	mov.d	d15,a2
+.L126:
+	mtcr	#65056,d15
+	isync
+.L62:
+	movh.a	a2,#@his(_lc_ue_istack_tc2)
+	lea	a2,[a2]@los(_lc_ue_istack_tc2)
+	mov.d	d15,a2
+.L127:
+	insert	d15,d15,#0,#0,#3
+.L128:
+	mtcr	#65064,d15
+	isync
+.L129:
+	mov	d15,#0
+.L130:
+	mtcr	#37388,d15
+	isync
+.L131:
+	mtcr	#36928,d15
+	isync
+.L63:
+	ld.w	d15,[a15]
+.L132:
+	insert	d15,d15,#0,#1,#7
+.L92:
+	or	d15,#241
+	st.w	[a15],d15
+.L133:
+	insert	d15,d15,#3,#0,#4
+.L134:
+	isync
+.L135:
+	st.w	[a15],d15
+.L136:
+	ld.w	d15,[a15]
+.L64:
+	movh.a	a15,#@his(_SMALL_DATA_TC2)
+	lea	a15,[a15]@los(_SMALL_DATA_TC2)
+.L137:
+	mov.aa	a0,a15
+.L66:
+	movh.a	a15,#@his(_LITERAL_DATA_TC2)
+	lea	a15,[a15]@los(_LITERAL_DATA_TC2)
+.L138:
+	mov.aa	a1,a15
+.L67:
+	movh.a	a15,#@his(_A8_DATA_TC2)
+	lea	a15,[a15]@los(_A8_DATA_TC2)
+.L139:
+	mov.aa	a8,a15
+.L68:
+	movh.a	a15,#@his(_A9_DATA_TC2)
+	lea	a15,[a15]@los(_A9_DATA_TC2)
+.L140:
+	mov.aa	a9,a15
+.L69:
+	mov	d0,#0
+	movh.a	a15,#@his(_lc_ub_csa_tc2)
+.L93:
+	lea	a15,[a15]@los(_lc_ub_csa_tc2)
+.L141:
+	movh.a	a2,#@his(_lc_ue_csa_tc2)
+	lea	a2,[a2]@los(_lc_ue_csa_tc2)
+.L142:
+	sub.a	a2,a2,a15
+	mov.d	d1,a2
+.L95:
+	sha	d1,#-6
+.L143:
+	mov	d15,d0
+	j	.L2
+.L3:
+	mov.aa	a2,a15
+.L97:
+	mov.d	d2,a2
+.L98:
+	st.w	[a2],d0
+.L144:
+	sh	d0,d2,#-28
+	lea	a15,[a15]64
+.L94:
+	extr.u	d2,d2,#6,#16
+.L99:
+	sh	d0,d0,#16
+.L100:
+	or	d0,d2
+.L101:
+	jne	d15,#2,.L4
+.L145:
+	mtcr	#65084,d0
+	isync
+.L4:
+	add	d15,#1
+.L2:
+	jlt	d15,d1,.L3
+.L146:
+	mtcr	#65080,d0
+	isync
+.L147:
+	call	_c_init_tc2
+.L96:
+	lea	a15,__stack_limit
+.L148:
+	jz.a	a15,.L5
+.L149:
+	movh.a	a15,#@his(_lc_ub_ustack_tc2+64)
+	lea	a15,[a15]@los(_lc_ub_ustack_tc2+64)
+.L150:
+	st.a	__stack_limit,a15
+.L5:
+	movh.a	a15,#@his(_tcx_end_c_init)
+	lea	a15,[a15]@los(_tcx_end_c_init)
+.L151:
+	jz.a	a15,.L6
+.L152:
+	mov	d0,#4
+.L153:
+	mov	d1,#4
+	swapmsk.w	[a15]0,e0
+.L154:
+	mov	d0,#63
+.L7:
+	ld.w	d15,[a15]
+.L155:
+	and	d15,#63
+.L156:
+	jne	d15,d0,.L7
+.L6:
+	mov	d4,#0
+	mov.a	a4,#0
+	call	main
+.L157:
+	mov	d4,d2
+	j	exit
+.L48:
+	
+___start_function_end:
+	.size	_start,___start_function_end-_start
+.L31:
+	; End of function
+	
+	.calls	'_start_tc2','__init_sp'
+	.calls	'__init_sp','_start'
+	.calls	'_start','_c_init_tc2'
+	.calls	'_start','main'
+	.calls	'_start','exit'
+	.calls	'_endinit_clear_tc2','',0
+	.calls	'_endinit_set_tc2','',0
+	.calls	'_start_tc2','',0
+	.calls	'__init_sp','',0
+	.weak	exit
+	.extern	exit
+	.extern	_Exit
+	.extern	_lc_ue_ustack_tc2
+	.extern	_lc_ue_istack_tc2
+	.extern	_lc_u_int_tab_tc2
+	.extern	_lc_u_trap_tab_tc2
+	.extern	_SMALL_DATA_TC2
+	.extern	_LITERAL_DATA_TC2
+	.extern	_A8_DATA_TC2
+	.extern	_A9_DATA_TC2
+	.extern	_c_init_tc2
+	.extern	main
+	.weak	_tcx_end_c_init
+	.extern	_tcx_end_c_init
+	.weak	__stack_limit
+	.extern	__stack_limit
+	.extern	_lc_ub_ustack_tc2
+	.extern	_lc_ub_csa_tc2
+	.extern	_lc_ue_csa_tc2
+	.extern	_trapmmu
+	.extern	_trapprotection
+	.extern	_trapinstruction
+	.extern	_trapcontext
+	.extern	_trapbus
+	.extern	_trapassertion
+	.extern	_trapsystem
+	.extern	_trapnmi
+	.calls	'_start','',0
+	.sdecl	'.debug_info',debug
+	.sect	'.debug_info'
+.L19:
+	.word	1062
+	.half	3
+	.word	.L20
+	.byte	4
+.L18:
+	.byte	1
+	.byte	'..\\cstart_tc2.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L21
+	.byte	2,1,75,9,1,3
+	.byte	'_ENDINIT_DISABLE',0,0,3
+	.byte	'_ENDINIT_ENABLE',0,1,0
+.L55:
+	.byte	4
+	.byte	'endinit_set',0,3,1,191,3,20,1,1
+.L58:
+	.byte	5
+	.byte	'endinit_value',0,1,191,3,44
+	.word	125
+.L60:
+	.byte	6,0
+.L49:
+	.byte	4
+	.byte	'reset_psw',0,3,1,158,1,20,1,1
+.L52:
+	.byte	6,0
+.L70:
+	.byte	7
+	.byte	'int',0,4,5,8
+	.word	233
+	.byte	9
+	.byte	'__c11_atomic_thread_fence',0,1,1,1,1,10
+	.word	240
+	.byte	0
+.L53:
+	.byte	7
+	.byte	'unsigned int',0,4,7,11
+	.word	282
+	.byte	12
+	.word	282
+	.byte	13
+	.byte	'__swapmskw',0
+	.word	298
+	.byte	1,1,1,1,14
+	.byte	'p',0
+	.word	303
+	.byte	14
+	.byte	'value',0
+	.word	282
+	.byte	14
+	.byte	'mask',0
+	.word	282
+	.byte	0,11
+	.word	282
+	.byte	13
+	.byte	'__cmpswapw',0
+	.word	357
+	.byte	1,1,1,1,14
+	.byte	'p',0
+	.word	303
+	.byte	14
+	.byte	'value',0
+	.word	282
+	.byte	14
+	.byte	'compare',0
+	.word	282
+	.byte	0,9
+	.byte	'__mtcr',0,1,1,1,1,10
+	.word	233
+	.byte	10
+	.word	233
+	.byte	0,11
+	.word	233
+	.byte	13
+	.byte	'__mfcr',0
+	.word	437
+	.byte	1,1,1,1,10
+	.word	233
+	.byte	0,15
+	.byte	'__isync',0,1,1,1,1,15
+	.byte	'__dsync',0,1,1,1,1,16
+	.byte	'void',0,12
+	.word	490
+	.byte	9
+	.byte	'__set_sp',0,1,1,1,1,10
+	.word	496
+	.byte	0,17
+	.byte	'exit',0,2,100,33,1,1,1,1,18,2,100,44
+	.word	233
+	.byte	0,19
+	.byte	'_c_init_tc2',0,1,57,13,1,1,1,1
+.L73:
+	.byte	12
+	.word	233
+	.byte	20
+	.word	168
+	.byte	21
+	.word	188
+	.byte	6,0,20
+	.word	213
+	.byte	6,0,7
+	.byte	'short int',0,2,5,22
+	.byte	'__wchar_t',0,1,1,1
+	.word	587
+	.byte	22
+	.byte	'__size_t',0,1,1,1
+	.word	282
+	.byte	23,1,12
+	.word	635
+	.byte	22
+	.byte	'__codeptr',0,1,1,1
+	.word	637
+	.byte	24
+	.word	490
+	.byte	25,0,26
+	.byte	'_lc_ue_ustack_tc2',0,1,46,19
+	.word	660
+	.byte	1,1,26
+	.byte	'_lc_ue_istack_tc2',0,1,47,19
+	.word	660
+	.byte	1,1,26
+	.byte	'_lc_u_int_tab_tc2',0,1,48,19
+	.word	660
+	.byte	1,1,26
+	.byte	'_lc_u_trap_tab_tc2',0,1,49,19
+	.word	660
+	.byte	1,1,26
+	.byte	'_SMALL_DATA_TC2',0,1,50,19
+	.word	660
+	.byte	1,1,26
+	.byte	'_LITERAL_DATA_TC2',0,1,51,19
+	.word	660
+	.byte	1,1,26
+	.byte	'_A8_DATA_TC2',0,1,52,19
+	.word	660
+	.byte	1,1,26
+	.byte	'_A9_DATA_TC2',0,1,53,19
+	.word	660
+	.byte	1,1,22
+	.byte	'_endinit_t',0,1,79,9
+	.word	125
+	.byte	11
+	.word	282
+	.byte	26
+	.byte	'_tcx_end_c_init',0,1,99,41
+	.word	899
+	.byte	1,1,26
+	.byte	'__stack_limit',0,1,110,29
+	.word	496
+	.byte	1,1,7
+	.byte	'char',0,1,6,24
+	.word	954
+	.byte	25,0,26
+	.byte	'_lc_ub_ustack_tc2',0,1,112,13
+	.word	962
+	.byte	1,1,27,64
+	.word	233
+	.byte	28,15,0,24
+	.word	997
+	.byte	25,0,26
+	.byte	'_lc_ub_csa_tc2',0,1,186,2,20
+	.word	1006
+	.byte	1,1,26
+	.byte	'_lc_ue_csa_tc2',0,1,187,2,20
+	.word	1006
+	.byte	1,1,0
+	.sdecl	'.debug_abbrev',debug
+	.sect	'.debug_abbrev'
+.L20:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,16,6,0,0,2,4,1,58,15,59,15,57,15,11,15,0,0,3,40,0,3,8,28,13,0,0,4
+	.byte	46,1,3,8,32,13,58,15,59,15,57,15,54,15,39,12,0,0,5,5,0,3,8,58,15,59,15,57,15,73,19,0,0,6,11,0,0,0,7,36
+	.byte	0,3,8,11,15,62,15,0,0,8,38,0,73,19,0,0,9,46,1,3,8,54,15,39,12,63,12,60,12,0,0,10,5,0,73,19,0,0,11,53,0
+	.byte	73,19,0,0,12,15,0,73,19,0,0,13,46,1,3,8,73,19,54,15,39,12,63,12,60,12,0,0,14,5,0,3,8,73,19,0,0,15,46,0
+	.byte	3,8,54,15,39,12,63,12,60,12,0,0,16,59,0,3,8,0,0,17,46,1,3,8,58,15,59,15,57,15,54,15,39,12,63,12,60,12
+	.byte	0,0,18,5,0,58,15,59,15,57,15,73,19,0,0,19,46,0,3,8,58,15,59,15,57,15,54,15,39,12,63,12,60,12,0,0,20,46
+	.byte	1,49,19,0,0,21,5,0,49,19,0,0,22,22,0,3,8,58,15,59,15,57,15,73,19,0,0,23,21,0,54,15,0,0,24,1,1,73,19,0
+	.byte	0,25,33,0,0,0,26,52,0,3,8,58,15,59,15,57,15,73,19,63,12,60,12,0,0,27,1,1,11,15,73,19,0,0,28,33,0,47,15
+	.byte	0,0,0
+	.sdecl	'.debug_line',debug
+	.sect	'.debug_line'
+.L21:
+	.word	.L103-.L102
+.L102:
+	.half	3
+	.word	.L105-.L104
+.L104:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1
+	.byte	'C:\\TASKING\\TriCore v6.3r1\\ctc\\include\\',0,0
+	.byte	'..\\cstart_tc2.c',0,0,0,0
+	.byte	'stdlib.h',0,1,0,0,0
+.L105:
+.L103:
+	.sdecl	'.debug_info',debug,cluster('__init_sp')
+	.sect	'.debug_info'
+.L22:
+	.word	169
+	.half	3
+	.word	.L23
+	.byte	4,1
+	.byte	'..\\cstart_tc2.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L25,.L24
+	.byte	2
+	.word	.L18
+	.byte	3
+	.byte	'__init_sp',0,1,127,48,1,1
+	.word	.L15,.L47,.L14
+	.byte	4
+	.word	.L15,.L47
+	.byte	0,0
+	.sdecl	'.debug_abbrev',debug,cluster('__init_sp')
+	.sect	'.debug_abbrev'
+.L23:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,17,1,18,1,64,6,0,0,4,11,0,17,1,18,1,0,0,0
+	.sdecl	'.debug_line',debug,cluster('__init_sp')
+	.sect	'.debug_line'
+.L24:
+	.word	.L107-.L106
+.L106:
+	.half	3
+	.word	.L109-.L108
+.L108:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart_tc2.c',0,0,0,0,0
+.L109:
+	.byte	5,45,7,0,5,2
+	.word	.L15
+	.byte	3,143,1,1,5,64,9
+	.half	.L110-.L15
+	.byte	1,5,21,9
+	.half	.L111-.L110
+	.byte	1,5,17,9
+	.half	.L112-.L111
+	.byte	3,2,1,5,15,9
+	.half	.L113-.L112
+	.byte	3,3,1,5,1,7,9
+	.half	.L26-.L113
+	.byte	3,1,0,1,1
+.L107:
+	.sdecl	'.debug_ranges',debug,cluster('__init_sp')
+	.sect	'.debug_ranges'
+.L25:
+	.word	-1,.L15,0,.L26-.L15,0,0
+	.sdecl	'.debug_info',debug,cluster('_start')
+	.sect	'.debug_info'
+.L27:
+	.word	520
+	.half	3
+	.word	.L28
+	.byte	4,1
+	.byte	'..\\cstart_tc2.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L30,.L29
+	.byte	2
+	.word	.L18
+	.byte	3
+	.byte	'_start',0,1,172,1,48,1,1
+	.word	.L17,.L48,.L16
+	.byte	4
+	.word	.L17,.L48
+	.byte	5
+	.word	.L49,.L50,.L51
+	.byte	6
+	.word	.L52,.L50,.L51
+	.byte	0,4
+	.word	.L51,.L48
+	.byte	7
+	.byte	'pcxi',0,1,184,1,22
+	.word	.L53,.L54
+	.byte	5
+	.word	.L55,.L56,.L57
+	.byte	8
+	.word	.L58,.L59
+	.byte	9
+	.word	.L60,.L56,.L57
+	.byte	7
+	.byte	'wdt_con0',0,1,193,3,22
+	.word	.L53,.L61
+	.byte	0,0,4
+	.word	.L62,.L48
+	.byte	5
+	.word	.L55,.L63,.L64
+	.byte	8
+	.word	.L58,.L59
+	.byte	9
+	.word	.L60,.L63,.L64
+	.byte	7
+	.byte	'wdt_con0',0,1,193,3,22
+	.word	.L53,.L65
+	.byte	0,0,4
+	.word	.L64,.L48
+	.byte	4
+	.word	.L66,.L48
+	.byte	4
+	.word	.L67,.L48
+	.byte	4
+	.word	.L68,.L48
+	.byte	4
+	.word	.L69,.L48
+	.byte	7
+	.byte	'i',0,1,191,2,14
+	.word	.L70,.L71
+	.byte	7
+	.byte	'no_of_csas',0,1,192,2,14
+	.word	.L70,.L72
+	.byte	7
+	.byte	'csa',0,1,193,2,15
+	.word	.L73,.L74
+	.byte	7
+	.byte	'seg_nr',0,1,194,2,23
+	.word	.L53,.L75
+	.byte	7
+	.byte	'seg_idx',0,1,194,2,31
+	.word	.L53,.L76
+	.byte	7
+	.byte	'pcxi_val',0,1,194,2,40
+	.word	.L53,.L77
+	.byte	0,0,0,0,0,0,0,0,0,0
+	.sdecl	'.debug_abbrev',debug,cluster('_start')
+	.sect	'.debug_abbrev'
+.L28:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,17,1,18,1,64,6,0,0,4,11,1,17,1,18,1,0,0,5,29,1,49,16,17,1,18,1,0,0,6,11,0,49,16,17,1,18,1,0,0,7
+	.byte	52,0,3,8,58,15,59,15,57,15,73,16,2,6,0,0,8,5,0,49,16,2,6,0,0,9,11,1,49,16,17,1,18,1,0,0,0
+	.sdecl	'.debug_line',debug,cluster('_start')
+	.sect	'.debug_line'
+.L29:
+	.word	.L115-.L114
+.L114:
+	.half	3
+	.word	.L117-.L116
+.L116:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart_tc2.c',0,0,0,0,0
+.L117:
+	.byte	5,16,7,0,5,2
+	.word	.L17
+	.byte	3,177,1,1,5,21,9
+	.half	.L50-.L17
+	.byte	3,119,1,5,15,9
+	.half	.L118-.L50
+	.byte	1,5,35,9
+	.half	.L51-.L118
+	.byte	3,15,1,5,14,9
+	.half	.L119-.L51
+	.byte	3,1,1,5,15,9
+	.half	.L89-.L119
+	.byte	3,1,1,5,35,9
+	.half	.L56-.L89
+	.byte	3,140,2,1,5,18,9
+	.half	.L90-.L56
+	.byte	3,2,1,9
+	.half	.L91-.L90
+	.byte	3,1,1,5,27,3,2,1,5,18,9
+	.half	.L120-.L91
+	.byte	3,8,1,5,16,9
+	.half	.L121-.L120
+	.byte	3,1,1,5,27,9
+	.half	.L122-.L121
+	.byte	3,1,1,5,24,9
+	.half	.L123-.L122
+	.byte	3,1,1,5,36,9
+	.half	.L57-.L123
+	.byte	3,131,126,1,5,15,9
+	.half	.L124-.L57
+	.byte	1,5,36,9
+	.half	.L125-.L124
+	.byte	3,22,1,5,15,9
+	.half	.L126-.L125
+	.byte	1,5,43,9
+	.half	.L62-.L126
+	.byte	3,9,1,5,62,9
+	.half	.L127-.L62
+	.byte	1,5,15,9
+	.half	.L128-.L127
+	.byte	3,1,1,5,40,9
+	.half	.L129-.L128
+	.byte	3,7,1,5,32,9
+	.half	.L130-.L129
+	.byte	1,9
+	.half	.L131-.L130
+	.byte	3,7,1,5,35,9
+	.half	.L63-.L131
+	.byte	3,191,1,1,5,18,9
+	.half	.L132-.L63
+	.byte	3,2,1,9
+	.half	.L92-.L132
+	.byte	3,1,1,5,27,3,2,1,5,18,9
+	.half	.L133-.L92
+	.byte	3,8,1,5,16,9
+	.half	.L134-.L133
+	.byte	3,1,1,5,27,9
+	.half	.L135-.L134
+	.byte	3,1,1,5,24,9
+	.half	.L136-.L135
+	.byte	3,1,1,5,21,9
+	.half	.L64-.L136
+	.byte	3,200,126,1,5,9,9
+	.half	.L137-.L64
+	.byte	3,1,1,5,21,9
+	.half	.L66-.L137
+	.byte	3,2,1,5,9,9
+	.half	.L138-.L66
+	.byte	3,1,1,5,21,9
+	.half	.L67-.L138
+	.byte	3,10,1,5,9,9
+	.half	.L139-.L67
+	.byte	3,1,1,5,21,9
+	.half	.L68-.L139
+	.byte	3,2,1,5,9,9
+	.half	.L140-.L68
+	.byte	3,1,1,5,48,9
+	.half	.L69-.L140
+	.byte	3,18,1,5,61,3,122,1,9
+	.half	.L141-.L69
+	.byte	3,1,1,5,38,9
+	.half	.L142-.L141
+	.byte	3,8,1,5,15,9
+	.half	.L143-.L142
+	.byte	3,2,1,5,33,1,5,21,9
+	.half	.L3-.L143
+	.byte	3,2,1,5,43,9
+	.half	.L97-.L3
+	.byte	3,4,1,5,22,9
+	.half	.L98-.L97
+	.byte	3,126,1,5,47,9
+	.half	.L144-.L98
+	.byte	3,2,1,5,36,3,122,1,5,53,9
+	.half	.L94-.L144
+	.byte	3,7,1,5,61,9
+	.half	.L99-.L94
+	.byte	3,127,1,5,35,9
+	.half	.L100-.L99
+	.byte	3,2,1,5,17,9
+	.half	.L101-.L100
+	.byte	3,1,1,5,31,7,9
+	.half	.L145-.L101
+	.byte	3,2,1,5,36,9
+	.half	.L4-.L145
+	.byte	3,117,1,5,33,9
+	.half	.L2-.L4
+	.byte	1,5,15,7,9
+	.half	.L146-.L2
+	.byte	3,14,1,5,20,9
+	.half	.L147-.L146
+	.byte	3,7,1,5,14,9
+	.half	.L96-.L147
+	.byte	3,7,1,5,9,9
+	.half	.L148-.L96
+	.byte	1,5,33,7,9
+	.half	.L149-.L148
+	.byte	3,2,1,5,31,9
+	.half	.L150-.L149
+	.byte	1,5,15,9
+	.half	.L5-.L150
+	.byte	3,24,1,5,9,9
+	.half	.L151-.L5
+	.byte	1,5,64,7,9
+	.half	.L152-.L151
+	.byte	3,2,1,5,70,9
+	.half	.L153-.L152
+	.byte	1,5,27,1,5,55,9
+	.half	.L154-.L153
+	.byte	3,6,1,5,27,9
+	.half	.L7-.L154
+	.byte	1,5,43,9
+	.half	.L155-.L7
+	.byte	1,5,60,9
+	.half	.L156-.L155
+	.byte	1,5,21,7,9
+	.half	.L6-.L156
+	.byte	3,11,1,5,24,1,5,19,9
+	.half	.L157-.L6
+	.byte	1,5,1,9
+	.half	.L31-.L157
+	.byte	3,33,0,1,1
+.L115:
+	.sdecl	'.debug_ranges',debug,cluster('_start')
+	.sect	'.debug_ranges'
+.L30:
+	.word	-1,.L17,0,.L31-.L17,0,0
+	.sdecl	'.debug_info',debug,cluster('_endinit_clear_tc2')
+	.sect	'.debug_info'
+.L32:
+	.word	239
+	.half	3
+	.word	.L33
+	.byte	4,1
+	.byte	'..\\cstart_tc2.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L35,.L34
+	.byte	2
+	.word	.L18
+	.byte	3
+	.byte	'_endinit_clear_tc2',0,1,88,13,1,1,1
+	.word	.L9,.L78,.L8
+	.byte	4
+	.word	.L9,.L78
+	.byte	5
+	.word	.L55,.L9,.L79
+	.byte	6
+	.word	.L58,.L80
+	.byte	7
+	.word	.L60,.L9,.L79
+	.byte	8
+	.byte	'wdt_con0',0,1,193,3,22
+	.word	.L53,.L81
+	.byte	0,0,0,0,0
+	.sdecl	'.debug_abbrev',debug,cluster('_endinit_clear_tc2')
+	.sect	'.debug_abbrev'
+.L33:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,63,12,17,1,18,1,64,6,0,0,4,11,1,17,1,18,1,0,0,5,29,1,49,16,17,1,18,1,0,0,6,5,0,49,16,2,6,0,0,7,11
+	.byte	1,49,16,17,1,18,1,0,0,8,52,0,3,8,58,15,59,15,57,15,73,16,2,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('_endinit_clear_tc2')
+	.sect	'.debug_line'
+.L34:
+	.word	.L159-.L158
+.L158:
+	.half	3
+	.word	.L161-.L160
+.L160:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart_tc2.c',0,0,0,0,0
+.L161:
+	.byte	5,35,7,0,5,2
+	.word	.L9
+	.byte	3,197,3,1,5,18,9
+	.half	.L162-.L9
+	.byte	3,2,1,9
+	.half	.L87-.L162
+	.byte	3,1,1,5,27,3,2,1,5,18,9
+	.half	.L163-.L87
+	.byte	3,8,1,5,16,9
+	.half	.L164-.L163
+	.byte	3,1,1,5,27,9
+	.half	.L165-.L164
+	.byte	3,1,1,5,24,9
+	.half	.L166-.L165
+	.byte	3,1,1,5,71,9
+	.half	.L79-.L166
+	.byte	3,130,125,1,7,9
+	.half	.L36-.L79
+	.byte	0,1,1
+.L159:
+	.sdecl	'.debug_ranges',debug,cluster('_endinit_clear_tc2')
+	.sect	'.debug_ranges'
+.L35:
+	.word	-1,.L9,0,.L36-.L9,0,0
+	.sdecl	'.debug_info',debug,cluster('_endinit_set_tc2')
+	.sect	'.debug_info'
+.L37:
+	.word	237
+	.half	3
+	.word	.L38
+	.byte	4,1
+	.byte	'..\\cstart_tc2.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L40,.L39
+	.byte	2
+	.word	.L18
+	.byte	3
+	.byte	'_endinit_set_tc2',0,1,89,13,1,1,1
+	.word	.L11,.L82,.L10
+	.byte	4
+	.word	.L11,.L82
+	.byte	5
+	.word	.L55,.L11,.L83
+	.byte	6
+	.word	.L58,.L84
+	.byte	7
+	.word	.L60,.L11,.L83
+	.byte	8
+	.byte	'wdt_con0',0,1,193,3,22
+	.word	.L53,.L85
+	.byte	0,0,0,0,0
+	.sdecl	'.debug_abbrev',debug,cluster('_endinit_set_tc2')
+	.sect	'.debug_abbrev'
+.L38:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,63,12,17,1,18,1,64,6,0,0,4,11,1,17,1,18,1,0,0,5,29,1,49,16,17,1,18,1,0,0,6,5,0,49,16,2,6,0,0,7,11
+	.byte	1,49,16,17,1,18,1,0,0,8,52,0,3,8,58,15,59,15,57,15,73,16,2,6,0,0,0
+	.sdecl	'.debug_line',debug,cluster('_endinit_set_tc2')
+	.sect	'.debug_line'
+.L39:
+	.word	.L168-.L167
+.L167:
+	.half	3
+	.word	.L170-.L169
+.L169:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart_tc2.c',0,0,0,0,0
+.L170:
+	.byte	5,35,7,0,5,2
+	.word	.L11
+	.byte	3,197,3,1,5,18,9
+	.half	.L171-.L11
+	.byte	3,2,1,9
+	.half	.L88-.L171
+	.byte	3,1,1,5,27,3,2,1,5,18,9
+	.half	.L172-.L88
+	.byte	3,8,1,5,16,9
+	.half	.L173-.L172
+	.byte	3,1,1,5,27,9
+	.half	.L174-.L173
+	.byte	3,1,1,5,24,9
+	.half	.L175-.L174
+	.byte	3,1,1,5,70,9
+	.half	.L83-.L175
+	.byte	3,131,125,1,7,9
+	.half	.L41-.L83
+	.byte	0,1,1
+.L168:
+	.sdecl	'.debug_ranges',debug,cluster('_endinit_set_tc2')
+	.sect	'.debug_ranges'
+.L40:
+	.word	-1,.L11,0,.L41-.L11,0,0
+	.sdecl	'.debug_info',debug,cluster('_start_tc2')
+	.sect	'.debug_info'
+.L42:
+	.word	171
+	.half	3
+	.word	.L43
+	.byte	4,1
+	.byte	'..\\cstart_tc2.c',0
+	.byte	'TASKING VX-toolset for TriCore: C compiler',0
+	.byte	'D:\\Projects\\workspace_ctc_v6.3r1\\example\\Debug\\',0,12,1
+	.word	.L45,.L44
+	.byte	2
+	.word	.L18
+	.byte	3
+	.byte	'_start_tc2',0,1,116,28,1,1,1
+	.word	.L13,.L86,.L12
+	.byte	4
+	.word	.L13,.L86
+	.byte	0,0
+	.sdecl	'.debug_abbrev',debug,cluster('_start_tc2')
+	.sect	'.debug_abbrev'
+.L43:
+	.byte	1,17,1,3,8,37,8,27,8,19,15,128,70,12,85,6,16,6,0,0,2,61,0,24,16,0,0,3,46,1,3,8,58,15,59,15,57,15,54,15
+	.byte	39,12,63,12,17,1,18,1,64,6,0,0,4,11,0,17,1,18,1,0,0,0
+	.sdecl	'.debug_line',debug,cluster('_start_tc2')
+	.sect	'.debug_line'
+.L44:
+	.word	.L177-.L176
+.L176:
+	.half	3
+	.word	.L179-.L178
+.L178:
+	.byte	2,1,-4,9,10,0,1,1,1,1,0,0,0,1,0
+	.byte	'..\\cstart_tc2.c',0,0,0,0,0
+.L179:
+	.byte	5,18,7,0,5,2
+	.word	.L13
+	.byte	3,245,0,1,5,1,7,9
+	.half	.L46-.L13
+	.byte	3,1,0,1,1
+.L177:
+	.sdecl	'.debug_ranges',debug,cluster('_start_tc2')
+	.sect	'.debug_ranges'
+.L45:
+	.word	-1,.L13,0,.L46-.L13,0,0
+	.sdecl	'.debug_loc',debug,cluster('__init_sp')
+	.sect	'.debug_loc'
+.L14:
+	.word	-1,.L15,0,.L47-.L15
+	.half	2
+	.byte	138,0
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('_endinit_clear_tc2')
+	.sect	'.debug_loc'
+.L8:
+	.word	-1,.L9,0,.L78-.L9
+	.half	2
+	.byte	138,0
+	.word	0,0
+.L80:
+	.word	0,0
+.L81:
+	.word	-1,.L9,.L87-.L9,.L79-.L9
+	.half	1
+	.byte	95
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('_endinit_set_tc2')
+	.sect	'.debug_loc'
+.L10:
+	.word	-1,.L11,0,.L82-.L11
+	.half	2
+	.byte	138,0
+	.word	0,0
+.L84:
+	.word	0,0
+.L85:
+	.word	-1,.L11,.L88-.L11,.L83-.L11
+	.half	1
+	.byte	95
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('_start')
+	.sect	'.debug_loc'
+.L16:
+	.word	-1,.L17,0,.L48-.L17
+	.half	2
+	.byte	138,0
+	.word	0,0
+.L74:
+	.word	-1,.L17,.L97-.L17,.L2-.L17
+	.half	1
+	.byte	98
+	.word	.L98-.L17,.L99-.L17
+	.half	1
+	.byte	82
+	.word	0,0
+.L59:
+	.word	0,0
+.L71:
+	.word	-1,.L17,.L3-.L17,.L7-.L17
+	.half	1
+	.byte	95
+	.word	0,0
+.L72:
+	.word	-1,.L17,.L95-.L17,.L96-.L17
+	.half	1
+	.byte	81
+	.word	0,0
+.L54:
+	.word	-1,.L17,.L89-.L17,.L90-.L17
+	.half	1
+	.byte	95
+	.word	0,0
+.L77:
+	.word	-1,.L17,.L93-.L17,.L94-.L17
+	.half	5
+	.byte	144,32,157,32,0
+	.word	.L100-.L17,.L96-.L17
+	.half	5
+	.byte	144,32,157,32,0
+	.word	0,0
+.L76:
+	.word	-1,.L17,.L99-.L17,.L2-.L17
+	.half	1
+	.byte	82
+	.word	0,0
+.L75:
+	.word	-1,.L17,.L100-.L17,.L101-.L17
+	.half	5
+	.byte	144,32,157,32,0
+	.word	0,0
+.L61:
+	.word	-1,.L17,.L91-.L17,.L57-.L17
+	.half	1
+	.byte	95
+	.word	0,0
+.L65:
+	.word	-1,.L17,.L92-.L17,.L64-.L17
+	.half	1
+	.byte	95
+	.word	0,0
+	.sdecl	'.debug_loc',debug,cluster('_start_tc2')
+	.sect	'.debug_loc'
+.L12:
+	.word	-1,.L13,0,.L86-.L13
+	.half	2
+	.byte	138,0
+	.word	0,0
+	.sdecl	'.debug_frame',debug
+	.sect	'.debug_frame'
+.L180:
+	.word	48
+	.word	-1
+	.byte	3,0,2,1,27,12,26,0,8,27,8,26,8,28,8,29,8,30,8,31,8,34,8,35,8,32,8,33,8,16,8,17,8,24,8,25,8,36,8,37,8,38
+	.byte	8,39
+	.sdecl	'.debug_frame',debug,cluster('_endinit_clear_tc2')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L180,.L9,.L78-.L9
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+	.sdecl	'.debug_frame',debug,cluster('_endinit_set_tc2')
+	.sect	'.debug_frame'
+	.word	24
+	.word	.L180,.L11,.L82-.L11
+	.byte	8,18,8,19,8,20,8,21,8,22,8,23
+	.sdecl	'.debug_frame',debug,cluster('_start_tc2')
+	.sect	'.debug_frame'
+	.word	12
+	.word	.L180,.L13,.L86-.L13
+	.sdecl	'.debug_frame',debug,cluster('__init_sp')
+	.sect	'.debug_frame'
+	.word	12
+	.word	.L180,.L15,.L47-.L15
+	.sdecl	'.debug_frame',debug,cluster('_start')
+	.sect	'.debug_frame'
+	.word	12
+	.word	.L180,.L17,.L48-.L17
+
+; ..\cstart_tc2.c	   471  }
+; ..\cstart_tc2.c	   472  
+; ..\cstart_tc2.c	   473  #else // __NO_VTC
+; ..\cstart_tc2.c	   474  
+; ..\cstart_tc2.c	   475  #if __USE_ARGC_ARGV
+; ..\cstart_tc2.c	   476  #pragma noclear                                 /* bss clearing not before cinit */
+; ..\cstart_tc2.c	   477  static char argcv[__ARGCV_BUFSIZE] __align(4);
+; ..\cstart_tc2.c	   478  #pragma clear
+; ..\cstart_tc2.c	   479  extern int _argcv( const char *, size_t );
+; ..\cstart_tc2.c	   480  #endif
+; ..\cstart_tc2.c	   481  
+; ..\cstart_tc2.c	   482  /* linker definitions */
+; ..\cstart_tc2.c	   483  extern __far void _lc_ue_ustack[];      /* user stack end */
+; ..\cstart_tc2.c	   484  extern __far void _lc_ue_istack[];      /* interrupt stack end */
+; ..\cstart_tc2.c	   485  extern __far void _lc_u_int_tab[];      /* interrupt table */
+; ..\cstart_tc2.c	   486  extern __far void _lc_u_trap_tab[];     /* trap table */
+; ..\cstart_tc2.c	   487  extern __far void _SMALL_DATA_[];       /* centre of A0 addressable area */
+; ..\cstart_tc2.c	   488  extern __far void _LITERAL_DATA_[];     /* centre of A1 addressable area */
+; ..\cstart_tc2.c	   489  extern __far void _A8_DATA_[];          /* centre of A8 addressable area */
+; ..\cstart_tc2.c	   490  extern __far void _A9_DATA_[];          /* centre of A9 addressable area */
+; ..\cstart_tc2.c	   491  
+; ..\cstart_tc2.c	   492  /* external functions */
+; ..\cstart_tc2.c	   493  #if __C_INIT
+; ..\cstart_tc2.c	   494  extern void _c_init(void);              /* C initialization function */
+; ..\cstart_tc2.c	   495  #endif
+; ..\cstart_tc2.c	   496  #ifdef __CALL_INIT
+; ..\cstart_tc2.c	   497  extern void _call_init(void);           /* call a user function before main() */
+; ..\cstart_tc2.c	   498  #endif
+; ..\cstart_tc2.c	   499  #ifdef _CALL_ENDINIT
+; ..\cstart_tc2.c	   500  extern void _endinit(void);             /* call a user function with protection switched off */
+; ..\cstart_tc2.c	   501  #endif
+; ..\cstart_tc2.c	   502  
+; ..\cstart_tc2.c	   503  /* main references with default core association share */
+; ..\cstart_tc2.c	   504  #pragma extern main
+; ..\cstart_tc2.c	   505  extern int main( int argc, char *argv[] );
+; ..\cstart_tc2.c	   506  
+; ..\cstart_tc2.c	   507  /* local functions */
+; ..\cstart_tc2.c	   508  static void __noinline__ __noreturn__ __jump__ __init_sp( void );
+; ..\cstart_tc2.c	   509  static void __noinline__ __noreturn__ __jump__ _start( void );
+; ..\cstart_tc2.c	   510  
+; ..\cstart_tc2.c	   511  /* endinit types */
+; ..\cstart_tc2.c	   512  typedef enum
+; ..\cstart_tc2.c	   513  {
+; ..\cstart_tc2.c	   514          _ENDINIT_DISABLE,
+; ..\cstart_tc2.c	   515          _ENDINIT_ENABLE
+; ..\cstart_tc2.c	   516  }       _endinit_t;
+; ..\cstart_tc2.c	   517  
+; ..\cstart_tc2.c	   518  /*
+; ..\cstart_tc2.c	   519   *      Inlining is required for endinit_set and safety_endinit_set,
+; ..\cstart_tc2.c	   520   *      because the CSA list is not ready to support function calls.
+; ..\cstart_tc2.c	   521   */
+; ..\cstart_tc2.c	   522  static void inline endinit_set(_endinit_t endinit_value);
+; ..\cstart_tc2.c	   523          
+; ..\cstart_tc2.c	   524  /* external interface to endinit_set */
+; ..\cstart_tc2.c	   525  extern void _endinit_clear(void) { endinit_set(_ENDINIT_DISABLE); }
+; ..\cstart_tc2.c	   526  extern void _endinit_set  (void) { endinit_set(_ENDINIT_ENABLE); }
+; ..\cstart_tc2.c	   527  
+; ..\cstart_tc2.c	   528  #ifdef __RM_INIT
+; ..\cstart_tc2.c	   529  #if __RM_INIT
+; ..\cstart_tc2.c	   530  #include <fenv.h>
+; ..\cstart_tc2.c	   531  #endif
+; ..\cstart_tc2.c	   532  #endif
+; ..\cstart_tc2.c	   533  
+; ..\cstart_tc2.c	   534  #if __C_INIT || _CALL_ENDINIT || (defined __CALL_INIT)
+; ..\cstart_tc2.c	   535  /* c init semaphores */
+; ..\cstart_tc2.c	   536  extern unsigned int volatile __far      _lc_t_tc0__tcx_end_c_init;      /* _lc_t_tc0__tcx_end_c_init := 1 << core_id */
+; ..\cstart_tc2.c	   537  #pragma   weak  _lc_t_tc0__tcx_end_c_init
+; ..\cstart_tc2.c	   538  #endif
+; ..\cstart_tc2.c	   539  
+; ..\cstart_tc2.c	   540  #if __USP_INIT
+; ..\cstart_tc2.c	   541  /*
+; ..\cstart_tc2.c	   542   * Initialize a global variable used by the runtime stack overflow check.
+; ..\cstart_tc2.c	   543   * A small amount of space is reserved for the stack overflow handler.
+; ..\cstart_tc2.c	   544   * Since we only want to allocate the variable when the overflow check is
+; ..\cstart_tc2.c	   545   * enabled, we use a weak reference.
+; ..\cstart_tc2.c	   546   */
+; ..\cstart_tc2.c	   547  extern __clone __near void* __stack_limit;
+; ..\cstart_tc2.c	   548  #pragma weak __stack_limit
+; ..\cstart_tc2.c	   549  extern char _lc_ub_ustack[];
+; ..\cstart_tc2.c	   550  #define STACK_LIMIT     (_lc_ub_ustack + 64)
+; ..\cstart_tc2.c	   551  #endif
+; ..\cstart_tc2.c	   552  
+; ..\cstart_tc2.c	   553  void __noreturn__ __jump__ __start_tc2_no_vtc( void )
+; ..\cstart_tc2.c	   554  {
+; ..\cstart_tc2.c	   555          __init_sp();
+; ..\cstart_tc2.c	   556  }
+; ..\cstart_tc2.c	   557  
+; ..\cstart_tc2.c	   558  /*
+; ..\cstart_tc2.c	   559   * Disable the optimization for code compaction (reverse inlining),
+; ..\cstart_tc2.c	   560   * for initialization of the stackpointer.
+; ..\cstart_tc2.c	   561   */
+; ..\cstart_tc2.c	   562  #pragma optimize R
+; ..\cstart_tc2.c	   563  
+; ..\cstart_tc2.c	   564  static void __noinline__ __noreturn__ __jump__ __init_sp( void )
+; ..\cstart_tc2.c	   565  {
+; ..\cstart_tc2.c	   566          /* The initialization of the stackpointer is done in a seperate function, 
+; ..\cstart_tc2.c	   567             because it must be executed in a function which has no stack use.
+; ..\cstart_tc2.c	   568             
+; ..\cstart_tc2.c	   569             When a function uses a stack it will be updated at the start of the 
+; ..\cstart_tc2.c	   570             function. In this function, however, the stackpointer has an irrelevant
+; ..\cstart_tc2.c	   571             value at the start of the function. A starting value for the stackpointer
+; ..\cstart_tc2.c	   572             is determined and written in this function. The update to the 
+; ..\cstart_tc2.c	   573             stackpointer at the start of the function would therefore be undone.
+; ..\cstart_tc2.c	   574           */
+; ..\cstart_tc2.c	   575           
+; ..\cstart_tc2.c	   576          /* 
+; ..\cstart_tc2.c	   577           * Load user stack pointer.
+; ..\cstart_tc2.c	   578           */
+; ..\cstart_tc2.c	   579  # define STACK_ALIGN    0xfffffff8
+; ..\cstart_tc2.c	   580  #if  __USP_INIT
+; ..\cstart_tc2.c	   581          void * sp = (void *)((unsigned int)(_lc_ue_ustack) & STACK_ALIGN);
+; ..\cstart_tc2.c	   582          
+; ..\cstart_tc2.c	   583          __set_sp( sp );
+; ..\cstart_tc2.c	   584  #endif
+; ..\cstart_tc2.c	   585  
+; ..\cstart_tc2.c	   586          _start();
+; ..\cstart_tc2.c	   587  }
+; ..\cstart_tc2.c	   588  
+; ..\cstart_tc2.c	   589  /*
+; ..\cstart_tc2.c	   590   * Restore the optimization options.
+; ..\cstart_tc2.c	   591   */
+; ..\cstart_tc2.c	   592  #pragma optimize restore
+; ..\cstart_tc2.c	   593  
+; ..\cstart_tc2.c	   594  /* Set the PSW to its reset value in case of a warm start */
+; ..\cstart_tc2.c	   595  static void inline reset_psw( void )
+; ..\cstart_tc2.c	   596  {
+; ..\cstart_tc2.c	   597          unsigned int    value = 0x980;  /* Reset value */
+; ..\cstart_tc2.c	   598  
+; ..\cstart_tc2.c	   599          value |= (__CDC & 0x7f);        /* PSW.CDC call depth counter */
+; ..\cstart_tc2.c	   600  
+; ..\cstart_tc2.c	   601  #if __USER_STACK
+; ..\cstart_tc2.c	   602          value &= ~0x200;                /* clear PSW.IS */
+; ..\cstart_tc2.c	   603  #else
+; ..\cstart_tc2.c	   604          value |= 0x200;                 /* set PSW.IS */
+; ..\cstart_tc2.c	   605  #endif
+; ..\cstart_tc2.c	   606          __mtcr(PSW, value);
+; ..\cstart_tc2.c	   607  }
+; ..\cstart_tc2.c	   608  
+; ..\cstart_tc2.c	   609  static void __noinline__ __noreturn__ __jump__ _start( void )
+; ..\cstart_tc2.c	   610  {
+; ..\cstart_tc2.c	   611          /* Do a dsync before changing any of the csfr values, thus any previous
+; ..\cstart_tc2.c	   612           * background state gets flushed first. Required for applications that jump
+; ..\cstart_tc2.c	   613           * to the reset address.
+; ..\cstart_tc2.c	   614           */
+; ..\cstart_tc2.c	   615          __dsync();
+; ..\cstart_tc2.c	   616          
+; ..\cstart_tc2.c	   617          /* Set the PSW to its reset value in case of a warm start */
+; ..\cstart_tc2.c	   618          reset_psw();
+; ..\cstart_tc2.c	   619  
+; ..\cstart_tc2.c	   620          /* Set the PCXS and PCXO to its reset value in case of a warm start */
+; ..\cstart_tc2.c	   621          unsigned int pcxi = __mfcr(PCXI);
+; ..\cstart_tc2.c	   622          pcxi &= 0xfff00000;
+; ..\cstart_tc2.c	   623          __mtcr(PCXI, pcxi);
+; ..\cstart_tc2.c	   624  
+; ..\cstart_tc2.c	   625          /*
+; ..\cstart_tc2.c	   626           * Initialize Compatibility Control Register
+; ..\cstart_tc2.c	   627           *
+; ..\cstart_tc2.c	   628           * bit 3 (COMPAT.RM)
+; ..\cstart_tc2.c	   629           *      Rounding Mode Compatibility
+; ..\cstart_tc2.c	   630           *      0B PSW.RM not restored by RET.
+; ..\cstart_tc2.c	   631           *      1B PSW.RM restored by RET. TriCore 1.3 backwards compatibility.
+; ..\cstart_tc2.c	   632           *
+; ..\cstart_tc2.c	   633           * bit 4 (COMPAT.SP)
+; ..\cstart_tc2.c	   634           *      SYSCON Safety Protection Mode Compatibility
+; ..\cstart_tc2.c	   635           *      0B SYSCON[31:1] safety endinit protected.
+; ..\cstart_tc2.c	   636           *      1B SYSCON[31:1] not safety endinit protected (TC1.3 behavior).
+; ..\cstart_tc2.c	   637           */
+; ..\cstart_tc2.c	   638  #ifdef __COMPAT
+; ..\cstart_tc2.c	   639  #if __COMPAT != 0xf
+; ..\cstart_tc2.c	   640          __mtcr(COMPAT, (~0x18|__COMPAT));
+; ..\cstart_tc2.c	   641  #endif
+; ..\cstart_tc2.c	   642  #endif
+; ..\cstart_tc2.c	   643          
+; ..\cstart_tc2.c	   644          /*
+; ..\cstart_tc2.c	   645           * Clear the ENDINIT bit in the SCU_WDTCPU2CON0 register in order
+; ..\cstart_tc2.c	   646           * to disable the write-protection for registers protected via the EndInit feature.
+; ..\cstart_tc2.c	   647           */
+; ..\cstart_tc2.c	   648          endinit_set(_ENDINIT_DISABLE);
+; ..\cstart_tc2.c	   649          
+; ..\cstart_tc2.c	   650          /*
+; ..\cstart_tc2.c	   651           * Load Base Address of Trap Vector Table.
+; ..\cstart_tc2.c	   652           */
+; ..\cstart_tc2.c	   653  #if __BTV_INIT
+; ..\cstart_tc2.c	   654          __mtcr(BTV,  (unsigned int)_lc_u_trap_tab);
+; ..\cstart_tc2.c	   655  #endif
+; ..\cstart_tc2.c	   656  
+; ..\cstart_tc2.c	   657          /*
+; ..\cstart_tc2.c	   658           * Load Base Address of Interrupt Vector Table.
+; ..\cstart_tc2.c	   659           */
+; ..\cstart_tc2.c	   660  #if __BIV_INIT
+; ..\cstart_tc2.c	   661  #if __BIV_SINGLE_INIT && (defined _REGUSERDEF16X_H || defined _REGUSERDEF162_H || defined _REGTC27X_H || defined _REGTC27XB_H || defined _REGTC27XC_H || defined _REGTC27XD_H || defined _REGTC26X_H  || defined _REGTC26XB_H || defined _REGTC29X_H)
+; ..\cstart_tc2.c	   662          /*
+; ..\cstart_tc2.c	   663           * Single Entry Vector Table, for core tc1.6.x or tc1.6.2, is supported
+; ..\cstart_tc2.c	   664           * by _sevt_isr() calling interrupt handlers installed
+; ..\cstart_tc2.c	   665           * with _sevt_isr_install() stored in _sevt_isrs list.
+; ..\cstart_tc2.c	   666           * The _sevt_isr() is located at interrupt vector table
+; ..\cstart_tc2.c	   667           * entry 64. The start address of the interrupt vector table
+; ..\cstart_tc2.c	   668           * is defined by linker definition INTTAB2.
+; ..\cstart_tc2.c	   669           */
+; ..\cstart_tc2.c	   670  #pragma extern _sevt_isr
+; ..\cstart_tc2.c	   671          __mtcr(BIV, (unsigned int)(_lc_u_int_tab) | (0xff<<3) | 1 );
+; ..\cstart_tc2.c	   672  #else
+; ..\cstart_tc2.c	   673  #if __BIV_8BYTE_INIT && (defined _REGUSERDEF16X_H || defined _REGUSERDEF162_H || defined _REGTC27X_H || defined _REGTC27XB_H || defined _REGTC27XC_H || defined _REGTC27XD_H || defined _REGTC26X_H || defined _REGTC26XB_H || defined _REGTC29X_H)
+; ..\cstart_tc2.c	   674          __mtcr(BIV, (unsigned int)(_lc_u_int_tab) | 1 );        /* 8 Byte vector spacing */
+; ..\cstart_tc2.c	   675  #else
+; ..\cstart_tc2.c	   676          __mtcr(BIV, (unsigned int)(_lc_u_int_tab));             /* 32 Byte vector spacing */
+; ..\cstart_tc2.c	   677  #endif
+; ..\cstart_tc2.c	   678  #endif
+; ..\cstart_tc2.c	   679  #endif
+; ..\cstart_tc2.c	   680          
+; ..\cstart_tc2.c	   681          /*
+; ..\cstart_tc2.c	   682           * Load interrupt stack pointer.
+; ..\cstart_tc2.c	   683           */
+; ..\cstart_tc2.c	   684  #if __ISP_INIT
+; ..\cstart_tc2.c	   685          unsigned int isp = (unsigned int)(_lc_ue_istack) & STACK_ALIGN;
+; ..\cstart_tc2.c	   686          __mtcr(ISP, isp);
+; ..\cstart_tc2.c	   687  #endif
+; ..\cstart_tc2.c	   688  
+; ..\cstart_tc2.c	   689          /*
+; ..\cstart_tc2.c	   690           * PCON0 configuration.
+; ..\cstart_tc2.c	   691           */
+; ..\cstart_tc2.c	   692  #if     defined PCON0 && defined __PCON0_VALUE
+; ..\cstart_tc2.c	   693          if(__PCON0_INIT) __mtcr(PCON0, __PCON0_VALUE);
+; ..\cstart_tc2.c	   694  #endif
+; ..\cstart_tc2.c	   695  
+; ..\cstart_tc2.c	   696          /*
+; ..\cstart_tc2.c	   697           * DCON0 configuration.
+; ..\cstart_tc2.c	   698           */
+; ..\cstart_tc2.c	   699  #if     defined DCON0 && defined __DCON0_VALUE
+; ..\cstart_tc2.c	   700          if(__DCON0_INIT) __mtcr(DCON0, __DCON0_VALUE);
+; ..\cstart_tc2.c	   701  #endif
+; ..\cstart_tc2.c	   702  
+; ..\cstart_tc2.c	   703          /*
+; ..\cstart_tc2.c	   704           * Set the rounding mode (PSW.RM)
+; ..\cstart_tc2.c	   705           */
+; ..\cstart_tc2.c	   706  #ifdef __RM_INIT
+; ..\cstart_tc2.c	   707  #if __RM_INIT
+; ..\cstart_tc2.c	   708          __fesetround( __RM_VALUE );
+; ..\cstart_tc2.c	   709  #endif
+; ..\cstart_tc2.c	   710  #endif
+; ..\cstart_tc2.c	   711  
+; ..\cstart_tc2.c	   712          /*
+; ..\cstart_tc2.c	   713           * Set the ENDINIT bit in the SCU_WDTCPU2CON0 register again
+; ..\cstart_tc2.c	   714           * to enable the write-protection and to prevent a time-out. 
+; ..\cstart_tc2.c	   715           */
+; ..\cstart_tc2.c	   716          endinit_set(_ENDINIT_ENABLE);
+; ..\cstart_tc2.c	   717  
+; ..\cstart_tc2.c	   718          /*
+; ..\cstart_tc2.c	   719           * Initialize global address registers a0/a1 to support
+; ..\cstart_tc2.c	   720           * __a0/__a1 storage qualifiers of the C compiler.
+; ..\cstart_tc2.c	   721           */
+; ..\cstart_tc2.c	   722  #if __A0A1_INIT
+; ..\cstart_tc2.c	   723          void * a0 = _SMALL_DATA_;
+; ..\cstart_tc2.c	   724          __asm( "mov.aa\ta0,%0"::"a"(a0) );
+; ..\cstart_tc2.c	   725  
+; ..\cstart_tc2.c	   726          void * a1 = _LITERAL_DATA_;
+; ..\cstart_tc2.c	   727          __asm( "mov.aa\ta1,%0"::"a"(a1) );
+; ..\cstart_tc2.c	   728  #endif
+; ..\cstart_tc2.c	   729  
+; ..\cstart_tc2.c	   730          /*
+; ..\cstart_tc2.c	   731           * Initialize global address registers a8/a9 to support
+; ..\cstart_tc2.c	   732           * __a8/__a9 storage qualifiers of the C compiler. A8 and A9
+; ..\cstart_tc2.c	   733           * are reserved for OS use, or for application use in cases 
+; ..\cstart_tc2.c	   734           * where the application ans OS are tightly coupled.
+; ..\cstart_tc2.c	   735           */
+; ..\cstart_tc2.c	   736  #if __A8A9_INIT
+; ..\cstart_tc2.c	   737          void * a8 = _A8_DATA_;
+; ..\cstart_tc2.c	   738          __asm( "mov.aa\ta8,%0"::"a"(a8) );
+; ..\cstart_tc2.c	   739  
+; ..\cstart_tc2.c	   740          void * a9 = _A9_DATA_;
+; ..\cstart_tc2.c	   741          __asm( "mov.aa\ta9,%0"::"a"(a9) );
+; ..\cstart_tc2.c	   742  #endif
+; ..\cstart_tc2.c	   743          
+; ..\cstart_tc2.c	   744          /* Setup the context save area linked list. */
+; ..\cstart_tc2.c	   745  #if __CSA_INIT
+; ..\cstart_tc2.c	   746  
+; ..\cstart_tc2.c	   747  #if (__CSAS_FOR_FCD_TRAP < 1 || __CSAS_FOR_FCD_TRAP > 4)
+; ..\cstart_tc2.c	   748  # error "Unexpected value for macro __CSAS_FOR_FCD_TRAP, allowed values are: 1-4"
+; ..\cstart_tc2.c	   749  #endif
+; ..\cstart_tc2.c	   750  
+; ..\cstart_tc2.c	   751          extern int _lc_ub_csa_tc2[][16];    /* context save area 1 begin */
+; ..\cstart_tc2.c	   752          extern int _lc_ue_csa_tc2[][16];    /* context save area 1 end   */
+; ..\cstart_tc2.c	   753          static __far int (* const csa_area_begin[])[16] = { _lc_ub_csa_tc2};
+; ..\cstart_tc2.c	   754          static __far int (* const csa_area_end[])[16]   = { _lc_ue_csa_tc2};
+; ..\cstart_tc2.c	   755  
+; ..\cstart_tc2.c	   756          int  i;
+; ..\cstart_tc2.c	   757          int  no_of_csas;
+; ..\cstart_tc2.c	   758          int * csa;
+; ..\cstart_tc2.c	   759          unsigned int  seg_nr, seg_idx, pcxi_val=0;
+; ..\cstart_tc2.c	   760          
+; ..\cstart_tc2.c	   761          /* first calculate nr of CSAs in this area */
+; ..\cstart_tc2.c	   762          no_of_csas = csa_area_end[0] - csa_area_begin[0];
+; ..\cstart_tc2.c	   763                  
+; ..\cstart_tc2.c	   764          for (i=0; i < no_of_csas; i++)
+; ..\cstart_tc2.c	   765          {
+; ..\cstart_tc2.c	   766                  csa = csa_area_begin[0][i];
+; ..\cstart_tc2.c	   767                  /* Store null pointer in last CSA (= very first time!) */
+; ..\cstart_tc2.c	   768                  *csa = pcxi_val;                        
+; ..\cstart_tc2.c	   769  
+; ..\cstart_tc2.c	   770                  seg_nr  = (((unsigned int)csa >> 28) & 0xf) << 16;
+; ..\cstart_tc2.c	   771                  seg_idx = (((unsigned int)csa >> 6) & 0xffff);
+; ..\cstart_tc2.c	   772                  pcxi_val = seg_nr | seg_idx;
+; ..\cstart_tc2.c	   773                  if (i ==__CSAS_FOR_FCD_TRAP)
+; ..\cstart_tc2.c	   774                  {
+; ..\cstart_tc2.c	   775                          __mtcr(LCX, pcxi_val);
+; ..\cstart_tc2.c	   776                  }                        
+; ..\cstart_tc2.c	   777          }
+; ..\cstart_tc2.c	   778          __mtcr(FCX, pcxi_val);
+; ..\cstart_tc2.c	   779  #endif 
+; ..\cstart_tc2.c	   780  
+; ..\cstart_tc2.c	   781          /*
+; ..\cstart_tc2.c	   782           * Initialize and clear C variables.
+; ..\cstart_tc2.c	   783           */
+; ..\cstart_tc2.c	   784  #if __C_INIT
+; ..\cstart_tc2.c	   785          _c_init();
+; ..\cstart_tc2.c	   786  #endif  
+; ..\cstart_tc2.c	   787  
+; ..\cstart_tc2.c	   788  #if __USP_INIT && ! __NO_STACK_LIMIT
+; ..\cstart_tc2.c	   789          /*
+; ..\cstart_tc2.c	   790           * Initialize the global variable used by the runtime stack overflow check.
+; ..\cstart_tc2.c	   791           */
+; ..\cstart_tc2.c	   792          if (&__stack_limit)
+; ..\cstart_tc2.c	   793          {
+; ..\cstart_tc2.c	   794                  __stack_limit = STACK_LIMIT;
+; ..\cstart_tc2.c	   795          }
+; ..\cstart_tc2.c	   796  #endif
+; ..\cstart_tc2.c	   797  
+; ..\cstart_tc2.c	   798          /*
+; ..\cstart_tc2.c	   799           * Call a user function within one can initialize the 
+; ..\cstart_tc2.c	   800           * registers protected via the EndInit feature.
+; ..\cstart_tc2.c	   801           * Beware that protected registers are unlocked 
+; ..\cstart_tc2.c	   802           * for the duration of the Time-out Period only!
+; ..\cstart_tc2.c	   803           */
+; ..\cstart_tc2.c	   804  #ifdef _CALL_ENDINIT
+; ..\cstart_tc2.c	   805          endinit_set(_ENDINIT_DISABLE);  /* disable the write-protection */
+; ..\cstart_tc2.c	   806          _endinit();
+; ..\cstart_tc2.c	   807          endinit_set(_ENDINIT_ENABLE);   /* enable the write-protection  */
+; ..\cstart_tc2.c	   808  #endif
+; ..\cstart_tc2.c	   809  
+; ..\cstart_tc2.c	   810          /*
+; ..\cstart_tc2.c	   811           * Call a user function before starting main().
+; ..\cstart_tc2.c	   812           */
+; ..\cstart_tc2.c	   813  #ifdef __CALL_INIT
+; ..\cstart_tc2.c	   814          _call_init();
+; ..\cstart_tc2.c	   815  #endif
+; ..\cstart_tc2.c	   816  
+; ..\cstart_tc2.c	   817  #if __C_INIT || _CALL_ENDINIT || (defined __CALL_INIT)
+; ..\cstart_tc2.c	   818          if ( &_lc_t_tc0__tcx_end_c_init )
+; ..\cstart_tc2.c	   819          {
+; ..\cstart_tc2.c	   820                  __swapmskw( (unsigned int *)&_lc_t_tc0__tcx_end_c_init, 1<<2, 1<<2 );   /* tc2 end of initialization */
+; ..\cstart_tc2.c	   821                  /*
+; ..\cstart_tc2.c	   822                   * Before calling main, which has code core association share,
+; ..\cstart_tc2.c	   823                   * wait until all cores have done the global initializations
+; ..\cstart_tc2.c	   824                   * to avoid race conditions on initialized shared global data.
+; ..\cstart_tc2.c	   825                   */
+; ..\cstart_tc2.c	   826                  while ( ( _lc_t_tc0__tcx_end_c_init & 0x3f ) != 0x3f ) ;
+; ..\cstart_tc2.c	   827          }
+; ..\cstart_tc2.c	   828  #endif
+; ..\cstart_tc2.c	   829          
+; ..\cstart_tc2.c	   830          /*
+; ..\cstart_tc2.c	   831           * Call C main program.
+; ..\cstart_tc2.c	   832           * exit, main and _argcv have code core association share
+; ..\cstart_tc2.c	   833           */
+; ..\cstart_tc2.c	   834  #if __USE_ARGC_ARGV
+; ..\cstart_tc2.c	   835          exit( main( _argcv( argcv, __ARGCV_BUFSIZE), (char **)argcv) );
+; ..\cstart_tc2.c	   836  #else
+; ..\cstart_tc2.c	   837          exit( main( 0, NULL ) );                /* argc is 0 */
+; ..\cstart_tc2.c	   838  #endif
+; ..\cstart_tc2.c	   839  
+; ..\cstart_tc2.c	   840          /*
+; ..\cstart_tc2.c	   841           * Default trap vectors are resolved from the C-library.
+; ..\cstart_tc2.c	   842           */
+; ..\cstart_tc2.c	   843  #if __BTV_INIT
+; ..\cstart_tc2.c	   844  #  if __RESOLVE_TRAP_0
+; ..\cstart_tc2.c	   845  #    pragma extern  _trapmmu
+; ..\cstart_tc2.c	   846  #  endif
+; ..\cstart_tc2.c	   847  #  if __RESOLVE_TRAP_1
+; ..\cstart_tc2.c	   848  #    pragma extern  _trapprotection
+; ..\cstart_tc2.c	   849  #  endif
+; ..\cstart_tc2.c	   850  #  if __RESOLVE_TRAP_2
+; ..\cstart_tc2.c	   851  #    pragma extern  _trapinstruction
+; ..\cstart_tc2.c	   852  #  endif
+; ..\cstart_tc2.c	   853  #  if __RESOLVE_TRAP_3
+; ..\cstart_tc2.c	   854  #    pragma extern  _trapcontext
+; ..\cstart_tc2.c	   855  #  endif
+; ..\cstart_tc2.c	   856  #  if __RESOLVE_TRAP_4
+; ..\cstart_tc2.c	   857  #    pragma extern  _trapbus
+; ..\cstart_tc2.c	   858  #  endif
+; ..\cstart_tc2.c	   859  #  if __RESOLVE_TRAP_5
+; ..\cstart_tc2.c	   860  #    pragma extern  _trapassertion
+; ..\cstart_tc2.c	   861  #  endif
+; ..\cstart_tc2.c	   862  #  if __RESOLVE_TRAP_6
+; ..\cstart_tc2.c	   863  #    pragma extern  _trapsystem
+; ..\cstart_tc2.c	   864  #  endif
+; ..\cstart_tc2.c	   865  #  if __RESOLVE_TRAP_7
+; ..\cstart_tc2.c	   866  #    pragma extern  _trapnmi
+; ..\cstart_tc2.c	   867  #  endif
+; ..\cstart_tc2.c	   868  #endif
+; ..\cstart_tc2.c	   869  
+; ..\cstart_tc2.c	   870  }
+; ..\cstart_tc2.c	   871  
+; ..\cstart_tc2.c	   872  #pragma optimize R
+; ..\cstart_tc2.c	   873  
+; ..\cstart_tc2.c	   874  /**************************************************************************
+; ..\cstart_tc2.c	   875   *
+; ..\cstart_tc2.c	   876   * FUNCTION:     endinit_set
+; ..\cstart_tc2.c	   877   *
+; ..\cstart_tc2.c	   878   * DESCRIPTION:  Sets or Clears the ENDINIT bit in the SCU_WDTCPU2CON0
+; ..\cstart_tc2.c	   879   *               register in order to enabled or disable the write-protection for
+; ..\cstart_tc2.c	   880   *               registers protected via the EndInit feature
+; ..\cstart_tc2.c	   881   *               (ie. BTV, BIV, ISP, PCON0, DCON0).
+; ..\cstart_tc2.c	   882   *
+; ..\cstart_tc2.c	   883   *************************************************************************/
+; ..\cstart_tc2.c	   884  static void inline endinit_set( _endinit_t endinit_value )
+; ..\cstart_tc2.c	   885  {
+; ..\cstart_tc2.c	   886          unsigned int wdt_con0;
+; ..\cstart_tc2.c	   887  
+; ..\cstart_tc2.c	   888          /*
+; ..\cstart_tc2.c	   889           * 1st step: Password access (create password and send to SCU_WDTCPU2CON0)
+; ..\cstart_tc2.c	   890           */        
+; ..\cstart_tc2.c	   891          wdt_con0 = SCU_WDTCPU2CON0.U;
+; ..\cstart_tc2.c	   892  
+; ..\cstart_tc2.c	   893          wdt_con0 &= 0xffffff01;                 /* clear WDTLCK, WDTHPW0, WDTHPW1 */
+; ..\cstart_tc2.c	   894          wdt_con0 |= 0xf1;                       /* set WDTHPW1 to 0xf and ENDINIT to 1
+; ..\cstart_tc2.c	   895                                                   * (but the latter will not actually change this bit) */
+; ..\cstart_tc2.c	   896          SCU_WDTCPU2CON0.U = wdt_con0;
+; ..\cstart_tc2.c	   897  
+; ..\cstart_tc2.c	   898          /*
+; ..\cstart_tc2.c	   899           * 2nd step: Modify access, set the bit ENDINIT to 1 or 0 to allow access to
+; ..\cstart_tc2.c	   900           *           registers: SCU_WDTCPU2CON1, BTV, BIV, ISP and mod_CLC
+; ..\cstart_tc2.c	   901           *
+; ..\cstart_tc2.c	   902           */
+; ..\cstart_tc2.c	   903          wdt_con0 &= 0xfffffff0;                 /* clear WDTHPW0, WDTLCK, ENDINIT  */
+; ..\cstart_tc2.c	   904          wdt_con0 |= 0x02 | endinit_value;       /* WDTHPW0=0, WDTLCK=1, ENDINIT=endinit_value */
+; ..\cstart_tc2.c	   905          __isync();
+; ..\cstart_tc2.c	   906          SCU_WDTCPU2CON0.U = wdt_con0;          
+; ..\cstart_tc2.c	   907          SCU_WDTCPU2CON0.U;         /* read is required */
+; ..\cstart_tc2.c	   908  }
+; ..\cstart_tc2.c	   909  
+; ..\cstart_tc2.c	   910  #endif // __NO_VTC
+; ..\cstart_tc2.c	   911  
+; ..\cstart_tc2.c	   912  #endif // ! defined CPU2_CORE_ID
+
+	; Module end

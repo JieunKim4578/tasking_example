@@ -1,0 +1,19 @@
+
+**** Build of configuration Debug for project example ****
+
+"C:\\TASKING\\TriCore v6.3r1\\ctc\\bin\\amk" -j8 all -a 
+Compiling cstart.c
+Compiling cstart_tc1.c
+Compiling cstart_tc2.c
+Compiling example.c
+Linking to example.elf
+
+Time consumed: 1842 ms
+**** End of build ****
+
+Tool info: 
+TASKING VX-toolset for TriCore: control program v6.3r1 Build 19041558
+TASKING VX-toolset for TriCore: C compiler v6.3r1 Build 19041558 SN 08076959
+TASKING VX-toolset for TriCore: assembler v6.3r1 Build 19041558
+TASKING program builder v6.3r1 Build 19041558
+TASKING VX-toolset for TriCore: object linker v6.3r1 Build 19041558 SN 08076959
